@@ -1,0 +1,30 @@
+CC = gcc
+
+CFILEROOT = ../../
+UTEROOT = ../../../../UnitTestEngine
+
+INC = -I./inc -I${CFILEROOT}inc -I${CFILEROOT}src -I${UTEROOT}/inc
+INC += -I/home/jaredeh/GNUstep/Library/Headers
+INC += -I/usr/local/include/GNUstep
+INC += -I/usr/include/GNUstep
+CFLAGS = -MMD -MP -DGNUSTEP -DGNUSTEP_BASE_LIBRARY=1 -DGNU_GUI_LIBRARY=1 -DGNU_RUNTIME=1 -DGNUSTEP_BASE_LIBRARY=1 -fno-strict-aliasing -fexceptions -fobjc-exceptions -D_NATIVE_OBJC_EXCEPTIONS -fPIC -Wall -DGSWARN -DGSDIAGNOSE -Wno-import -g -O2 -fgnu-runtime -fconstant-string-class=NSConstantString
+LIBS = -L /usr/lib/GNUstep -lgnustep-base -lobjc -lm -lc
+LIBS += -L ../../../../../../rb_tree -lrb_tree
+LIBS += -L ../../../../../../squashfs_compressor -lsquashfs_compressor
+
+
+.SUFFIXES: .o .m
+.m.o:
+
+all:
+	${CC} ${INC} -g -c ./src/stubs.c -o ./build/stubs.o
+	${CC} ${CFLAGS} ${INC} -c ./src/unittests.m -o ./build/unittests.o
+	${CC} ${INC} -g -c ${UTEROOT}/src/dummy_main.c -o ./build/main.o
+	${CC} -o ./test ./build/main.o ./build/stubs.o ./build/unittests.o ${UTEROOT}/build/CuTest.o ${LIBS}
+
+clean:
+	rm -rf ./build/* ./lib*.* ./src/*~ 
+	rm -rf ./inc/*~ ./Makefile~ ./test ./test.exe ./core
+
+deepclean: clean
+	rm -rf ./src/function.c
