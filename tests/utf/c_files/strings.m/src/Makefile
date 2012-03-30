@@ -5,9 +5,7 @@ INC += -I/usr/local/include/GNUstep
 INC += -I/usr/include/GNUstep
 INC += -I../../../../../rb_tree
 CFLAGS = -MMD -MP -DGNUSTEP -DGNUSTEP_BASE_LIBRARY=1 -DGNU_GUI_LIBRARY=1 -DGNU_RUNTIME=1 -DGNUSTEP_BASE_LIBRARY=1 -fno-strict-aliasing -fexceptions -fobjc-exceptions -D_NATIVE_OBJC_EXCEPTIONS -fPIC -Wall -DGSWARN -DGSDIAGNOSE -Wno-import -g -O2 -fgnu-runtime -fconstant-string-class=NSConstantString
-LIBS = -L /usr/lib/GNUstep -lgnustep-base -lobjc -lm -lc
-LIBS += -L ../../../../../rb_tree -lrb_tree
-LIBS += -L ../../../../../squashfs_compressor -lsquashfs_compressor
+LIBS = -L /usr/lib/GNUstep -L ../../../../../rb_tree -lgnustep-base -lobjc -lm -lc -lrb_tree
 
 .SUFFIXES: .o .m
 .m.o:

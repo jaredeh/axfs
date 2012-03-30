@@ -19,9 +19,9 @@ void ByteTablePrint(const void* av) {
 	printf("0x%016llx", (long long unsigned int)a->datum);
 }
 
-void InfoPrint(void* a) {;}
+void ByteTableInfoPrint(void* a) {;}
 
-void InfoDest(void* a){;}
+void ByteTableInfoDest(void* a){;}
 
 static int ByteTable_check_depth(uint8_t depth, uint64_t datum) {
 	uint64_t overflow = 0;
@@ -52,26 +52,7 @@ static int ByteTable_check_depth(uint8_t depth, uint64_t datum) {
 	return depth;
 }
 
-static void configure_data_struct(struct data_struct *ds, uint64_t length)
-{
-	ds->data = malloc(length);
-	memset(ds->data,0,length);
-	ds->place = 0;
-}
-
-static void configure_rbtree(rb_red_blk_tree **tree)
-{
-	rb_red_blk_node *nild;
-
-	nild = malloc(sizeof(*nild));
-	*tree = malloc(sizeof(**tree));
-	memset(nild,0,sizeof(*nild));
-	memset(*tree,0,sizeof(**tree));
-
-	RBTreeCreate(*tree, nild, NULL, ByteTableComp, ByteTableDest, InfoDest, ByteTablePrint, InfoPrint);
-}
-
-uint8_t output_byte(uint64_t datum, uint8_t i)
+uint8_t output_byte1(uint64_t datum, uint8_t i)
 {
 	uint64_t mask;
 	uint64_t byte;
@@ -91,7 +72,7 @@ uint8_t * output_datum(uint8_t * buffer, uint8_t depth, uint64_t datum)
 	
 	//printf("output datum 0x%016llx\n",(long long unsigned int)datum);
 	for(i=0; i<depth; i++) {
-		*buffer = output_byte(datum, depth-1-i);
+		*buffer = output_byte1(datum, depth-1-i);
 		buffer++;
 	}
 	return buffer;
@@ -109,25 +90,41 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 
 @implementation ByteTable
 
+-(void) configureRBtree {
+	rb_red_blk_node *nild;
+	nild = malloc(sizeof(*nild));
+	tree = malloc(sizeof(*tree));
+	memset(nild,0,sizeof(*nild));
+	memset(tree,0,sizeof(*tree));
+	RBTreeCreate(tree, nild, NULL, ByteTableComp, ByteTableDest,
+		     ByteTableInfoDest, ByteTablePrint, ByteTableInfoPrint);
+}
+
+-(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len {
+	ds->data = malloc(len);
+	memset(ds->data,0,len);
+	ds->place = 0;
+}
+
 -(void) numberEntries: (uint64_t) entries dedup: (bool) dedup {
-	uint64_t bytetable_len;
+	uint64_t len;
 
 	deduped = dedup;
 	depth = 0;
-	len = 0;
-	configure_rbtree(&tree);
-	bytetable_len = sizeof(struct bytetable_value) * (entries + 1);
-	configure_data_struct(&bytetable, bytetable_len);
+	length = 0;
+	len = sizeof(struct bytetable_value) * (entries + 1);
+	[self configureDataStruct: &bytetable length: len];
+	[self configureRBtree];
 	dbuffer = NULL;
 	cbuffer = NULL;
 }
 
 -(uint64_t) length {
-	return len;
+	return length;
 }
 
 -(uint64_t) size {
-	return len * depth;
+	return length * depth;
 }
 
 -(void *) add: (uint64_t) datum {
@@ -153,7 +150,7 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 	if (deduped)
 		RBTreeInsert(rb_node,tree,(void *)new_value,0);
 	depth = ByteTable_check_depth(depth, datum);
-	len += 1;
+	length += 1;
 	return rb_node->key;
 }
 
@@ -169,7 +166,7 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 	dbuffer = malloc([self size]);
 	buffer = dbuffer;
 	//printf("dbuffer=0x%08lx\n",(long unsigned int)dbuffer);
-	for(i=0; i<len; i++) {
+	for(i=0; i<length; i++) {
 		//printf("buffer=0x%08lx\n",(long unsigned int)buffer);
 		value = &((struct bytetable_value *)bytetable.data)[i];
 		buffer = output_datum(buffer,depth,value->datum);
@@ -179,15 +176,26 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 
 -(void *) cdata {
 	Compressor * compressor;
+	void *buffer;
+	uint64_t len;
+
 	if (cbuffer != NULL) {
 		return cbuffer;
 	}
 	cbuffer = malloc([self size]);
+	buffer = [self data];
+	len = [self size];
 	compressor = [[Compressor alloc] init];
 	[compressor initialize: "gzip"];
-	[compressor cdata: cbuffer csize: &csize_cached data: [self data] size: [self size]];
+	[compressor cdata: cbuffer csize: &csize_cached data: buffer size: len];
 	[compressor free];
 	[compressor release];
+	if (csize_cached == 0) {
+		if (cbuffer == NULL)
+			free(cbuffer);
+		cbuffer = NULL;
+	}
+
 	return cbuffer;
 }
 
@@ -196,12 +204,18 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 	return csize_cached;
 }
 
+-(uint8_t) depth {
+	return depth;
+}
+
 -(void) free {
 	RBTreeDestroy(tree);
 
 	free(bytetable.data);
-	free(dbuffer);
-	free(cbuffer);
+	if (dbuffer != NULL)
+		free(dbuffer);
+	if (cbuffer != NULL)
+		free(cbuffer);
 }
 
 @end

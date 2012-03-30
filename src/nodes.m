@@ -3,9 +3,11 @@
 -(void) numberEntries: (uint64_t) e nodeType: (uint8_t) t {
 	type = t;
 	place = 0;
-	pages = malloc(sizeof(Pages *)*e);
+	pages = malloc(sizeof(struct page_struct *)*e);
 	data = malloc(pagesize*e);
 	cdata = malloc(pagesize*e);
+	if (type == TYPE_COMPRESS)
+		cdata_partials = malloc(pagesize*e);
 }
 
 -(void) pageSize: (uint64_t) ps {
@@ -13,7 +15,7 @@
 }
 
 -(uint64_t) addPage: (void *) page {
-	pages[place] = page;
+	pages[place] = (struct page_struct *) page;
 	place += 1;
 	cached = false;
 	ccached = false;
@@ -24,21 +26,25 @@
 	uint64_t i;
 	struct page_struct *page;
 	uint8_t *bd = data;
+
 	if(cached)
 		return data;
 	cached = true;
 	ccached = false;
 	size = 0;
 	for(i=0;i<place;i++) {
-		page = (struct page_struct *) pages[i];
+		page = pages[i];
 		if (type == TYPE_XIP) {
-			memcpy(bd, page->data,page->length);
+			memcpy(bd, page->data, page->length);
+			memset(bd + page->length, 0, pagesize - page->length);
 			size += pagesize;
 			bd += pagesize;
-		} else {
-			memcpy(bd, page->data,page->length);
+		} else if (type == TYPE_BYTEALIGNED) {
+			memcpy(bd, page->data, page->length);
 			size += page->length;
 			bd += page->length;
+		} else if (type == TYPE_COMPRESS) {
+			
 		}
 	}
 	return data;
@@ -79,6 +85,7 @@
 	free(pages);
 	free(data);
 	free(cdata);
+	free(cdata_partials);
 }
 
 @end

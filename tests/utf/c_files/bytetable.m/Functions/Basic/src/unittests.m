@@ -256,7 +256,6 @@ static void Bytetable_add_allsize(CuTest *tc)
 	CuAssertHexEquals(tc, expected, outputs[2] );
 	CuAssertIntEquals(tc, 3, outputs[3] );
 	CuAssertIntEquals(tc, size, outputs[4] );
-
 }
 
 static void Bytetable_depdup(CuTest *tc)
@@ -390,6 +389,7 @@ static void Bytetable_simpledata(CuTest *tc)
 static void Bytetable_cdata(CuTest *tc)
 {
 	ByteTable *bt = [[ByteTable alloc] init];
+	int i;
 
 	printf("Running %s\n", __FUNCTION__);
 
@@ -397,41 +397,12 @@ static void Bytetable_cdata(CuTest *tc)
 	
 	[bt add: 0x123456];
 	[bt add: 0x0];
-	[bt add: 0x789AB0];
-	[bt add: 0x789AB1];
-	[bt add: 0x789AB2];
-	[bt add: 0x789AB3];
-	[bt add: 0x789AB4];
-	[bt add: 0x789AB5];
-	[bt add: 0x789AB6];
-	[bt add: 0x789AB7];
-	[bt add: 0x789AB8];
-	[bt add: 0x789AB9];
-	[bt add: 0x789ABA];
-	[bt add: 0x789ABB];
-	[bt add: 0x789ABC];
-	[bt add: 0x789ABD];
-	[bt add: 0x789ABE];
-	[bt add: 0x789ABF];
-	[bt add: 0x889AB0];
-	[bt add: 0x889AB1];
-	[bt add: 0x889AB2];
-	[bt add: 0x889AB3];
-	[bt add: 0x889AB4];
-	[bt add: 0x889AB5];
-	[bt add: 0x889AB6];
-	[bt add: 0x889AB7];
-	[bt add: 0x889AB8];
-	[bt add: 0x889AB9];
-	[bt add: 0x889ABA];
-	[bt add: 0x889ABB];
-	[bt add: 0x889ABC];
-	[bt add: 0x889ABD];
-	[bt add: 0x889ABE];
-	[bt add: 0x889ABF];
+	for (i=0;i<1000;i++) {
+		[bt add: 0x789000 + i];
+	}
 	[bt data];
 
-	//printf("csize = %i  size = %i\n",[bt csize],[bt size]);
+	//printf("csize = %i  size = %i\n",(int)[bt csize],(int)[bt size]);
 	CuAssertTrue(tc,[bt csize] <= [bt size]);
 	CuAssertTrue(tc,[bt csize] > 0);
 

@@ -1,3 +1,5 @@
+SOURCE="../../../../../src/super.m"
+HEADER="../../../../../src/super.h"
 SOURCE="../../../../../src/region.m"
 HEADER="../../../../../src/region.h"
 SOURCE="../../../../../src/bytetable.m"

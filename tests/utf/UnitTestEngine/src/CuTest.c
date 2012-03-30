@@ -214,7 +214,7 @@ void CuAssertBufEquals_LineMsg(CuTest* tc, const char* file, int line, const cha
 		if (e[i] != a[i])
 			break;
 	}
-	sprintf(buf, "at %i expected <0x%x> but was <0x%x>", i, e[i], a[i]);
+	sprintf(buf, "at %i expected <0x%x> but was <0x%x>", (int)i, (unsigned int)e[i], (unsigned int)a[i]);
 	CuStringAppend(&string, buf);
 	CuFailInternal(tc, file, line, &string);
 }

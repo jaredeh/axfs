@@ -10,7 +10,7 @@ struct bytetable_value {
 
 @interface ByteTable: NSObject {
 	uint8_t depth;
-	uint64_t len;
+	uint64_t length;
 	rb_red_blk_tree *tree;
 	struct data_struct bytetable;
 	uint8_t *dbuffer;
@@ -25,5 +25,6 @@ struct bytetable_value {
 -(void *) data;
 -(void *) cdata;
 -(uint64_t) csize;
+-(uint8_t) depth;
 -(void) free;
 @end

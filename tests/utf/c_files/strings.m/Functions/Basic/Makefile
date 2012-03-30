@@ -12,7 +12,6 @@ LIBS = -L /usr/lib/GNUstep -lgnustep-base -lobjc -lm -lc
 LIBS += -L ../../../../../../rb_tree -lrb_tree
 LIBS += -L ../../../../../../squashfs_compressor -lsquashfs_compressor
 
-
 .SUFFIXES: .o .m
 .m.o:
 

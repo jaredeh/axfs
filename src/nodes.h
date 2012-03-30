@@ -11,13 +11,14 @@ enum {
 
 @interface Nodes: NSObject {
 	uint8_t type;
-	Pages **pages;
+	struct page_struct **pages;
 	uint64_t place;
 	bool cached;
 	bool ccached;
 	void *data;
-	uint64_t size;
 	void *cdata;
+	void *cdata_partials;
+	uint64_t size;
 	uint64_t csize;
 	uint64_t pagesize;
 }

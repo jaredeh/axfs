@@ -14,7 +14,7 @@ clean::
 	rm -f src/*.o
 	rm -f src/*~
 
-clobber:
+clobber: clean
 	-$(MAKE) -C squashfs_compressor clobber
 	-$(MAKE) -C rb_tree clobber
 

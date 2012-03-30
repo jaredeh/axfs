@@ -169,10 +169,10 @@ static void Pages_simplesort(CuTest *tc){
 	uint64_t length = 4096;
 	int i,j;
 
+	printf("Running %s\n", __FUNCTION__);
+
 	Pages *pages = [[Pages alloc] init];
 	[pages numberPages: 4 path: "./tempfile"];
-
-	printf("Running %s\n", __FUNCTION__);
 
 	memset(&data0,5,4096);
 	output[0] = [pages addPage: &data0 length: length];
@@ -201,7 +201,6 @@ static void Pages_simplesort(CuTest *tc){
 			CuAssertTrue(tc, output[i] != output[j]);
 		}
 	}
-
 	[pages free];
 	[pages release];
 }
