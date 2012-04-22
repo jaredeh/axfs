@@ -6,7 +6,10 @@ CFLAGS = -g \
          -DGZIP_SUPPORT=1 \
          -DLZO_SUPPORT=1 \
          -DXZ_SUPPORT=1 \
-         -DLZMA_SUPPORT=1
+         -DLZMA_SUPPORT=1 \
+         -I ./lzo-2.06/include/ \
+         -I ./xz-5.0.3/src/liblzma/api/ \
+         -I ./zlib-1.2.6/
 
 COMPLIBS = ./zlib-1.2.6/libz.a \
            ./lzo-2.06/src/.libs/liblzo2.a \
@@ -14,16 +17,18 @@ COMPLIBS = ./zlib-1.2.6/libz.a \
 
 ./xz-5.0.3/src/liblzma/.libs/liblzma.a:
 	$(MAKE) -C ./xz-5.0.3
+	ar -x ./xz-5.0.3/src/liblzma/.libs/liblzma.a
 
 ./zlib-1.2.6/libz.a:
 	$(MAKE) -C ./zlib-1.2.6 libz.a
+	ar -x ./zlib-1.2.6/libz.a
 
 ./lzo-2.06/src/.libs/liblzo2.a:
 	$(MAKE) -C ./lzo-2.06
+	ar -x ./lzo-2.06/src/.libs/liblzo2.a
 
 lib: $(OBJS) $(COMPLIBS)
-	ar rcsT libsquashfs_compressor.a $(OBJS)
-	ar rcsT libsquashfs_compressor.a $(COMPLIBS)
+	ar rcs libsquashfs_compressor.a $(shell ls *.o)
 
 compile_test: $(OBJS) test_compressor.o lib
 	gcc -static $(LIBS) -o run_me $(OBJS) test_compressor.o libsquashfs_compressor.a
