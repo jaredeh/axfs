@@ -1,0 +1,98 @@
+gem 'ci_reporter'
+require 'ci/reporter/rake/test_unit'
+
+rootdir = Dir.pwd
+
+def draw_line(mark, len, label = "")
+  str = ""
+  if label.length > 0
+    str += mark * (len/2 - label.length - 2) + " #{label} " 
+  end
+  str += mark * (len - str.length)
+  puts str
+end
+
+task :unit_compile_test, :unit do |t, args|
+  args.with_defaults(:unit => nil)
+  if args[:unit] == nil
+    files = Dir.new("./c_files").to_a
+  else
+    files = [args[:unit]]
+  end
+  files.each do |dir|
+    if dir =~ /^\./ then next end
+    draw_line(">",70,dir)
+    path = File.join(rootdir,"c_files",dir,"src")
+    cd path
+    sh "make clean"
+    sh "make"
+    file = File.join(path,"compile_test")
+    if not File.exists?(file) and not File.exists?(file + ".exe")
+      fail "Compiling '" + dir + "' failed.  No binary '" + file + "' or '" + file + ".exe' found."
+    end
+    draw_line("<",70) 
+  end
+end
+
+task :unit_tests, :unit, :test do |t, args|
+  args.with_defaults(:unit => nil)
+  if args[:unit] == nil
+    files = Dir.new("./c_files").to_a
+  else
+    files = [args[:unit]]
+  end
+  cd File.join(rootdir,"UnitTestEngine")
+  sh "make clean; make"
+  files.each do |dir|
+    if dir =~ /^\./ then next end
+    if args[:test] == nil
+      tests = Dir.new(File.join(rootdir,"c_files",dir,"Functions")).to_a
+    else
+      tests = [args[:test]]
+    end
+    tests.each do |test|
+      if test =~ /^\./ then next end
+      draw_line(">",70,dir + "/" + test)
+      path = File.join(rootdir,"c_files",dir,"Functions",test)
+      cd path
+      sh "make clean"
+      sh "make"
+      file = File.join(path,"test")
+      if not File.exists?(file) and not File.exists?(file + ".exe")
+        fail "Compiling '" + dir + "/" + test + "' failed.  No binary '" + file + "' or '" + file + ".exe' found."
+      end
+      draw_line("<",70)
+    end
+  end
+  cd rootdir
+  IO.popen("./runtest 2>&1") do |io|
+    io.each do |l|
+      print l
+      if l =~ /FAILURES/ then fail "Unit tests fails" end
+    end
+  end
+end
+
+task :clean do
+  files = Dir.new("./c_files").to_a
+  files.each do |dir|
+    if dir =~ /^\./ then next end
+    draw_line(">",70,dir)
+    path = File.join(rootdir,"c_files",dir,"src")
+    cd path
+    sh "make clean"
+    tests = Dir.new(File.join(rootdir,"c_files",dir,"Functions")).to_a
+    tests.each do |test|
+      if test =~ /^\./ then next end
+      draw_line("_",70,dir + "/" + test)
+      path = File.join(rootdir,"c_files",dir,"Functions",test)
+      cd path
+      sh "make clean"
+      draw_line("-",70)
+    end
+    draw_line("<",70)
+    cd rootdir
+    sh "rm -f runtest"
+    sh "rm -f UnitTestEngine/build/*.o"
+  end
+end
