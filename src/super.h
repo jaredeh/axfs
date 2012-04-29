@@ -1,4 +1,5 @@
 #import <Foundation/NSObject.h>
+#import "axfs_helper.h"
 
 @interface Super: NSObject {
 	void *data;

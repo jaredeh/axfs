@@ -1,7 +1,5 @@
 OBJS = compressor.o gzip_wrapper.o lzo_wrapper.o lzma_xz_wrapper.o xz_wrapper.o 
 
-CC = gcc
-
 CFLAGS = -g \
          -DGZIP_SUPPORT=1 \
          -DLZO_SUPPORT=1 \
@@ -17,18 +15,29 @@ COMPLIBS = ./zlib-1.2.6/libz.a \
 
 ./xz-5.0.3/src/liblzma/.libs/liblzma.a:
 	$(MAKE) -C ./xz-5.0.3
-	ar -x ./xz-5.0.3/src/liblzma/.libs/liblzma.a
+	mkdir -p build
+	cd build
+	ar -x ../xz-5.0.3/src/liblzma/.libs/liblzma.a
+	cd ../
 
 ./zlib-1.2.6/libz.a:
 	$(MAKE) -C ./zlib-1.2.6 libz.a
-	ar -x ./zlib-1.2.6/libz.a
+	mkdir -p build
+	cd build
+	ar -x ../zlib-1.2.6/libz.a
+	cd ../
 
 ./lzo-2.06/src/.libs/liblzo2.a:
 	$(MAKE) -C ./lzo-2.06
-	ar -x ./lzo-2.06/src/.libs/liblzo2.a
+	mkdir -p build
+	cd build
+	ar -x ../lzo-2.06/src/.libs/liblzo2.a
+	cd ../
 
 lib: $(OBJS) $(COMPLIBS)
-	ar rcs libsquashfs_compressor.a $(shell ls *.o)
+	cd build
+	ar rcs ../libsquashfs_compressor.a $(shell ls *.o)
+	cd ../
 
 compile_test: $(OBJS) test_compressor.o lib
 	gcc -static $(LIBS) -o run_me $(OBJS) test_compressor.o libsquashfs_compressor.a
@@ -37,6 +46,7 @@ clean:
 	$(MAKE) -C ./lzo-2.06 clean
 	$(MAKE) -C ./xz-5.0.3 clean
 	$(MAKE) -C ./zlib-1.2.6 clean
+	rm -rf build
 	rm -rf *.o *~
 	rm -rf run_me
 

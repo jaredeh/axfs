@@ -3,7 +3,6 @@ int ByteTableComp(const void* av, const void* bv)
 	struct bytetable_value *a = (struct bytetable_value *)av;
 	struct bytetable_value *b = (struct bytetable_value *)bv;
 
-
 	if( a->datum > b->datum )
 		return 1;
 	if( a->datum < b->datum )

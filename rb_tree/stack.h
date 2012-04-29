@@ -1,3 +1,5 @@
+#ifndef __RB_TREE__STACK_H__
+#define __RB_TREE__STACK_H__
 #include "misc.h"
 
 /*  CONVENTIONS:  All data structures for stacks have the prefix */
@@ -41,3 +43,5 @@ void StackPush(stk_stack * theStack, DATA_TYPE newInfoPointer);
 void * StackPop(stk_stack * theStack);
 int StackNotEmpty(stk_stack *);
 
+#else
+#endif

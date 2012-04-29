@@ -1,8 +1,5 @@
 
-@implementation Compressor {
-	struct compressor *compress;
-	void *stream;
-}
+@implementation Compressor
 
 -(void) initialize: (char *) name {
 	compress = lookup_compressor(name);

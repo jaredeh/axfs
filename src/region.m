@@ -1,12 +1,4 @@
-@implementation Region {
-	uint64_t size;
-	ByteTable *bytetable;
-	Nodes *nodes;
-	void *data;
-	uint8_t *data_p;
-	uint64_t fsoffset;
-	uint8_t incore;
-}
+@implementation Region
 
 -(void) initialize {
 	fsoffset = 0;

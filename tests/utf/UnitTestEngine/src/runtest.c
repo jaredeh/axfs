@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dlfcn.h>
+#include <unistd.h>
 #include <sys/types.h>
 #ifndef __CYGWIN32__
 #include <sys/dir.h>
@@ -20,7 +21,7 @@ int RunIndividualTests(char *function_name)
 	int error;
 	char runbuffer[BUFFERSIZE];
 	
-	sprintf(runbuffer,"./%s/test",function_name, function_name);
+	sprintf(runbuffer,"./%s/test",function_name);
 
 	printf("------ Testing %s() ------\n",function_name);
 	error = system(runbuffer);
@@ -54,7 +55,7 @@ int RecurseFunctions(char *c_files_name)
 	else {
 		printf("******* c file %s() *******\n",c_files_name);
 
-		while (function_entry = readdir(function_dir)){
+		while ((function_entry = readdir(function_dir))){
 		  	if (function_entry->d_name[0] == '.'){
 				continue;
 			}			
@@ -93,7 +94,7 @@ int main(void)
 		exit(1);		
 	}
 	else {
-		while (c_file_entry = readdir(c_files_dir)){
+		while ((c_file_entry = readdir(c_files_dir))){
 		  	if (c_file_entry->d_name[0] == '.'){
 				continue;
 			}

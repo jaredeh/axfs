@@ -1,4 +1,5 @@
 #import <Foundation/NSObject.h>
+#import "axfs_helper.h"
 
 struct compressor {
 	int (*init)(void **, int, int);
