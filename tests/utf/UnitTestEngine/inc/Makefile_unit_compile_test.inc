@@ -1,5 +1,5 @@
 CFILEROOT = ${abspath ../}
-UTEROOT = ${abspath ../../../../tests/utf/UnitTestEngine}
+UTEROOT = ${abspath ../../../../utf/UnitTestEngine}
 SRCROOT = ${abspath ../../../../../src}
 RBROOT = ${abspath ../../../../../rb_tree}
 

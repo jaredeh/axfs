@@ -2,6 +2,7 @@ CFLAGS = -g
 INC = -I./inc
 
 all:
+	mkdir -p build
 	${CC} ${INC} ${CFLAGS} -c ./src/CuTest.c -o ./build/CuTest.o
 	${CC} ${INC} ${CFLAGS} -c ./src/runtest.c -o ./build/runtest.o
 	${CC} ./build/runtest.o ./build/CuTest.o -o ../runtest
