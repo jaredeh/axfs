@@ -1,7 +1,7 @@
 CFILEROOT = ${abspath ../}
-UTEROOT = ${abspath ../../../../../../UnitTestEngine}
-SRCROOT = ${abspath ../../../../../../../src}
-RBROOT = ${abspath ../../../../../../../rb_tree}
+UTEROOT = ${abspath ../../../../tests/utf/UnitTestEngine}
+SRCROOT = ${abspath ../../../../../src}
+RBROOT = ${abspath ../../../../../rb_tree}
 
 INC = -I./inc -I${CFILEROOT}/inc -I${CFILEROOT}/src -I${UTEROOT}/inc -I${SRCROOT} -I${RBROOT}
 LIBS = -L ../../../../../rb_tree -lrb_tree
