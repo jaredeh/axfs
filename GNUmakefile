@@ -17,18 +17,16 @@ OBJ = $(subst .m,.o,$(mkfs.axfs_OBJC_FILES))
 LIBS = -L rb_tree
 
 %.o: %.m
-	gcc $(INC) $(CFLAGS) $(LIBS) -c -o $@ $<
+	$(CC) $(INC) $(CFLAGS) $(LIBS) -c -o $@ $<
 
 all: $(OBJ)
-	gcc -o $(TOOL_NAME) $(OBJ) -framework Foundation
+	$(CC) -o $(TOOL_NAME) $(OBJ) -framework Foundation
 
 endif
 
 clean::
 	rm -f src/*.o
 	rm -f src/*~
-	-$(MAKE) -C squashfs_compressor clean
-	-$(MAKE) -C rb_tree clean
 	rm -f mkfs.axfs
 
 clobber: clean

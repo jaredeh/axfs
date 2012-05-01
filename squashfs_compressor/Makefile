@@ -14,29 +14,33 @@ COMPLIBS = ./zlib-1.2.6/libz.a \
            ./xz-5.0.3/src/liblzma/.libs/liblzma.a
 
 ./xz-5.0.3/src/liblzma/.libs/liblzma.a:
-	$(MAKE) -C ./xz-5.0.3
-	mkdir -p build
-	cd build
-	ar -x ../xz-5.0.3/src/liblzma/.libs/liblzma.a
+	$(MAKE) -C ./xz-5.0.3; \
+	mkdir -p build; \
+	cd build; \
+	ar -x ../xz-5.0.3/src/liblzma/.libs/liblzma.a; \
 	cd ../
 
 ./zlib-1.2.6/libz.a:
-	$(MAKE) -C ./zlib-1.2.6 libz.a
-	mkdir -p build
-	cd build
-	ar -x ../zlib-1.2.6/libz.a
+	$(MAKE) -C ./zlib-1.2.6 libz.a; \
+	mkdir -p build; \
+	cd build; \
+	ar -x ../zlib-1.2.6/libz.a; \
 	cd ../
 
 ./lzo-2.06/src/.libs/liblzo2.a:
-	$(MAKE) -C ./lzo-2.06
-	mkdir -p build
-	cd build
-	ar -x ../lzo-2.06/src/.libs/liblzo2.a
+	$(MAKE) -C ./lzo-2.06; \
+	mkdir -p build; \
+	cd build; \
+	ar -x ../lzo-2.06/src/.libs/liblzo2.a; \
 	cd ../
 
-lib: $(OBJS) $(COMPLIBS)
-	cd build
-	ar rcs ../libsquashfs_compressor.a $(shell ls *.o)
+wrappers: $(OBJS)
+	mkdir -p build; \
+	mv *.o build/
+
+lib: wrappers $(COMPLIBS)
+	cd build; \
+	ar rcs ../libsquashfs_compressor.a $(shell cd build; ls *.o); \
 	cd ../
 
 compile_test: $(OBJS) test_compressor.o lib
