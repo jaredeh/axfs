@@ -47,18 +47,22 @@ compile_test: $(OBJS) test_compressor.o lib
 	gcc -static $(LIBS) -o run_me $(OBJS) test_compressor.o libsquashfs_compressor.a
 
 clean:
-	$(MAKE) -C ./lzo-2.06 clean
-	$(MAKE) -C ./xz-5.0.3 clean
-	$(MAKE) -C ./zlib-1.2.6 clean
-	rm -rf build
-	rm -rf *.o *~
-	rm -rf run_me
+	-$(MAKE) -C ./lzo-2.06 clean
+	-$(MAKE) -C ./xz-5.0.3 clean
+	-$(MAKE) -C ./zlib-1.2.6 clean
+	-rm -rf ./zlib-1.2.6/Makefile
+	-rm -rf ./zlib-1.2.6/zconf.h
+	-rm -rf ./zlib-1.2.6/zlib.pc
+	-rm -rf ./zlib-1.2.6/configure.log
+	-rm -rf build
+	-rm -rf *.o *~
+	-rm -rf run_me
 
 clobber: clean
-	$(MAKE) -C ./lzo-2.06 distclean
-	$(MAKE) -C ./xz-5.0.3 distclean
-	$(MAKE) -C ./zlib-1.2.6 distclean
-	rm -rf libsquashfs_compressor.a
+	-$(MAKE) -C ./lzo-2.06 distclean
+	-$(MAKE) -C ./xz-5.0.3 distclean
+	-$(MAKE) -C ./zlib-1.2.6 distclean
+	-rm -rf libsquashfs_compressor.a
 
 configure:
 	cd lzo-2.06; ./configure; cd ../
