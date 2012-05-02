@@ -1,0 +1,7 @@
+*.o
+*.exe
+compile_test
+build/
+test
+runtest
+

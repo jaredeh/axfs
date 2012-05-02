@@ -1,0 +1,6 @@
+Makefile
+zconf.h
+*.o
+configure.log
+zlib.pc
+libz.a
