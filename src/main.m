@@ -1,12 +1,27 @@
 #import <Foundation/Foundation.h>
+#import "axfs_helper.h"
+#import "getopts.h"
 #import "dir_walker.h"
 #import "data_object.h"
 #import "falloc.h"
 #import <Foundation/NSAutoreleasePool.h>
 
+struct axfs_config *aconfig;
+
 int main( int argc, const char *argv[] ) {    
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	AxfsDirWalker *dw;
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    GetOpts *go;
+    
+    go = [[GetOpts alloc] init];
+    [go argc: argc argv: (char **) argv];
+    [go config: aconfig];
+
+    [pool drain];
+	return 0;
+}
+
+/*
+    AxfsDirWalker *dw;
 	AxfsDataObject *ado;
 	falloc *f;
 	char *data;
@@ -29,3 +44,4 @@ int main( int argc, const char *argv[] ) {
 	[pool drain];
 	return 0;
 }
+*/

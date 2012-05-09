@@ -9,3 +9,6 @@ struct data_struct {
 	uint64_t place;
 };
 
+struct axfs_config {
+    
+};

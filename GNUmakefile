@@ -3,6 +3,7 @@ TOOL_NAME = mkfs.axfs
 mkfs.axfs_OBJC_FILES = src/falloc.m \
                        src/data_object.m \
                        src/dir_walker.m \
+                       src/getopts.m \
                        src/main.m
 
 ifeq ($(firstword $(shell uname -a)),Linux)
