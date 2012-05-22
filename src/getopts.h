@@ -1,11 +1,12 @@
-#import <Foundation/NSObject.h>
+#import <Foundation/Foundation.h>
 #import <getopt.h>
 #import "axfs_helper.h"
 
+extern struct axfs_config acfg;
+
 @interface GetOpts: NSObject {
-    int argc;
-    char ** argv;
-    struct axfs_config *config;
+	int argc;
+	char ** argv;
 }
 -(void) input: (char *) opt;
 -(void) output: (char *) opt;
@@ -17,7 +18,6 @@
 -(void) special: (char *) opt;
 
 -(void) argc: (int) c argv: (char **) v;
--(void) config: (struct axfs_config *) f;
 -(void) free;
 @end
 

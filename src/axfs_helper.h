@@ -10,5 +10,12 @@ struct data_struct {
 };
 
 struct axfs_config {
-    
+	char *input;
+	char *output;
+	char *secondary_output;
+	char *compression;
+	uint64_t block_size;
+	uint64_t xip_size;
+	char *profile;
+	char *special;
 };

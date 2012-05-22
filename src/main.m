@@ -6,7 +6,7 @@
 #import "falloc.h"
 #import <Foundation/NSAutoreleasePool.h>
 
-struct axfs_config *aconfig;
+struct axfs_config acfg;
 
 int main( int argc, const char *argv[] ) {    
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -14,7 +14,6 @@ int main( int argc, const char *argv[] ) {
     
     go = [[GetOpts alloc] init];
     [go argc: argc argv: (char **) argv];
-    [go config: aconfig];
 
     [pool drain];
 	return 0;
