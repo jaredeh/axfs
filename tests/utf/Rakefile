@@ -1,5 +1,7 @@
 gem 'ci_reporter'
 require 'ci/reporter/rake/test_unit'
+require 'rake/testtask'
+
 
 rootdir = Dir.pwd
 
@@ -96,3 +98,12 @@ task :clean do
     sh "rm -f UnitTestEngine/build/*.o"
   end
 end
+
+Rake::TestTask.new do |t|
+  t.libs << 'ruby_scripts'
+  t.test_files = FileList['ruby_scripts/test*.rb']
+  t.verbose = false
+end
+
+desc "Run ruby tests"
+task :ruby_tests => :test

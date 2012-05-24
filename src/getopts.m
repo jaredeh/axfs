@@ -34,19 +34,19 @@
 	[self dst: &acfg.compression src: opt];
 }
 -(void) profile: (char *) opt {
-	[self dst: &acfg.compression src: opt];
+	[self dst: &acfg.profile src: opt];
 }
 -(void) special: (char *) opt {
-	[self dst: &acfg.compression src: opt];
+	[self dst: &acfg.special src: opt];
 }
 -(void) switch_short_options: (int) c index: (int) index optarg: (char *) optarg {
 	switch (c) {
 		case 0:
-			printf("\n-----------case 0\n");
+			//printf("\n-----------case 0\n");
 			[self switch_long_options: index optarg: optarg];
 			break;
 		case 'i':
-			printf("\n-----------case i\n");
+			//printf("\n-----------case i\n");
 			[self input: optarg];
 			break;
 		case 'o':
@@ -125,7 +125,7 @@
 
 	while (1) {
 		c = getopt_long(argc, argv, short_options, long_options, &index);
-		printf("c: %i index: %i optarg: '%s'\n", c, index, optarg);
+		//printf("c: %i index: %i optarg: '%s'\n", c, index, optarg);
 
 		if (c == -1)
 			break;
