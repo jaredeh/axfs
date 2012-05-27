@@ -18,6 +18,9 @@ int main( int argc, const char *argv[] ) {
 
 	[pool drain];
 
+	if (argc < 2)
+		return 0;
+
 	printf("---\n");
 	printf("axfs_config:\n");
 	printf("  input: %s\n",denullify(acfg.input));

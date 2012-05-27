@@ -39,6 +39,38 @@
 -(void) special: (char *) opt {
 	[self dst: &acfg.special src: opt];
 }
+
+-(void) switch_long_options: (int) index optarg: (char *) optarg {
+	switch (index) {
+		case 0:
+			[self input: optarg];
+			break;
+		case 1:
+			[self output: optarg];
+			break;
+		case 2:
+			[self secondary_output: optarg];
+			break;
+		case 3:
+			[self block_size: optarg];
+			break;
+		case 4:
+			[self xip_size: optarg];
+			break;
+		case 5:
+			[self compression: optarg];
+			break;
+		case 6:
+			[self profile: optarg];
+			break;
+		case 7:
+			[self special: optarg];
+			break;
+		default:
+			break;
+	}
+}
+
 -(void) switch_short_options: (int) c index: (int) index optarg: (char *) optarg {
 	switch (c) {
 		case 0:
@@ -75,36 +107,6 @@
 	}
 }
 
--(void) switch_long_options: (int) index optarg: (char *) optarg {
-	switch (index) {
-		case 0:
-			[self input: optarg];
-			break;
-		case 1:
-			[self output: optarg];
-			break;
-		case 2:
-			[self secondary_output: optarg];
-			break;
-		case 3:
-			[self block_size: optarg];
-			break;
-		case 4:
-			[self xip_size: optarg];
-			break;
-		case 5:
-			[self compression: optarg];
-			break;
-		case 6:
-			[self profile: optarg];
-			break;
-		case 7:
-			[self special: optarg];
-			break;
-		default:
-			break;
-	}
-}
 -(void) argc: (int) count argv: (char **) v {
 	static struct option long_options[] = {
 		{"input", 1, 0, 0},

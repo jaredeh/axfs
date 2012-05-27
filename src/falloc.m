@@ -1,4 +1,5 @@
 #import "falloc.h"
+#import <stdio.h>
 #import <fcntl.h> //for O_RDWR open() write() and fsync()
 #import <unistd.h> //for close() and lseek()
 #import <sys/mman.h> //for mmap()

@@ -12,7 +12,7 @@
 -(void) printstats {
 	NSLog(@"filedata_size = %llu\n", filedata_size);
 	NSLog(@"filename_size = %llu\n", filename_size);
-	NSLog(@"number_of_files= %d\n", number_of_files);
+	NSLog(@"number_of_files= %llu\n", number_of_files);
 }
 
 @end

@@ -5,6 +5,8 @@
 #include "../../../../../src/getopts.h"
 #include "../../../../../src/getopts.m"
 
+struct axfs_config acfg;
+
 int main(int argc, char * argv[])
 {
 	return 0;
