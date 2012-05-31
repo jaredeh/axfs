@@ -1,3 +1,5 @@
+#import "bytetable.h"
+
 int ByteTableComp(const void* av, const void* bv)
 {
 	struct bytetable_value *a = (struct bytetable_value *)av;

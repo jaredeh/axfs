@@ -1,8 +1,4 @@
 #import "dir_walker.h"
-#import "data_object.h"
-#import <Foundation/NSFileManager.h>
-#import <Foundation/NSArray.h>
-#import <Foundation/Foundation.h>
 #import <stdio.h>
 
 @implementation AxfsDirWalker

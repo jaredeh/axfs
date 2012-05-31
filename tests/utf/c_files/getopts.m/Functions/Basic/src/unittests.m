@@ -22,32 +22,12 @@ static void GetOpts_createdestroy(CuTest *tc){
 	CuAssertIntEquals(tc, 0, output);
 }
 
-static void GetOpts_input_1(CuTest *tc){
-	int argc = 0;
-	char *argv[32];
-	GetOpts *go;
-
-	printf("Running %s\n", __FUNCTION__);
-
-	go = [[GetOpts alloc] init];
-	acfg.input = 0;
-	argc = 2;
-	argv[1] = "--input";
-	argv[2] = "/foo/bar/";
-	[go argc: argc argv: argv];
-	[go free];
-	[go release];
-	CuAssertStrEquals(tc, "/foo/bar/", acfg.input);
-	free(acfg.input);
-}
-
 /****** End Test Code ******/
 
 static CuSuite* GetSuite(void){
 	CuSuite* suite = CuSuiteNew();
 
 	SUITE_ADD_TEST(suite, GetOpts_createdestroy);
-	SUITE_ADD_TEST(suite, GetOpts_input_1);
 	//SUITE_ADD_TEST(suite, );
 	return suite;
 }

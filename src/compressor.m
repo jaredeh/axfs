@@ -1,3 +1,4 @@
+#import "compressor.h"
 
 @implementation Compressor
 

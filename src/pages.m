@@ -1,3 +1,5 @@
+#import "pages.h"
+
 static int PagesComp(const void* av, const void* bv)
 {
 	struct page_struct * a = (struct page_struct *)av;

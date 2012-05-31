@@ -1,10 +1,19 @@
 
 TOOL_NAME = mkfs.axfs
-mkfs.axfs_OBJC_FILES = src/falloc.m \
+mkfs.axfs_OBJC_FILES = src/bytetable.m \
+                       src/compressor.m \
                        src/data_object.m \
                        src/dir_walker.m \
+                       src/falloc.m \
                        src/getopts.m \
-                       src/main.m
+                       src/main.m \
+                       src/nodes.m \
+                       src/pages.m \
+                       src/region.m \
+                       src/strings.m \
+                       src/super.m
+
+INC = -I rb_tree/
 
 ifeq ($(firstword $(shell uname -a)),Linux)
 
@@ -15,13 +24,13 @@ include $(GNUSTEP_MAKEFILES)/tool.make
 else
 
 OBJ = $(subst .m,.o,$(mkfs.axfs_OBJC_FILES))
-LIBS = -L rb_tree
+LIBS = -l rb_tree -L rb_tree -l squashfs_compressor -L squashfs_compressor
 
 %.o: %.m
-	$(CC) $(INC) $(CFLAGS) $(LIBS) -c -o $@ $<
+	$(CC) $(INC) $(CFLAGS) -c -o $@ $<
 
 all: $(OBJ)
-	$(CC) -o $(TOOL_NAME) $(OBJ) -framework Foundation
+	$(CC) -o $(TOOL_NAME) $(OBJ) $(LIBS) -framework Foundation
 
 endif
 

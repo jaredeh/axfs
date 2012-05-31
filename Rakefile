@@ -16,6 +16,8 @@ task :all do
   sh "make all"
 end
 
+task :tests => [:unit_compile_test, :unit_tests]
+
 task :unit_compile_test, :unit do |t, args|
   args.with_defaults(:unit => nil)
   cd utfpath

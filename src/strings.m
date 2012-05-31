@@ -1,3 +1,5 @@
+#import "strings.h"
+
 static int StringsComp(const void* av, const void* bv)
 {
 	struct string_struct * a = (struct string_struct *)av;

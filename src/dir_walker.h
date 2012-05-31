@@ -1,5 +1,5 @@
-#import <Foundation/NSObject.h>
 #import "data_object.h"
+#import <Foundation/Foundation.h>
 
 @interface AxfsDirWalker: NSObject {
 	AxfsDataObject *DataObject;

@@ -1,3 +1,5 @@
+#import "nodes.h"
+
 @implementation Nodes
 
 -(void) numberEntries: (uint64_t) e nodeType: (uint8_t) t {

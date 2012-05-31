@@ -1,4 +1,4 @@
-#import <Foundation/NSObject.h>
+#import <Foundation/Foundation.h>
 #import "red_black_tree.h"
 #import "pages.h"
 #import "compressor.h"
