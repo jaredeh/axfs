@@ -3,9 +3,7 @@
 #include "CuTest.h"
 
 /* Including function under test */
-#include "strings.h"
 #include "strings.m"
-#include "compressor.h"
 #include "compressor.m"
 
 /****** Test Code ******/

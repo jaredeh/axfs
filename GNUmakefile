@@ -14,6 +14,7 @@ mkfs.axfs_OBJC_FILES = src/bytetable.m \
                        src/super.m
 
 INC = -I rb_tree/
+LIBS = -l rb_tree -L rb_tree -l squashfs_compressor -L squashfs_compressor
 
 ifeq ($(firstword $(shell uname -a)),Linux)
 
@@ -24,7 +25,6 @@ include $(GNUSTEP_MAKEFILES)/tool.make
 else
 
 OBJ = $(subst .m,.o,$(mkfs.axfs_OBJC_FILES))
-LIBS = -l rb_tree -L rb_tree -l squashfs_compressor -L squashfs_compressor
 
 %.o: %.m
 	$(CC) $(INC) $(CFLAGS) -c -o $@ $<
