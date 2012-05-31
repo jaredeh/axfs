@@ -54,6 +54,7 @@ clean:
 	-rm -rf ./zlib-1.2.6/zconf.h
 	-rm -rf ./zlib-1.2.6/zlib.pc
 	-rm -rf ./zlib-1.2.6/configure.log
+	-rm -rf ./xz-5.0.3/[config.h].in
 	-rm -rf build
 	-rm -rf *.o *~
 	-rm -rf run_me

@@ -21,3 +21,5 @@ src/xz/xz
 src/xzdec/lzmadec
 src/xzdec/xzdec
 stamp-h1
+\[config.h\].in
+
