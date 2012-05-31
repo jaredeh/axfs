@@ -14,13 +14,18 @@ mkfs.axfs_OBJC_FILES = src/bytetable.m \
                        src/super.m
 
 INC = -I rb_tree/
-LIBS = -l rb_tree -L rb_tree -l squashfs_compressor -L squashfs_compressor
+LIBDIRS = -L rb_tree -L squashfs_compressor 
+LIBS = -l rb_tree -l squashfs_compressor
 
 ifeq ($(firstword $(shell uname -a)),Linux)
 
 GNUSTEP_MAKEFILES=/usr/share/GNUstep/Makefiles/
 include $(GNUSTEP_MAKEFILES)/common.make
 include $(GNUSTEP_MAKEFILES)/tool.make
+
+ADDITIONAL_INCLUDE_DIRS = $(INC)
+ADDITIONAL_LIB_DIRS = $(LIBDIRS)
+ADDITIONAL_TOOL_LIBS = $(LIBS)
 
 else
 
@@ -30,7 +35,7 @@ OBJ = $(subst .m,.o,$(mkfs.axfs_OBJC_FILES))
 	$(CC) $(INC) $(CFLAGS) -c -o $@ $<
 
 all: $(OBJ)
-	$(CC) -o $(TOOL_NAME) $(OBJ) $(LIBS) -framework Foundation
+	$(CC) -o $(TOOL_NAME) $(OBJ) $(LIBDIRS) $(LIBS) -framework Foundation
 
 endif
 
@@ -49,3 +54,5 @@ configure:
 lib:
 	$(MAKE) -C rb_tree lib
 	$(MAKE) -C squashfs_compressor lib
+
+
