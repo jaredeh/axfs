@@ -18,7 +18,7 @@ class TestGetopts < Test::Unit::TestCase
 
   def do_str_test(short,long,sec,data)
     a = run_getopts("-" + short)
-    assert(a.include?("option requires an argument -- " + short) || a.include?("option requires an argument -- '" + short) || a.include?("invalid option -- " + short))
+    assert(a.include?("option requires an argument -- " + short) || a.include?("option requires an argument -- '" + short) || a.include?("invalid option --"))
     a = run_getopts("-" + short + " " + data.to_s)
     #puts a
     assert_equal(data, a[long])
