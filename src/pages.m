@@ -84,6 +84,8 @@ static void PagesInfoDest(void *a){;}
 	[self configureRBtree];
 }
 
+-(void) initialize {}
+
 -(void) free {
 	RBTreeDestroy(tree);
 

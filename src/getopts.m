@@ -135,6 +135,8 @@
 		[self switch_short_options: c index: index optarg: optarg];
 	}
 }
+-(void) initialize {
+}
 -(void) free {
 }
 @end

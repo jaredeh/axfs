@@ -18,6 +18,7 @@ extern struct axfs_config acfg;
 -(void) special: (char *) opt;
 
 -(void) argc: (int) c argv: (char **) v;
+-(void) initialize;
 -(void) free;
 @end
 

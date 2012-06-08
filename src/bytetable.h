@@ -18,6 +18,7 @@ struct bytetable_value {
 	bool deduped;
 	uint64_t csize_cached;
 }
+-(void) initialize;
 -(void) numberEntries: (uint64_t) entries dedup: (bool) dedup;
 -(uint64_t) length;
 -(uint64_t) size;

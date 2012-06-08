@@ -17,7 +17,8 @@ static void Compressor_createdestroy(CuTest *tc)
 	printf("Running %s\n", __FUNCTION__);
 
 	c = [[Compressor alloc] init];
-	[c initialize: "gzip"];
+	[c initialize];
+	[c algorithm: "gzip"];
 	[c free];
 	[c release];
 
@@ -39,7 +40,8 @@ static void Compressor_basic_gzip(CuTest *tc)
 	printf("Running %s\n", __FUNCTION__);
 
 	c = [[Compressor alloc] init];
-	[c initialize: "gzip"];
+	[c initialize];
+	[c algorithm: "gzip"];
 
 	cdata = malloc(4096);
 	data = malloc(4096);
@@ -87,7 +89,8 @@ static void Compressor_basic_lzo(CuTest *tc)
 	printf("Running %s\n", __FUNCTION__);
 
 	c = [[Compressor alloc] init];
-	[c initialize: "lzo"];
+	[c initialize];
+	[c algorithm: "lzo"];
 
 	cdata = malloc(4096);
 	data = malloc(4096);
@@ -136,7 +139,8 @@ static void Compressor_basic_xz(CuTest *tc)
 	printf("Running %s\n", __FUNCTION__);
 
 	c = [[Compressor alloc] init];
-	[c initialize: "xz"];
+	[c initialize];
+	[c algorithm: "xz"];
 
 	cdata = malloc(4096);
 	data = malloc(4096);

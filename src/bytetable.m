@@ -91,6 +91,14 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 
 @implementation ByteTable
 
+-(void) initialize {
+	depth = 0;
+	length = 0;
+	dbuffer = NULL;
+	cbuffer = NULL;
+	[self configureRBtree];
+}
+
 -(void) configureRBtree {
 	rb_red_blk_node *nild;
 	nild = malloc(sizeof(*nild));
@@ -111,13 +119,8 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 	uint64_t len;
 
 	deduped = dedup;
-	depth = 0;
-	length = 0;
 	len = sizeof(struct bytetable_value) * (entries + 1);
 	[self configureDataStruct: &bytetable length: len];
-	[self configureRBtree];
-	dbuffer = NULL;
-	cbuffer = NULL;
 }
 
 -(uint64_t) length {
@@ -187,7 +190,8 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 	buffer = [self data];
 	len = [self size];
 	compressor = [[Compressor alloc] init];
-	[compressor initialize: "gzip"];
+	[compressor initialize];
+	[compressor algorithm: "gzip"];
 	[compressor cdata: cbuffer csize: &csize_cached data: buffer size: len];
 	[compressor free];
 	[compressor release];

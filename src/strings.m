@@ -74,6 +74,8 @@ static void StringsInfoDest(void *a){;}
 	[self configureRBtree];
 }
 
+-(void) initialize {}
+
 -(void) free {
 	RBTreeDestroy(tree);
 	free(strings.data);
@@ -119,7 +121,8 @@ static void StringsInfoDest(void *a){;}
 	buffer = [self data];
 	len = [self size];
 	compressor = [[Compressor alloc] init];
-	[compressor initialize: "gzip"];
+	[compressor initialize];
+	[compressor algorithm: "gzip"];
 	[compressor cdata: cbuffer csize: &csize data: buffer size: len];
 	[compressor free];
 	[compressor release];

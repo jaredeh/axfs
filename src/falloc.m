@@ -35,6 +35,8 @@
 	return data;
 }
 
+-(void) initialize {}
+
 -(void) free {
 	close(fd);
 	// TODO use 'path' to unlink file

@@ -14,6 +14,7 @@
 -(void) addBytetable: (ByteTable *) bt;
 -(void) addNodes: (Nodes *) nd;
 -(void *) data;
+-(void) initialize;
 -(void) free;
 -(void) fsoffset: (uint64_t) offset;
 -(void) incore: (uint8_t) core;

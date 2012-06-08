@@ -6,8 +6,10 @@ mkfs.axfs_OBJC_FILES = src/bytetable.m \
                        src/dir_walker.m \
                        src/falloc.m \
                        src/getopts.m \
+                       src/image_builder.m \
                        src/main.m \
                        src/nodes.m \
+                       src/opts_validator.m \
                        src/pages.m \
                        src/region.m \
                        src/strings.m \

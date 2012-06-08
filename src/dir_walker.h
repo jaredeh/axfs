@@ -1,9 +1,13 @@
-#import "data_object.h"
+#import "axfs_helper.h"
 #import <Foundation/Foundation.h>
 
-@interface AxfsDirWalker: NSObject {
-	AxfsDataObject *DataObject;
+@interface DirWalker: NSObject {
+	uint64_t filename_size;
+	uint64_t filedata_size;
+	uint64_t number_of_files;
 }
--(void) walk: (NSString *) p;
--(void) setDataObject: (AxfsDataObject *) ado;
+
+-(void) size_up_dir: (NSString *) p;
+-(void) initialize;
+-(void) free;
 @end

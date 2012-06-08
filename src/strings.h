@@ -18,6 +18,7 @@ struct string_struct {
 	uint8_t *cbuffer;
 }
 -(void) numberInodes: (uint64_t) inodes length: (uint64_t) len path: (char *) pathname;
+-(void) initialize;
 -(void) free;
 -(void *) addString: (void *) data_ptr length: (uint64_t) len;
 -(void *) allocStringData: (uint64_t) len;

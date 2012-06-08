@@ -65,7 +65,8 @@
 	if(ccached)
 		return cdata;
 	compressor = [[Compressor alloc] init];
-	[compressor initialize: "gzip"];
+	[compressor initialize];
+	[compressor algorithm: "gzip"];
 	[compressor cdata: cdata csize: &csize data: [self data] size: [self size]];
 	[compressor free];
 	[compressor release];
@@ -82,6 +83,8 @@
 -(uint64_t) length {
 	return place;
 }
+
+-(void) initialize {}
 
 -(void) free {
 	free(pages);

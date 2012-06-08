@@ -11,8 +11,11 @@ struct axfs_config acfg;
 int main( int argc, const char *argv[] ) {    
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     GetOpts *go;
-    
+    DirWalker *dw;
+
     go = [[GetOpts alloc] init];
+    dw = [[DirWalker alloc] init];
+    
     [go argc: argc argv: (char **) argv];
 
     [pool drain];

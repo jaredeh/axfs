@@ -7,5 +7,6 @@
 	int fd;
 }
 -(void *) allocSize: (uint64_t) allocsize path: (char *) pathname;
+-(void) initialize;
 -(void) free;
 @end

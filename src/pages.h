@@ -19,6 +19,7 @@ struct page_struct {
 	rb_red_blk_tree *tree;
 }
 -(void) numberPages: (uint64_t) numpages path: (char *) pathname;
+-(void) initialize;
 -(void) free;
 -(void *) addPage: (void *) page_data length: (uint64_t) page_length;
 @end

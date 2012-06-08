@@ -43,6 +43,7 @@ static void Region_big_endian_number(CuTest *tc)
 	printf("Running %s\n", __FUNCTION__);
 
 	bt = [[ByteTable alloc] init];
+	[bt initialize];
 	r = [[Region alloc] init];
 	[r initialize];
 
@@ -58,6 +59,7 @@ static void Region_big_endian_number(CuTest *tc)
 
 	number = 0x0102030405060708UL;
 	[r big_endian_64: number];
+
 	output = [r data_p];
 	CuAssertHexEquals(tc, 0x01, output[0]);
 	CuAssertHexEquals(tc, 0x02, output[1]);
@@ -107,6 +109,7 @@ static void Region_bytetable_data(CuTest *tc)
 	printf("Running %s\n", __FUNCTION__);
 
 	bt = [[ByteTable alloc] init];
+	[bt initialize];
 	r = [[Region alloc] init];
 	[r initialize];
 

@@ -18,16 +18,19 @@ static void Nodes_createdestroy(CuTest *tc)
 	int output;
 	printf("Running %s\n", __FUNCTION__);
 	nodes = [[Nodes alloc] init];
+	[nodes initialize];
 	[nodes numberEntries: 4096 nodeType: TYPE_XIP];
 	[nodes free];
 	[nodes release];
 
 	nodes = [[Nodes alloc] init];
+	[nodes initialize];
 	[nodes numberEntries: 4096 nodeType: TYPE_BYTEALIGNED];
 	[nodes free];
 	[nodes release];
 
 	nodes = [[Nodes alloc] init];
+	[nodes initialize];
 	[nodes numberEntries: 4096 nodeType: TYPE_COMPRESS];
 	[nodes free];
 	[nodes release];
@@ -43,6 +46,7 @@ static void Nodes_simplelength(CuTest *tc)
 
 	printf("Running %s\n", __FUNCTION__);
 	nodes = [[Nodes alloc] init];
+	[nodes initialize];
 	[nodes pageSize: 4096];
 	[nodes numberEntries: 4096 nodeType: TYPE_XIP];
 
@@ -72,10 +76,12 @@ static void Nodes_size_xip4k(CuTest *tc)
 
 	printf("Running %s\n", __FUNCTION__);
 	nodes = [[Nodes alloc] init];
+	[nodes initialize];
 	[nodes pageSize: l];
 	[nodes numberEntries: 4096 nodeType: TYPE_XIP];
 
 	pages = [[Pages alloc] init];
+	[pages initialize];
 	[pages numberPages: 100 path: "./tempfile"];
 	memset(&data0,5,l);
 	output[0] = [pages addPage: &data0 length: l];
@@ -129,10 +135,12 @@ static void Nodes_cdata(CuTest *tc)
 
 	printf("Running %s\n", __FUNCTION__);
 	nodes = [[Nodes alloc] init];
+	[nodes initialize];
 	[nodes pageSize: l];
 	[nodes numberEntries: 4096 nodeType: TYPE_XIP];
 
 	pages = [[Pages alloc] init];
+	[pages initialize];
 	[pages numberPages: 100 path: "./tempfile"];
 	memset(&data0,5,l);
 	output[0] = [pages addPage: &data0 length: l];
@@ -190,10 +198,12 @@ static void Nodes_size_xip64k(CuTest *tc)
 
 	printf("Running %s\n", __FUNCTION__);
 	nodes = [[Nodes alloc] init];
+	[nodes initialize];
 	[nodes pageSize: l];
 	[nodes numberEntries: 4096 nodeType: TYPE_XIP];
 
 	pages = [[Pages alloc] init];
+	[pages initialize];
 	[pages numberPages: 100 path: "./tempfile"];
 	memset(&data0,5,l);
 	output[0] = [pages addPage: &data0 length: l];

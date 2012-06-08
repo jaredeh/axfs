@@ -93,15 +93,18 @@ static void Bytetable_createdestroy(CuTest *tc)
 {
 	int output;
 
-	ByteTable *bt = [[ByteTable alloc] init];
+	ByteTable *bt;
 
 	printf("Running %s\n", __FUNCTION__);
 
+	bt = [[ByteTable alloc] init];
+	[bt initialize];
 	[bt numberEntries: 4096 dedup: false];
 	[bt free];
 	[bt release];
 
 	bt = [[ByteTable alloc] init];
+	[bt initialize];
 	[bt numberEntries: 4096 dedup: true];
 	[bt free];
 	[bt release];
@@ -118,6 +121,7 @@ static void Bytetable_add_1byte(CuTest *tc)
 
 	printf("Running %s\n", __FUNCTION__);
 
+	[bt initialize];
 	[bt numberEntries: 4096 dedup: true];
 
 	data = [bt add: 0x01];
@@ -139,6 +143,7 @@ static void Bytetable_add_a_size(CuTest *tc, uint64_t *inputs, uint64_t *outputs
 {
 	ByteTable *bt = [[ByteTable alloc] init];
 
+	[bt initialize];
 	[bt numberEntries: 4096 dedup: dedup];
 
 	outputs[0] = (uint64_t)[bt add: inputs[0] ];
@@ -364,6 +369,7 @@ static void Bytetable_simpledata(CuTest *tc)
 
 	printf("Running %s\n", __FUNCTION__);
 
+	[bt initialize];
 	[bt numberEntries: 4096 dedup: true];
 	
 	[bt add: 0x123456];
@@ -393,6 +399,7 @@ static void Bytetable_cdata(CuTest *tc)
 
 	printf("Running %s\n", __FUNCTION__);
 
+	[bt initialize];
 	[bt numberEntries: 4096 dedup: true];
 	
 	[bt add: 0x123456];

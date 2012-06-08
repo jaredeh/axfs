@@ -31,6 +31,7 @@ enum {
 -(void *) cdata;
 -(uint64_t) csize;
 -(uint64_t) length;
+-(void) initialize;
 -(void) free;
 @end
 

@@ -62,5 +62,6 @@
 
 
 -(void *) data;
+-(void) initialize;
 -(void) free;
 @end

@@ -2,7 +2,10 @@
 
 @implementation Compressor
 
--(void) initialize: (char *) name {
+-(void) initialize {}
+
+
+-(void) algorithm: (char *) name {
 	compress = lookup_compressor(name);
 	compress->init(&stream, 4096, 0);
 }
