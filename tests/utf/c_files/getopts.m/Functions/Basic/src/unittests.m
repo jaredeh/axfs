@@ -14,7 +14,7 @@ static void GetOpts_createdestroy(CuTest *tc){
 	GetOpts *go = [[GetOpts alloc] init];
 	
 	printf("Running %s\n", __FUNCTION__);
-
+	[go initialize]; 
 	[go free];
 	[go release];
 

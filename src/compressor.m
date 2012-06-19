@@ -5,10 +5,15 @@
 -(void) initialize {}
 
 
--(void) algorithm: (char *) name {
+-(bool) algorithm: (char *) name {
 	compress = lookup_compressor(name);
+	if(strcmp(compress->name, name) != 0)
+		return false;
 	compress->init(&stream, 4096, 0);
+	return true;
 }
+
+
 
 -(void) cdata: (void *) cdata csize: (uint64_t *) csize data: (void *) data size: (uint64_t) size {
 	int error = 0;

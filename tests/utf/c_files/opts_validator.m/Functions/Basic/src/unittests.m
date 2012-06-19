@@ -2,6 +2,9 @@
 #include "stubs.h"
 #include "CuTest.h"
 
+#include "compressor.h"
+#include "compressor.m"
+
 #include "opts_validator.h"
 #include "opts_validator.m"
 

@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 #import "axfs_helper.h"
 #import "getopts.h"
+#import "opts_validator.h"
+
 #import "dir_walker.h"
 #import "data_object.h"
 #import "falloc.h"
@@ -8,17 +10,42 @@
 
 struct axfs_config acfg;
 
-int main( int argc, const char *argv[] ) {    
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    GetOpts *go;
-    DirWalker *dw;
+void do_getopts(int argc, const char *argv[]) {
+	GetOpts *go;
+	NSAutoreleasePool *pool;
 
-    go = [[GetOpts alloc] init];
-    dw = [[DirWalker alloc] init];
-    
-    [go argc: argc argv: (char **) argv];
+	pool = [[NSAutoreleasePool alloc] init];
+	go = [[GetOpts alloc] init];
+	[go initialize];
+	[go argc: argc argv: (char **) argv];
+	[go free];
+	[go release];
+	[pool drain];
+}
 
-    [pool drain];
+int do_opts_validation(void) {
+	OptsValidator *ov;
+	NSAutoreleasePool *pool;
+	int retval;
+
+	ov = [[OptsValidator alloc] init];
+	[ov initialize];
+	retval = [ov validate];
+	[ov free];
+	[ov release];
+	pool = [[NSAutoreleasePool alloc] init];
+	[pool drain];
+	return retval;
+}
+
+int main(int argc, const char *argv[]) {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
+	do_getopts(argc, argv);
+	do_opts_validation();
+	
+
+	[pool drain];
 	return 0;
 }
 

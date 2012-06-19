@@ -23,7 +23,7 @@ extern struct compressor *lookup_compressor(char *name);
 	void *stream;
 }
 -(void) initialize;
--(void) algorithm: (char *) name;
+-(bool) algorithm: (char *) name;
 -(void) cdata: (void *) cdata csize: (uint64_t *) csize data: (void *) data size: (uint64_t) size;
 -(void) free;
 @end
