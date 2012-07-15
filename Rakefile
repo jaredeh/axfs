@@ -45,6 +45,7 @@ task :clean do
   cd utfpath
   sh "rake clean"
   cd rootdir
+  rm_rf "tovtf"
 end
 
 task :clobber do

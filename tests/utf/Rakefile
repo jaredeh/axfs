@@ -1,6 +1,8 @@
+require 'rubygems'
 gem 'ci_reporter'
 require 'ci/reporter/rake/test_unit'
 require 'rake/testtask'
+require 'open4'
 
 
 rootdir = Dir.pwd
@@ -64,17 +66,24 @@ task :unit_tests, :unit, :test do |t, args|
         fail "Compiling '" + dir + "/" + test + "' failed.  No binary '" + file + "' or '" + file + ".exe' found."
       end
       draw_line("<",70)
+      status = Open4::popen4("./test") do |pid, si, so, se|
+        stdout=stderr=""
+        while(line=so.gets) 
+          stdout+=line
+          puts line
+        end
+        while(line=se.gets) 
+          stderr+=line
+          puts line
+        end
+      end
+    end
+    cd rootdir
+    rtest = "ruby_scripts/test_" + dir.sub(".m","_m") + ".rb"
+    if FileTest.exists?(rtest)
+      sh "ruby " + rtest
     end
   end
-  cd rootdir
-  IO.popen("./runtest 2>&1") do |io|
-    io.each do |l|
-      print l
-      if l =~ /FAILURES/ then fail "Unit tests fails" end
-    end
-  end
-  Rake::Task["ruby_tests"].reenable
-  Rake::Task["ruby_tests"].invoke
 end
 
 task :clean do
@@ -102,12 +111,3 @@ task :clean do
 end
 
 task :clobber => :clean
-
-Rake::TestTask.new do |t|
-  t.libs << 'ruby_scripts'
-  t.test_files = FileList['ruby_scripts/test*.rb']
-  t.verbose = false
-end
-
-desc "Run ruby tests"
-task :ruby_tests => :test

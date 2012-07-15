@@ -2,7 +2,6 @@
 TOOL_NAME = mkfs.axfs
 mkfs.axfs_OBJC_FILES = src/bytetable.m \
                        src/compressor.m \
-                       src/data_object.m \
                        src/dir_walker.m \
                        src/falloc.m \
                        src/getopts.m \

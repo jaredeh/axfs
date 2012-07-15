@@ -36,6 +36,26 @@ class TestGetopts < Test::Unit::TestCase
       a = run_getopts("--" + long + " " + i.to_s)
       assert_equal(i, a[long])
     end
+    [1024,'1024B','1024b','1k','1K','1KB','1kb','1Kb'].each do |i|
+      a = run_getopts("--" + long + " " + i.to_s)
+      assert_equal(1024,a[long])
+    end
+    ['1m','1M','1MB','1mb','1Mb'].each do |i|
+      a = run_getopts("--" + long + " " + i.to_s)
+      assert_equal(1024*1024,a[long])
+    end
+    ['1g','1G','1GB','1gb','1Gb'].each do |i|
+      a = run_getopts("--" + long + " " + i.to_s)
+      assert_equal(1024*1024*1024,a[long])
+    end
+    ['0x6','0X6'].each do |i|
+      a = run_getopts("--" + long + " " + i.to_s)
+      assert_equal(6,a[long])
+    end
+    ['0xa','0XA','0xA','0Xa'].each do |i|
+      a = run_getopts("--" + long + " " + i.to_s)
+      assert_equal(10,a[long])
+    end
   end
 
   def test_input
@@ -62,6 +82,10 @@ class TestGetopts < Test::Unit::TestCase
     do_str_test("s","special","-i /dev/fo3","eeeee")
   end
 
+  def test_page_size
+    do_num_test("g","page_size","-i /dev/fo3")
+  end
+
   def test_block_size
     do_num_test("b","block_size","-i /dev/fo3")
   end
@@ -76,6 +100,7 @@ end
  -i,--input == input directory
  -o,--output == binary output file, the XIP part
  -d,--secondary_output == second binary output 
+ -g,--page_size == memory page size assumption
  -b,--block_size == compression block size
  -x,--xip_size == xip size of image
  -c,--compression == compression library

@@ -12,10 +12,6 @@
 		cdata_partials = malloc(pagesize*e);
 }
 
--(void) pageSize: (uint64_t) ps {
-	pagesize = ps;
-}
-
 -(uint64_t) addPage: (void *) page {
 	pages[place] = (struct page_struct *) page;
 	place += 1;
@@ -84,7 +80,9 @@
 	return place;
 }
 
--(void) initialize {}
+-(void) initialize {
+	pagesize = acfg.page_size;
+}
 
 -(void) free {
 	free(pages);

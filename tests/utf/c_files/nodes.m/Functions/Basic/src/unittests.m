@@ -12,6 +12,8 @@
 
 /****** Test Code ******/
 
+struct axfs_config acfg;
+
 static void Nodes_createdestroy(CuTest *tc)
 {
 	Nodes *nodes;
@@ -45,9 +47,9 @@ static void Nodes_simplelength(CuTest *tc)
 	uint64_t output;
 
 	printf("Running %s\n", __FUNCTION__);
+	acfg.page_size = 4096;
 	nodes = [[Nodes alloc] init];
 	[nodes initialize];
-	[nodes pageSize: 4096];
 	[nodes numberEntries: 4096 nodeType: TYPE_XIP];
 
 	[nodes addPage: 0];
@@ -75,9 +77,9 @@ static void Nodes_size_xip4k(CuTest *tc)
 	uint8_t *compare;
 
 	printf("Running %s\n", __FUNCTION__);
+	acfg.page_size = l;
 	nodes = [[Nodes alloc] init];
 	[nodes initialize];
-	[nodes pageSize: l];
 	[nodes numberEntries: 4096 nodeType: TYPE_XIP];
 
 	pages = [[Pages alloc] init];
@@ -134,9 +136,9 @@ static void Nodes_cdata(CuTest *tc)
 	uint8_t *compare;
 
 	printf("Running %s\n", __FUNCTION__);
+	acfg.page_size = l;
 	nodes = [[Nodes alloc] init];
 	[nodes initialize];
-	[nodes pageSize: l];
 	[nodes numberEntries: 4096 nodeType: TYPE_XIP];
 
 	pages = [[Pages alloc] init];
@@ -197,9 +199,9 @@ static void Nodes_size_xip64k(CuTest *tc)
 	uint8_t *compare;
 
 	printf("Running %s\n", __FUNCTION__);
+	acfg.page_size = l;
 	nodes = [[Nodes alloc] init];
 	[nodes initialize];
-	[nodes pageSize: l];
 	[nodes numberEntries: 4096 nodeType: TYPE_XIP];
 
 	pages = [[Pages alloc] init];

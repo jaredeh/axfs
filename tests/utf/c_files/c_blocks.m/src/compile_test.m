@@ -4,8 +4,8 @@
 /* actual files to compile test */
 #include "../../../../../src/compressor.h"
 #include "../../../../../src/compressor.m"
-#include "../../../../../src/opts_validator.h"
-#include "../../../../../src/opts_validator.m"
+#include "../../../../../src/c_block.h"
+#include "../../../../../src/c_block.m"
 
 struct axfs_config acfg;
 

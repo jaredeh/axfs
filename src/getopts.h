@@ -22,6 +22,8 @@ extern struct axfs_config acfg;
 -(void) free;
 @end
 
+void do_getopts(int argc, const char *argv[]);
+
 /*
  *********
  -i,--input == input directory

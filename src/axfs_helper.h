@@ -14,8 +14,12 @@ struct axfs_config {
 	char *output;
 	char *secondary_output;
 	char *compression;
+	uint64_t page_size;
+	char *page_size_str;
 	uint64_t block_size;
+	char *block_size_str;
 	uint64_t xip_size;
+	char *xip_size_str;
 	char *profile;
 	char *special;
 };

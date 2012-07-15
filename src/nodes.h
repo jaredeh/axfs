@@ -2,6 +2,9 @@
 #import "red_black_tree.h"
 #import "pages.h"
 #import "compressor.h"
+#import "axfs_helper.h"
+
+extern struct axfs_config acfg;
 
 enum {
 	TYPE_XIP,
@@ -24,7 +27,6 @@ enum {
 }
 
 -(void) numberEntries: (uint64_t) e nodeType: (uint8_t) t;
--(void) pageSize: (uint64_t) ps;
 -(uint64_t) addPage: (void *) page;
 -(void *) data;
 -(uint64_t) size;
