@@ -15,6 +15,8 @@
 #include "pages.m"
 /****** Test Code ******/
 
+struct axfs_config acfg;
+
 static void Region_createdestroy(CuTest *tc)
 {
 	int output;
@@ -182,7 +184,7 @@ static void get_nodes_cdata(Nodes **nd, Pages **pg, uint8_t *d)
 	uint8_t *data5 = d + l*5;
 	void *output[9];
 
-	[nodes pageSize: l];
+	acfg.page_size = l;
 	[nodes numberEntries: 4096 nodeType: TYPE_XIP];
 
 	[pages numberPages: 100 path: "./tempfile"];

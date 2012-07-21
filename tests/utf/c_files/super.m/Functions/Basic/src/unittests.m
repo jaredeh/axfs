@@ -17,6 +17,8 @@
 
 /****** Test Code ******/
 
+struct axfs_config acfg;
+
 static void Super_createdestroy(CuTest *tc){
 	int output;
 	Super *sb = [[Super alloc] init];

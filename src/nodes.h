@@ -23,7 +23,6 @@ enum {
 	void *cdata_partials;
 	uint64_t size;
 	uint64_t csize;
-	uint64_t pagesize;
 }
 
 -(void) numberEntries: (uint64_t) e nodeType: (uint8_t) t;

@@ -9,6 +9,8 @@
 #include "../../../../../src/compressor.h"
 #include "../../../../../src/compressor.m"
 
+struct axfs_config acfg;
+
 int main(int argc, char * argv[])
 {
 	return 0;

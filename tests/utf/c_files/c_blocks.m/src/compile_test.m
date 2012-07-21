@@ -4,8 +4,8 @@
 /* actual files to compile test */
 #include "../../../../../src/compressor.h"
 #include "../../../../../src/compressor.m"
-#include "../../../../../src/c_block.h"
-#include "../../../../../src/c_block.m"
+#include "../../../../../src/c_blocks.h"
+#include "../../../../../src/c_blocks.m"
 
 struct axfs_config acfg;
 

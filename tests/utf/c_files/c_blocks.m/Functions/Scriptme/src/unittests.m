@@ -2,6 +2,7 @@
 #import "c_blocks.h"
 #import "c_blocks.m"
 #import <Foundation/NSAutoreleasePool.h>
+#include <yaml.h>
 
 struct axfs_config acfg;
 
@@ -10,14 +11,26 @@ char * denullify(char * foo) {
 }
 
 int main( int argc, const char *argv[] ) {
+	while (true) {
+
+	}
+}
+
+/*
+int main( int argc, const char *argv[] ) {	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	CBlocks *cb;
+	GetOpts *go;
 	bool retval = true;
 	char *msg;
 
 	if (argc < 2)
 		return 0;
 	
+	go = [[GetOpts alloc] init];
+	[go initialize]; 
+	[go argc: argc argv: (char **) argv];
+
 	cb = [[CBlocks alloc] init];
 
 	[cb initialize];
@@ -47,3 +60,4 @@ int main( int argc, const char *argv[] ) {
 
 	return 0;
 }
+*/

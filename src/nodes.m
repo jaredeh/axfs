@@ -6,10 +6,10 @@
 	type = t;
 	place = 0;
 	pages = malloc(sizeof(struct page_struct *)*e);
-	data = malloc(pagesize*e);
-	cdata = malloc(pagesize*e);
+	data = malloc(acfg.page_size*e);
+	cdata = malloc(acfg.page_size*e);
 	if (type == TYPE_COMPRESS)
-		cdata_partials = malloc(pagesize*e);
+		cdata_partials = malloc(acfg.page_size*e);
 }
 
 -(uint64_t) addPage: (void *) page {
@@ -34,9 +34,9 @@
 		page = pages[i];
 		if (type == TYPE_XIP) {
 			memcpy(bd, page->data, page->length);
-			memset(bd + page->length, 0, pagesize - page->length);
-			size += pagesize;
-			bd += pagesize;
+			memset(bd + page->length, 0, acfg.page_size - page->length);
+			size += acfg.page_size;
+			bd += acfg.page_size;
 		} else if (type == TYPE_BYTEALIGNED) {
 			memcpy(bd, page->data, page->length);
 			size += page->length;
@@ -52,7 +52,7 @@
 	if(!cached)
 		[self data];
 	if(type == TYPE_XIP)
-		size = [self length] * pagesize;
+		size = [self length] * acfg.page_size;
 	return size;
 }
 
@@ -81,7 +81,6 @@
 }
 
 -(void) initialize {
-	pagesize = acfg.page_size;
 }
 
 -(void) free {
