@@ -1,18 +1,20 @@
 rootdir = Dir.pwd
 utfpath = File.join(rootdir,"tests","utf")
+libpath = File.join(rootdir,"libs")
+srcpath = File.join(rootdir,"src")
 
 task :configure do
-  cd rootdir
-  sh "make configure"
+  cd libpath
+  sh "rake configure"
 end
 
 task :lib do
-  cd rootdir
-  sh "make lib"
+  cd libpath
+  sh "rake all"
 end
 
 task :all do
-  cd rootdir
+  cd srcpath
   sh "make all"
 end
 

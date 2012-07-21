@@ -1,0 +1,22 @@
+rootdir = Dir.pwd
+
+task :configure do
+  cd rootdir
+  sh "make -C squashfs_compressor configure"
+end
+
+task :all do
+  cd rootdir
+  sh "make -C rb_tree lib"
+  sh "make -C squashfs_compressor lib"
+end
+
+task :clobber do
+  cd rootdir
+  sh "make -C squashfs_compressor clobber"
+  sh "make -C rb_tree clobber"
+end
+
+task :clean => :clobber
+
+task :default => :all
