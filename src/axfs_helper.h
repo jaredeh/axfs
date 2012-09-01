@@ -22,4 +22,5 @@ struct axfs_config {
 	char *xip_size_str;
 	char *profile;
 	char *special;
+	uint64_t max_nodes;
 };

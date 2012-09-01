@@ -41,8 +41,8 @@ all: $(OBJ)
 endif
 
 clean::
-	rm -f src/*.o
-	rm -f src/*~
+	rm -f *.o
+	rm -f *~
 	rm -f mkfs.axfs
 
 clobber: clean

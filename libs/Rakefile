@@ -2,19 +2,23 @@ rootdir = Dir.pwd
 
 task :configure do
   cd rootdir
-  sh "make -C squashfs_compressor configure"
+  sh "make -C #{rootdir}/squashfs_compressor configure"
+  sh "cd #{rootdir}/yaml; ./configure"
 end
 
 task :all do
   cd rootdir
-  sh "make -C rb_tree lib"
-  sh "make -C squashfs_compressor lib"
+  sh "make -C #{rootdir}/rb_tree lib"
+  sh "make -C #{rootdir}/squashfs_compressor lib"
+  sh "make -C #{rootdir}/yaml; mv #{rootdir}/yaml/src/.libs/libyaml.a #{rootdir}/yaml/libyamlaxfs.a"
 end
 
 task :clobber do
   cd rootdir
-  sh "make -C squashfs_compressor clobber"
-  sh "make -C rb_tree clobber"
+  sh "make -C #{rootdir}/squashfs_compressor clobber"
+  sh "make -C #{rootdir}/rb_tree clobber"
+  sh "make -C #{rootdir}/yaml distclean"
+  rm_rf "#{rootdir}/yaml/libyamlaxfs.a"
 end
 
 task :clean => :clobber

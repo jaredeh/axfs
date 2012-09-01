@@ -56,7 +56,7 @@ clean:
 	rm -f *.o *~ $(PROGRAM)
 
 clobber: clean
-	rm librb_tree.a
+	rm -f librb_tree.a
 
 lib: $(OBJS)
 	ar rcs librb_tree.a red_black_tree.o stack.o misc.o

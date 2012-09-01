@@ -24,9 +24,10 @@ bool validate_args(int argc, const char *argv[]) {
 }
 
 int main(int argc, const char *argv[]) {
+	char *msg;
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-	if (!validate_args(&msg)) {
+	if (!validate_args(argc, argv)) {
 		[pool drain];
 		return -1;
 	}

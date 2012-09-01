@@ -12,9 +12,13 @@ enum {
 	TYPE_COMPRESS
 };
 
+struct axfs_node {
+	struct page_struct *page;
+	struct axfs_node *next;
+	uint64_t cboffset;
+};
+
 @interface Nodes: NSObject {
-	uint8_t type;
-	struct page_struct **pages;
 	uint64_t place;
 	bool cached;
 	bool ccached;
@@ -25,7 +29,6 @@ enum {
 	uint64_t csize;
 }
 
--(void) numberEntries: (uint64_t) e nodeType: (uint8_t) t;
 -(uint64_t) addPage: (void *) page;
 -(void *) data;
 -(uint64_t) size;

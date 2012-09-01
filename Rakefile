@@ -4,57 +4,51 @@ libpath = File.join(rootdir,"libs")
 srcpath = File.join(rootdir,"src")
 
 task :configure do
-  cd libpath
-  sh "rake configure"
+  sh "cd #{libpath}; rake configure"
 end
 
 task :lib do
-  cd libpath
-  sh "rake all"
+  sh "cd #{libpath}; rake all"
 end
 
 task :all do
-  cd srcpath
-  sh "make all"
+  sh "make -C #{srcpath} all"
+  mv File.join(srcpath,"mkfs.axfs"), File.join(rootdir,"mkfs.axfs")
 end
 
 task :tests => [:unit_compile_test, :unit_tests]
 
 task :unit_compile_test, :unit do |t, args|
   args.with_defaults(:unit => nil)
-  cd utfpath
   if args[:unit] == nil
-    sh "rake unit_compile_test"
+    sh "cd #{utfpath}; rake unit_compile_test"
   else
-    sh "rake unit_compile_test[" + args[:unit] + "]"
+    sh "cd #{utfpath}; rake unit_compile_test[" + args[:unit] + "]"
   end
-  cd rootdir
 end
 
 task :unit_tests, :unit, :test do |t, args|
   args.with_defaults(:unit => nil)
-  cd utfpath
   if args[:unit] == nil
-    sh "rake unit_tests"
+    sh "cd #{utfpath}; rake unit_tests"
   else
-    sh "rake unit_tests[" + args[:unit] + "]"
+    sh "cd #{utfpath}; rake unit_tests[" + args[:unit] + "]"
   end
-  cd rootdir
 end
 
 task :clean do
-  sh "make clean"
-  cd utfpath
-  sh "rake clean"
-  cd rootdir
-  rm_rf "tovtf"
+  sh "make -C #{srcpath} clean"
+  rm_rf File.join(rootdir,"mkfs.axfs")
+  sh "cd #{utfpath}; rake clean"  
+  rm_rf File.join(rootdir,"tovtf")
 end
 
 task :clobber do
-  sh "make clobber"
-  cd utfpath
-  sh "rake clobber"
-  cd rootdir
+  sh "make -C #{srcpath} clobber"
+  rm_rf File.join(rootdir,"mkfs.axfs")
+  sh "cd #{utfpath}; rake clobber"  
+  sh "cd #{libpath}; rake clobber"
+  rm_rf File.join(rootdir,"tovtf")
 end
 
 task :default => :all

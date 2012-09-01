@@ -1,11 +1,16 @@
 CFILEROOT = ${abspath ../}
-UTEROOT = ${abspath ../../../../utf/UnitTestEngine}
-SRCROOT = ${abspath ../../../../../src}
-RBROOT = ${abspath ../../../../../rb_tree}
+UTEROOT   = ${abspath ../../../../utf/UnitTestEngine}
+SRCROOT   = ${abspath ../../../../../src}
+RBROOT    = ${abspath ../../../../../libs/rb_tree}
+SQROOT    = ${abspath ../../../../../libs/squashfs_compressor}
+YAMLROOT  = ${abspath ../../../../../libs/yaml}
 
-INC = -I./inc -I${CFILEROOT}/inc -I${CFILEROOT}/src -I${UTEROOT}/inc -I${SRCROOT} -I${RBROOT}
-LIBS = -L ../../../../../rb_tree -lrb_tree
-LIBS += -L ../../../../../squashfs_compressor -lsquashfs_compressor
+INC  = -I./inc -I${CFILEROOT}/inc -I${CFILEROOT}/src -I${UTEROOT}/inc -I${SRCROOT}
+INC += -I${RBROOT} -I${YAMLROOT}/include
+LIBS  = -L ${RBROOT} -lrb_tree
+LIBS += -L ${SQROOT} -lsquashfs_compressor
+LIBS += -L ${YAMLROOT}/src/.libs -lyaml
+
 CFLAGS = -fPIC -Wall -g -O2
 
 ifeq ($(firstword $(shell uname -a)),Linux)

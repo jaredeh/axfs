@@ -61,11 +61,19 @@ task :unit_tests, :unit, :test do |t, args|
       cd path
       sh "make clean"
       sh "make"
-      file = File.join(path,"test")
-      if not File.exists?(file) and not File.exists?(file + ".exe")
-        fail "Compiling '" + dir + "/" + test + "' failed.  No binary '" + file + "' or '" + file + ".exe' found."
+      if File.exists?(File.join(path,"test.rb"))
+        sh "ruby test.rb"
+        next
+      end
+      file = Array.new
+      file.push File.join(path,"test")
+      file.push File.join(path,"test.exe")
+      file.push File.join(path,"libtest.so")
+      if not File.exists?(file[0]) and not File.exists?(file[1]) and not File.exists?(file[2])
+        fail "Compiling '" + dir + "/" + test + "' failed.  No binary '" + file[0] + "' or '" + file[1] + "' or '" + file[2] + "'  found."
       end
       draw_line("<",70)
+      if File.exists?(file[2]) then next end
       status = Open4::popen4("./test") do |pid, si, so, se|
         stdout=stderr=""
         while(line=so.gets) 

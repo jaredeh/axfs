@@ -9,6 +9,7 @@ INC  = -I./inc -I${CFILEROOT}/inc -I${CFILEROOT}/src -I${UTEROOT}/inc -I${SRCROO
 INC += -I${RBROOT} -I${YAMLROOT}/include
 LIBS  = -L ${RBROOT} -lrb_tree
 LIBS += -L ${SQROOT} -lsquashfs_compressor
+LIBS += -L ${YAMLROOT} -lyamlaxfs
 
 CFLAGS = -fPIC -Wall -g -O2
 
@@ -26,16 +27,11 @@ endif
 .m.o:
 
 all:
-	mkdir -p build
-	mkdir -p ${UTEROOT}/build
-	${CC} ${INC} -g -c ./src/stubs.c -o ./build/stubs.o
-	${CC} ${CFLAGS} ${INC} -c ./src/unittests.m -o ./build/unittests.o
-	${CC} ${INC} -g -c ${UTEROOT}/src/dummy_main.c -o ./build/main.o
-	${CC} -o ./test ./build/main.o ./build/stubs.o ./build/unittests.o ${UTEROOT}/build/CuTest.o ${LIBS}
+	${CC} ${CFLAGS} ${INC} -c ../../src/wrapper.m -o ../../src/wrapper.o
+	${CC} -shared -lc -g -o ../../src/libtest.so ../../src/wrapper.o ${LIBS}
 
 clean:
-	rm -rf ./build/* ./lib*.* ./src/*~ 
-	rm -rf ./inc/*~ ./Makefile~ ./test ./test.exe ./core
+	rm -rf ../../src/*.o ../../src/lib*.* 
+	rm -rf ./Makefile~ ./core
 
 clobber: clean
-	rm -rf ./src/function.c

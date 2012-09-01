@@ -21,6 +21,8 @@
 //	fp = fopen("data_.bin", "w+");
 //	fwrite(data,size,1,fp);
 //	fclose(fp);
+	if (size == 0)
+		return;
 
 	*csize = compress->compress(stream, cdata, data, size, size, &error);
 //	printf("\ncsize: 0x%08llx\n",*csize);

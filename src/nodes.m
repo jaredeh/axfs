@@ -2,17 +2,8 @@
 
 @implementation Nodes
 
--(void) numberEntries: (uint64_t) e nodeType: (uint8_t) t {
-	type = t;
-	place = 0;
-	pages = malloc(sizeof(struct page_struct *)*e);
-	data = malloc(acfg.page_size*e);
-	cdata = malloc(acfg.page_size*e);
-	if (type == TYPE_COMPRESS)
-		cdata_partials = malloc(acfg.page_size*e);
-}
-
 -(uint64_t) addPage: (void *) page {
+	
 	pages[place] = (struct page_struct *) page;
 	place += 1;
 	cached = false;
