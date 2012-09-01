@@ -6,7 +6,7 @@ class TestOptsValidator < Test::Unit::TestCase
   def run_getopts(arg_str)
     str = ""
     cmd = File.dirname(File.dirname(__FILE__))
-    cmd = File.join(cmd,"c_files/opts_validator.m/Functions/Scriptme/test")
+    cmd = File.join(cmd,"./test")
     IO.popen(cmd + " " + arg_str + " 2>&1") { |io| str += io.read }
     #puts  "<--" + str + "-->"
     #puts "fafafa--" + cmd + " " + arg_str + " 2>&1 --fafafa"

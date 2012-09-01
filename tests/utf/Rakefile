@@ -87,10 +87,6 @@ task :unit_tests, :unit, :test do |t, args|
       end
     end
     cd rootdir
-    rtest = "ruby_scripts/test_" + dir.sub(".m","_m") + ".rb"
-    if FileTest.exists?(rtest)
-      sh "ruby " + rtest
-    end
   end
 end
 
