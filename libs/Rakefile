@@ -13,7 +13,7 @@ task :check_if_should_rebuild do
     puts "rebuild: not git_rev"
   else
     old_git_rev = `cat git_rev`
-    diff = `git diff #{old_git_rev} ./`
+    diff = `git diff #{old_git_rev.chomp} ./`
     if diff.length > 0
       puts "rebuild: differences"
     end
