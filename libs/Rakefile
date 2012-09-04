@@ -13,7 +13,7 @@ task :check_if_should_rebuild do
     puts "rebuild: not git_rev"
   else
     old_git_rev = `cat git_rev`
-    diff = `git diff #{old_git_rev}`
+    diff = `git diff #{old_git_rev} ./`
     if diff.length > 0
       puts "rebuild: differences"
     end
@@ -36,7 +36,7 @@ task :clobber do
     sh "make -C #{rootdir}/yaml distclean"
     rm_rf "#{rootdir}/yaml/libyamlaxfs.a"
   end
-  rm_rf ./git_rev
+  rm_rf "./git_rev"
 end
 
 task :clean => :clobber
