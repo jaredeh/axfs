@@ -17,8 +17,10 @@ task :clobber do
   cd rootdir
   sh "make -C #{rootdir}/squashfs_compressor clobber"
   sh "make -C #{rootdir}/rb_tree clobber"
-  sh "make -C #{rootdir}/yaml distclean"
-  rm_rf "#{rootdir}/yaml/libyamlaxfs.a"
+  if File.exists?("#{rootdir}/yaml/Makefile")
+    sh "make -C #{rootdir}/yaml distclean"
+    rm_rf "#{rootdir}/yaml/libyamlaxfs.a"
+  end
 end
 
 task :clean => :clobber
