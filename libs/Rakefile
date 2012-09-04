@@ -6,11 +6,26 @@ task :configure do
   sh "cd #{rootdir}/yaml; ./configure"
 end
 
+task :check_if_should_rebuild do
+  if not File.exists?("squashfs_compressor/libsquashfs_compressor.a") or not File.exists?("rb_tree/librb_tree.a")
+    puts "rebuild: lib missing"
+  elsif not File.exists?("git_rev")
+    puts "rebuild: not git_rev"
+  else
+    old_git_rev = `cat git_rev`
+    diff = `git diff #{old_git_rev}`
+    if diff.length > 0
+      puts "rebuild: differences"
+    end
+  end
+end
+
 task :all do
   cd rootdir
   sh "make -C #{rootdir}/rb_tree lib"
   sh "make -C #{rootdir}/squashfs_compressor lib"
   sh "make -C #{rootdir}/yaml; mv #{rootdir}/yaml/src/.libs/libyaml.a #{rootdir}/yaml/libyamlaxfs.a"
+  sh "git rev-parse HEAD > git_rev"
 end
 
 task :clobber do
@@ -21,6 +36,7 @@ task :clobber do
     sh "make -C #{rootdir}/yaml distclean"
     rm_rf "#{rootdir}/yaml/libyamlaxfs.a"
   end
+  rm_rf ./git_rev
 end
 
 task :clean => :clobber
