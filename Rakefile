@@ -3,16 +3,13 @@ utfpath = File.join(rootdir,"tests","utf")
 libpath = File.join(rootdir,"libs")
 srcpath = File.join(rootdir,"src")
 
-task :check_if_should_rebuild_libs do
-  sh "cd #{libpath}; rake check_if_should_rebuild"
-end
-
-task :configure do
-  sh "cd #{libpath}; rake configure"
-end
-
 task :lib do
-  sh "cd #{libpath}; rake all"
+  should_rebuild = `cd #{libpath}; rake check_if_should_rebuild`
+  if should_rebuild.length > 0
+    sh "cd #{libpath}; rake clobber"
+    sh "cd #{libpath}; rake configure"
+    sh "cd #{libpath}; rake all"
+  end
 end
 
 task :all do
