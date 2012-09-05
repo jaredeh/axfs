@@ -1,3 +1,4 @@
 mkfs.axfs
 obj/
 tovtf/
+libs/git_rev
