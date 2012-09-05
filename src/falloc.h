@@ -1,3 +1,4 @@
+#import "axfs_helper.h"
 #import <Foundation/Foundation.h>
 
 @interface falloc: NSObject {
