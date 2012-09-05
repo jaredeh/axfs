@@ -18,8 +18,14 @@ struct page_struct {
 	uint64_t length;
 	rb_red_blk_tree *tree;
 }
+-(struct page_struct *) allocPageStruct;
+-(void *) allocPageData;
+-(void *) allocPageCdata;
+-(void) populate: (struct page_struct *) page data: (void *) data_ptr length: (uint64_t) len;
+-(void) configureRBtree;
+-(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len;
 -(void) numberPages: (uint64_t) numpages path: (char *) pathname;
+-(void *) addPage: (void *) data_ptr length: (uint64_t) len;
 -(void) initialize;
 -(void) free;
--(void *) addPage: (void *) page_data length: (uint64_t) page_length;
 @end

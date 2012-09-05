@@ -74,14 +74,6 @@ static void StringsInfoDest(void *a){;}
 	[self configureRBtree];
 }
 
--(void) initialize {}
-
--(void) free {
-	RBTreeDestroy(tree);
-	free(strings.data);
-	free(data.data);
-}
-
 -(void *) addString: (void *) data_ptr length: (uint64_t) len {
 	struct string_struct temp;
 	struct string_struct *new_string;
@@ -142,6 +134,14 @@ static void StringsInfoDest(void *a){;}
 
 -(uint64_t) length {
 	return strings.place;
+}
+
+-(void) initialize {}
+
+-(void) free {
+	RBTreeDestroy(tree);
+	free(strings.data);
+	free(data.data);
 }
 
 @end

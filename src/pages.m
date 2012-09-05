@@ -84,16 +84,6 @@ static void PagesInfoDest(void *a){;}
 	[self configureRBtree];
 }
 
--(void) initialize {}
-
--(void) free {
-	RBTreeDestroy(tree);
-
-	free(pages.data);
-	free(data.data);
-	free(cdata.data);
-}
-
 -(void *) addPage: (void *) data_ptr length: (uint64_t) len {
 	struct page_struct temp;
 	struct page_struct *new_page;
@@ -111,6 +101,16 @@ static void PagesInfoDest(void *a){;}
 	RBTreeInsert(rb_node,tree,(void *)new_page,0);
 
 	return rb_node->key;
+}
+
+-(void) initialize {}
+
+-(void) free {
+	RBTreeDestroy(tree);
+
+	free(pages.data);
+	free(data.data);
+	free(cdata.data);
 }
 
 @end

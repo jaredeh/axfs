@@ -28,10 +28,17 @@ struct cblock_struct {
     Compressor * compressor;
 }
 
+-(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len;
+-(struct cblock_struct *) allocateCBlockStructs;
+-(void *) allocCdata: (uint64_t) s;
+-(void) compressCBlock: (struct cblock_struct *) cblock;
+-(void) addNodeToCBlock: (struct axfs_node *) node cblock: (struct cblock_struct *) cb;
+-(void) addFullPageNode: (struct axfs_node *) node;
+-(void) addPartPageNode: (struct axfs_node *) node;
 -(void) addNode: (struct axfs_node *) node;
--(void *) data;
 -(uint64_t) size;
 -(uint64_t) length;
+-(void *) data;
 -(void) initialize;
 -(void) free;
 

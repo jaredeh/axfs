@@ -6,6 +6,7 @@
 	uint8_t *data_p;
 	uint32_t cblock_size;
 }
+-(id) init;
 -(void) do_magic;
 -(void) do_signature;
 -(void) do_digest;
@@ -59,9 +60,10 @@
 /* UNIX time_t of filesystem build time */
 -(void) do_timestamp;
 -(void) do_page_shift;
-
-
+-(void) cblock_size: (uint32_t) cbs;
+-(uint64_t) size;
 -(void *) data;
 -(void) initialize;
 -(void) free;
+
 @end

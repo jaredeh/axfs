@@ -17,9 +17,18 @@ struct string_struct {
 	uint64_t csize;
 	uint8_t *cbuffer;
 }
+-(struct string_struct *) allocStringStruct;
+-(void *) allocStringData: (uint64_t) len;
+-(void) populate: (struct string_struct *) str data: (void *) data_ptr length: (uint64_t) len;
+-(void) configureRBtree;
+-(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len;
 -(void) numberInodes: (uint64_t) inodes length: (uint64_t) len path: (char *) pathname;
+-(void *) addString: (void *) data_ptr length: (uint64_t) len;
+-(void *) data;
+-(uint64_t) size;
+-(void *) cdata;
+-(uint64_t) csize;
+-(uint64_t) length;
 -(void) initialize;
 -(void) free;
--(void *) addString: (void *) data_ptr length: (uint64_t) len;
--(void *) allocStringData: (uint64_t) len;
 @end

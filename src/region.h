@@ -13,9 +13,8 @@
 }
 -(void) addBytetable: (ByteTable *) bt;
 -(void) addNodes: (Nodes *) nd;
+-(uint8_t *) data_p;
 -(void *) data;
--(void) initialize;
--(void) free;
 -(void) fsoffset: (uint64_t) offset;
 -(void) incore: (uint8_t) core;
 -(void *) get_data;
@@ -28,5 +27,7 @@
 -(void) big_endian_64: (uint64_t) number;
 -(void) big_endian_32: (uint32_t) number;
 -(void) big_endian_byte: (uint8_t) number;
+-(void) initialize;
+-(void) free;
 @end
 

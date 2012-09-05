@@ -2,15 +2,6 @@
 
 @implementation Region
 
--(void) initialize {
-	fsoffset = 0;
-	nodes = NULL;
-	bytetable = NULL;
-	data = malloc(8*4 + 1 + 1);
-	memset(data,0,8*4 + 1 + 1);
-	data_p = data;
-}
-
 -(void) addBytetable: (ByteTable *) bt {
 	bytetable = bt;
 }
@@ -52,10 +43,6 @@
 	[self big_endian_byte: incore];
 
 	return data;
-}
-
--(void) free {
-	free(data);
 }
 
 -(void) fsoffset: (uint64_t) offset {
@@ -139,6 +126,19 @@
 -(void) big_endian_byte: (uint8_t) number {
 	data_p[0] = number;
 	data_p += 1;
+}
+
+-(void) initialize {
+	fsoffset = 0;
+	nodes = NULL;
+	bytetable = NULL;
+	data = malloc(8*4 + 1 + 1);
+	memset(data,0,8*4 + 1 + 1);
+	data_p = data;
+}
+
+-(void) free {
+	free(data);
 }
 
 @end

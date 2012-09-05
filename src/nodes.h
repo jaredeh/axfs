@@ -38,6 +38,7 @@ struct axfs_node {
 -(uint64_t) csize;
 -(uint64_t) length;
 -(void) initialize;
+-(void) setType: (int) t;
 -(void) free;
 @end
 

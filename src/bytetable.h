@@ -18,7 +18,9 @@ struct bytetable_value {
 	bool deduped;
 	uint64_t csize_cached;
 }
+-(void) configureRBtree;
 -(void) initialize;
+-(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len;
 -(void) numberEntries: (uint64_t) entries dedup: (bool) dedup;
 -(uint64_t) length;
 -(uint64_t) size;
