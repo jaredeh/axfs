@@ -50,7 +50,7 @@
 		return false;
 	}
 
-	if ([self safe_strlen: acfg.secondary_output] > 1)
+	if ([self safe_strlen: acfg.secondary_output] > 1) {
 		if ([self is_directory: acfg.secondary_output]) {
 			sprintf(buffer,"--secondary_output %s: can't be a directory\n",acfg.output);
 		} else if (strlen(acfg.output) == strlen(acfg.secondary_output))
@@ -59,6 +59,7 @@
 						       " can't be the same\n",acfg.output
 						       ,acfg.secondary_output);
 		}
+	}
 
 	if ([self safe_strlen: acfg.profile] > 1)
 		if (![self is_file: acfg.profile])

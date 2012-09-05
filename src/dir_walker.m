@@ -3,6 +3,12 @@
 
 @implementation DirWalker
 
+-(void) file_size: (uint64_t) size file_name: (char *) name {
+	filename_size += strlen(name);
+	filedata_size += size;
+	number_of_files++;
+}
+
 -(void) size_up_dir: (NSString *) rootpath {
 	NSString *path;
 	NSDirectoryEnumerator *de;
@@ -30,12 +36,6 @@
 			[self file_size: size file_name: name];
 		}
 	}
-}
-
--(void) file_size: (uint64_t) size file_name: (char *) name {
-	filename_size += strlen(name);
-	filedata_size += size;
-	number_of_files++;
 }
 
 -(void) printstats {
