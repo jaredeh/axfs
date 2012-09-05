@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #ifdef __MACH__
 #include <mach/mach.h>
 #endif
