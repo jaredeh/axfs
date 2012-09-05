@@ -14,7 +14,6 @@ end
 
 task :all do
   sh "make -C #{srcpath} all"
-  mv File.join(srcpath,"mkfs.axfs"), File.join(rootdir,"mkfs.axfs")
 end
 
 task :tests => [:unit_compile_test, :unit_tests]
