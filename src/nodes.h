@@ -27,6 +27,8 @@ struct axfs_node {
 	void *cdata_partials;
 	uint64_t size;
 	uint64_t csize;
+	int type;
+	struct page_struct **pages;
 }
 
 -(uint64_t) addPage: (void *) page;

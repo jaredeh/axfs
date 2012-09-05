@@ -74,6 +74,10 @@
 -(void) initialize {
 }
 
+-(void) setType: (int) t {
+	type = t;
+}
+
 -(void) free {
 	free(pages);
 	free(data);

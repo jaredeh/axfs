@@ -79,7 +79,6 @@
 	}
 	cb = partpages;
 	while (cb != NULL) {
-		printf("node->page->length=%llu\n",node->page->length);
 		if ((acfg.block_size - cb->length) >= node->page->length) {
 			break;
 		}
@@ -95,9 +94,6 @@
 }
 
 -(void) addNode: (struct axfs_node *) node {
-    printf("node { page=0x%08llx next=0x%08llx cboffset=0x%08llx\n",node->page,node->next,node->cboffset);
-
-
 	if (node->page->length == acfg.page_size) {
 		return [self addFullPageNode: node];
 	} else {
