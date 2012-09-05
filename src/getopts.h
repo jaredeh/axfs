@@ -16,7 +16,7 @@ extern struct axfs_config acfg;
 -(void) compression: (char *) opt;
 -(void) profile: (char *) opt;
 -(void) special: (char *) opt;
-
+-(void) convert_arg: (char *) opt dst: (uint64_t *) output;
 -(void) argc: (int) c argv: (char **) v;
 -(void) initialize;
 -(void) free;
