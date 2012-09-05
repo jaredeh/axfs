@@ -91,14 +91,6 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 
 @implementation ByteTable
 
--(void) initialize {
-	depth = 0;
-	length = 0;
-	dbuffer = NULL;
-	cbuffer = NULL;
-	[self configureRBtree];
-}
-
 -(void) configureRBtree {
 	rb_red_blk_node *nild;
 	nild = malloc(sizeof(*nild));
@@ -107,6 +99,14 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 	memset(tree,0,sizeof(*tree));
 	RBTreeCreate(tree, nild, NULL, ByteTableComp, ByteTableDest,
 		     ByteTableInfoDest, ByteTablePrint, ByteTableInfoPrint);
+}
+
+-(void) initialize {
+	depth = 0;
+	length = 0;
+	dbuffer = NULL;
+	cbuffer = NULL;
+	[self configureRBtree];
 }
 
 -(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len {
