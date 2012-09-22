@@ -42,12 +42,11 @@ class CBlocks
   def initialize
     @cb = CBlocksInterface.CBlocks___new
     CBlocksInterface.CBlocks___initialize(@cb)
-  end
+    @nodes_anchor = Array.new
+    @pages_anchor = Array.new
+ end
 
   def addNode(node)
-    puts "llllllllll"
-    puts node
-    puts "ddddddddd"
     return CBlocksInterface.CBlocks___addNode(@cb,node)    
   end
 
@@ -67,6 +66,54 @@ class CBlocks
     return CBlocksInterface.CBlocks___free(@cb)    
   end
 
+  def CreateAxfsNode(in_node)
+    node_ptr = FFI::MemoryPointer.new :pointer
+    node_ptr = CLib.malloc(1024)
+    node = AxfsNode.new(node_ptr)
+    node[:page] = in_node[:page].pointer
+    node[:next] = in_node[:next] == nil ? 0 : in_node[:next]
+    node[:cboffset] = in_node[:cboffset].to_i
+    in_node = nil
+    @nodes_anchor.push node
+    return node
+  end
+
+  def CreatePageStruct(in_page)
+    page_ptr = FFI::MemoryPointer.new :pointer
+    page_ptr = CLib.malloc(16000)
+    page = PageStruct.new(page_ptr)
+    page[:data] = FFI::MemoryPointer.from_string(in_page[:data].to_s)
+    page[:cdata] = FFI::MemoryPointer.from_string(in_page[:cdata].to_s)
+    page[:length] = in_page[:data].to_s.length
+    page[:clength] = in_page[:clength].to_i
+    page[:rb_node] = in_page[:rb_node].to_i
+  
+    in_page = nil
+    @pages_anchor.push page
+    return page
+  end
+
+  def self.CreateAxfsConfig(config)
+    acfg_ptr = FFI::MemoryPointer.new :pointer
+    acfg_ptr = CLib.malloc(1024)
+    acfg = AxfsConfig.new(acfg_ptr)
+
+    acfg[:input] = FFI::MemoryPointer.from_string(config[:input].to_s + "\x0")
+    acfg[:output] = FFI::MemoryPointer.from_string(config[:output].to_s + "\x0")
+    acfg[:secondary_output] = FFI::MemoryPointer.from_string(config[:secondary_output].to_s + "\x0")
+    acfg[:compression] = FFI::MemoryPointer.from_string(config[:compression].to_s + "\x0")
+    acfg[:page_size_str] = FFI::MemoryPointer.from_string(config[:page_size_str].to_s + "\x0")
+    acfg[:block_size_str] = FFI::MemoryPointer.from_string(config[:block_size_str].to_s + "\x0")
+    acfg[:xip_size_str] = FFI::MemoryPointer.from_string(config[:xip_size_str].to_s + "\x0")
+    acfg[:profile] = FFI::MemoryPointer.from_string(config[:profile].to_s + "\x0")
+    acfg[:special] = FFI::MemoryPointer.from_string(config[:special].to_s + "\x0")
+    acfg[:page_size] = config[:page_size].to_i
+    acfg[:block_size] = config[:block_size].to_i
+    acfg[:xip_size] = config[:xip_size].to_i
+    acfg[:max_nodes] = config[:max_nodes].to_i
+
+    return acfg
+  end
 end
 
 class AxfsNode < FFI::Struct
@@ -126,49 +173,4 @@ class AxfsConfig < FFI::Struct
     :max_nodes, :uint64
 end
 
-def CreateAxfsNode(in_node)
-  node_ptr = FFI::MemoryPointer.new :pointer
-  node_ptr = CLib.malloc(1024)
-  node = AxfsNode.new(node_ptr)
-  node[:page] = in_node[:page].pointer
-  node[:next] = in_node[:next] == nil ? 0 : in_node[:next]
-  node[:cboffset] = in_node[:cboffset].to_i
-  in_node = nil
-  return node
-end
 
-def CreatePageStruct(in_page)
-  page_ptr = FFI::MemoryPointer.new :pointer
-  page_ptr = CLib.malloc(16000)
-  page = PageStruct.new(page_ptr)
-  page[:data] = FFI::MemoryPointer.from_string(in_page[:data].to_s)
-  page[:cdata] = FFI::MemoryPointer.from_string(in_page[:cdata].to_s)
-  page[:length] = in_page[:data].to_s.length
-  page[:clength] = in_page[:clength].to_i
-  page[:rb_node] = in_page[:rb_node].to_i
-  
-  in_page = nil
-  return page
-end
-
-def CreateAxfsConfig(config)
-  acfg_ptr = FFI::MemoryPointer.new :pointer
-  acfg_ptr = CLib.malloc(1024)
-  acfg = AxfsConfig.new(acfg_ptr)
-
-  acfg[:input] = FFI::MemoryPointer.from_string(config[:input].to_s + "\x0")
-  acfg[:output] = FFI::MemoryPointer.from_string(config[:output].to_s + "\x0")
-  acfg[:secondary_output] = FFI::MemoryPointer.from_string(config[:secondary_output].to_s + "\x0")
-  acfg[:compression] = FFI::MemoryPointer.from_string(config[:compression].to_s + "\x0")
-  acfg[:page_size_str] = FFI::MemoryPointer.from_string(config[:page_size_str].to_s + "\x0")
-  acfg[:block_size_str] = FFI::MemoryPointer.from_string(config[:block_size_str].to_s + "\x0")
-  acfg[:xip_size_str] = FFI::MemoryPointer.from_string(config[:xip_size_str].to_s + "\x0")
-  acfg[:profile] = FFI::MemoryPointer.from_string(config[:profile].to_s + "\x0")
-  acfg[:special] = FFI::MemoryPointer.from_string(config[:special].to_s + "\x0")
-  acfg[:page_size] = config[:page_size].to_i
-  acfg[:block_size] = config[:block_size].to_i
-  acfg[:xip_size] = config[:xip_size].to_i
-  acfg[:max_nodes] = config[:max_nodes].to_i
-
-  return acfg
-end

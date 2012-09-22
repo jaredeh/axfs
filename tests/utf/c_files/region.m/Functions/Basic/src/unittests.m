@@ -185,10 +185,7 @@ static void get_nodes_cdata(Nodes **nd, Pages **pg, uint8_t *d)
 	void *output[9];
 
 	acfg.page_size = l;
-	[nodes numberEntries: 4096 nodeType: TYPE_XIP];
-
 	[pages numberPages: 100 path: "./tempfile"];
-
 
 	memset(data0,5,l);
 	output[0] = [pages addPage: data0 length: l];
@@ -233,6 +230,7 @@ static void Region_nodes_data(CuTest *tc)
 	[r initialize];
 
 	d = malloc(l*7);
+
 	get_nodes_cdata(&nd, &pg, d);
 	[r addNodes: nd];
 

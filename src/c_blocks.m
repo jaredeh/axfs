@@ -39,7 +39,8 @@
 		page = node->page;
 		memcpy(&uncomp[unclength],page->data,page->length);
 		unclength += page->length;
-		if (unclength >= acfg.block_size) {
+		if (unclength > acfg.block_size) {
+			printf("unclength(%llu) > acfg.block_size(%llu)\n",unclength,acfg.block_size);
 			exit(-1);
 		}
 		node = node->next;
@@ -63,9 +64,11 @@
 }
 
 -(void) addFullPageNode: (struct axfs_node *) node {
-	if (fullpage_current == NULL) {
-		fullpage_current = [self allocateCBlockStructs];
-	} else if (fullpage_current->length == acfg.block_size) {
+	if (fullpages == NULL) {
+		fullpages = [self allocateCBlockStructs];
+		fullpage_current = fullpages;
+	}
+	if (fullpage_current->length == acfg.block_size) {
 		fullpage_current->next = [self allocateCBlockStructs];
 		fullpage_current = fullpage_current->next;
 	}
@@ -90,7 +93,6 @@
 		cb = cb->next;
 	}
 	[self addNodeToCBlock: node cblock: cb];
-	printf("  )part\n");
 }
 
 -(void) addNode: (struct axfs_node *) node {
@@ -104,7 +106,6 @@
 -(uint64_t) size {
 	uint64_t s = 0;
 	struct cblock_struct *cb = partpages;
-		printf("size\n");
 	while (cb != NULL) {
 		[self compressCBlock: cb];
 		s += cb->csize;
@@ -153,7 +154,7 @@
 	[compressor algorithm: acfg.compression];
 	uncbuffer = malloc(acfg.block_size*2);
 	cbbuffer = malloc(acfg.block_size*2);
-	cblocks = malloc(sizeof(*cblocks)*(acfg.page_size/acfg.block_size)*acfg.max_nodes);
+	cblocks = malloc((sizeof(*cblocks)*acfg.page_size*acfg.max_nodes)/acfg.block_size);
 	place = 0;
 	fullpages = 0;//[self allocateCBlockStructs];
 	fullpage_current = fullpages;
