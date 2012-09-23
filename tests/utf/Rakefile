@@ -1,7 +1,4 @@
 require 'rubygems'
-gem 'ci_reporter'
-require 'ci/reporter/rake/test_unit'
-require 'rake/testtask'
 require 'open4'
 
 
