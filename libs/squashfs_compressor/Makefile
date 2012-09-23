@@ -2,9 +2,9 @@ OBJS = compressor.o gzip_wrapper.o lzo_wrapper.o lzma_xz_wrapper.o xz_wrapper.o
 
 CFLAGS = -g \
          -DGZIP_SUPPORT=1 \
-         -DLZO_SUPPORT=1 \
-         -DXZ_SUPPORT=1 \
-         -DLZMA_SUPPORT=1 \
+         -DLZO_SUPPORT=0 \
+         -DXZ_SUPPORT=0 \
+         -DLZMA_SUPPORT=0 \
          -I ./lzo-2.06/include/ \
          -I ./xz-5.0.3/src/liblzma/api/ \
          -I ./zlib-1.2.6/ \
