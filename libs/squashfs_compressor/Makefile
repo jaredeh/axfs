@@ -67,8 +67,8 @@ clobber: clean
 	-rm -rf libsquashfs_compressor.a
 
 configure:
-	cd lzo-2.06; ./configure --with-pic; cd ../
-	cd zlib-1.2.6; ./configure --with-pic; cd ../
+	cd lzo-2.06; ./configure; cd ../
+	cd zlib-1.2.6; ./configure; cd ../
 	cd xz-5.0.3; ./configure --with-pic; cd ../
 
 
