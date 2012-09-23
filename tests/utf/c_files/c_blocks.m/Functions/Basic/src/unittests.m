@@ -18,6 +18,11 @@ static void CBlocks_createdestroy(CuTest *tc){
 	
 	printf("Running %s\n", __FUNCTION__);
 
+	acfg.page_size = 4096;
+	acfg.block_size = 16*1024;
+	acfg.max_nodes = 10;
+	acfg.compression = "lzo";
+
 	[cb initialize];
 	[cb free];
 	[cb release];
