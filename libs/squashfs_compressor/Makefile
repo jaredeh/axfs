@@ -7,7 +7,8 @@ CFLAGS = -g \
          -DLZMA_SUPPORT=1 \
          -I ./lzo-2.06/include/ \
          -I ./xz-5.0.3/src/liblzma/api/ \
-         -I ./zlib-1.2.6/
+         -I ./zlib-1.2.6/ \
+         -fPIC
 
 COMPLIBS = ./zlib-1.2.6/libz.a \
            ./lzo-2.06/src/.libs/liblzo2.a \
