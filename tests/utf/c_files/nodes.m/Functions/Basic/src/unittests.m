@@ -19,6 +19,8 @@ static void Nodes_createdestroy(CuTest *tc)
 	Nodes *nodes;
 	int output;
 	printf("Running %s\n", __FUNCTION__);
+	acfg.max_nodes = 10;
+	
 	nodes = [[Nodes alloc] init];
 	[nodes initialize];
 	[nodes setType: TYPE_XIP];
@@ -59,6 +61,8 @@ static void Nodes_size_xip4k(CuTest *tc)
 
 	printf("Running %s\n", __FUNCTION__);
 	acfg.page_size = l;
+	acfg.max_nodes = 10;
+	
 	nodes = [[Nodes alloc] init];
 	[nodes initialize];
 	[nodes setType: TYPE_XIP];
@@ -130,6 +134,8 @@ static void Nodes_cdata(CuTest *tc)
 
 	printf("Running %s\n", __FUNCTION__);
 	acfg.page_size = l;
+	acfg.max_nodes = 10;
+	acfg.compression = "lzo";
 
 	nodes = [[Nodes alloc] init];
 	[nodes initialize];
@@ -164,21 +170,22 @@ static void Nodes_cdata(CuTest *tc)
 	CuAssertIntEquals(tc, 5, length);
 	CuAssertIntEquals(tc, 4096*5, size);
 	compare = malloc(size);
-	memcpy((void *)compare,(void *)&data0,l);
-	memcpy(compare+l,&data1,l);
-	memcpy(compare+(2*l),&data2,l);
-	memcpy(compare+(3*l),&data3,4000);
-	memcpy(compare+(4*l),&data4,500);
+
+	memset(compare,0,size);
+	memcpy(compare,data0,l);
+	memcpy(compare+l,data1,l);
+	memcpy(compare+(2*l),data2,l);
+	memcpy(compare+(3*l),data3,4000);
+	memcpy(compare+(4*l),data4,500);
+
 
 	data = [nodes data];
 	CuAssertBufEquals(tc, compare, data, size);
-	//printf("csize = %i  size = %i\n",[nodes csize],[nodes size]);
 
 	cdata = [nodes cdata];
 	csize = [nodes csize];
 	CuAssertTrue(tc, csize <= size);
 	CuAssertTrue(tc, csize > 0);
-
 	[nodes free];
 	[nodes release];
 	[pages free];
@@ -202,6 +209,7 @@ static void Nodes_size_xip64k(CuTest *tc)
 
 	printf("Running %s\n", __FUNCTION__);
 	acfg.page_size = l;
+	acfg.max_nodes = 10;
 	nodes = [[Nodes alloc] init];
 	[nodes initialize];
 	[nodes setType: TYPE_XIP];
@@ -243,6 +251,7 @@ static void Nodes_size_xip64k(CuTest *tc)
 	memcpy(compare+(4*l),&data4,500);
 	data = [nodes data];
 	CuAssertBufEquals(tc, compare, data, size);
+
 	[nodes free];
 	[nodes release];
 	[pages free];

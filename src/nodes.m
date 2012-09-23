@@ -48,12 +48,16 @@
 
 -(void *) cdata {
 	Compressor * compressor;
+	void *d;
+	uint64_t s;
 	if(ccached)
 		return cdata;
 	compressor = [[Compressor alloc] init];
 	[compressor initialize];
 	[compressor algorithm: acfg.compression];
-	[compressor cdata: cdata csize: &csize data: [self data] size: [self size]];
+	d = [self data];
+	s = [self size];
+	[compressor cdata: cdata csize: &csize data: d size: s];
 	[compressor free];
 	[compressor release];
 	ccached = true;
@@ -71,10 +75,16 @@
 }
 
 -(void) initialize {
+	if (acfg.max_nodes < 1) {
+		printf("can have acfg.max_nodes < 1\n");
+		exit(-1);
+	}
 	pages = malloc(sizeof(*pages)*acfg.max_nodes);
 	memset(pages,0,sizeof(*pages)*acfg.max_nodes);
-	data = malloc(sizeof(struct axfs_node)*acfg.max_nodes);
-	memset(data,0,sizeof(struct axfs_node)*acfg.max_nodes);
+	data = malloc(acfg.page_size*acfg.max_nodes);
+	memset(data,0,acfg.page_size*acfg.max_nodes);
+	cdata = malloc(acfg.page_size*acfg.max_nodes);
+	memset(cdata,0,acfg.page_size*acfg.max_nodes);
 }
 
 -(void) setType: (int) t {

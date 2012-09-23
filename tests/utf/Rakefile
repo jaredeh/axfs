@@ -71,8 +71,8 @@ task :unit_tests, :unit, :test do |t, args|
       end
       draw_line("<",70)
       if File.exists?(file[2]) then next end
+      stdout=stderr=""
       status = Open4::popen4("./test") do |pid, si, so, se|
-        stdout=stderr=""
         while(line=so.gets) 
           stdout+=line
           puts line
@@ -81,6 +81,11 @@ task :unit_tests, :unit, :test do |t, args|
           stderr+=line
           puts line
         end
+      end
+      if status != 0
+        puts "stdout[#{stdout}]"
+        puts "stderr[#{stderr}]"
+        fail "Running test " + test + " failed."
       end
     end
     cd rootdir

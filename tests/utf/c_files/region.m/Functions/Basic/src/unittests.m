@@ -183,8 +183,8 @@ static void get_nodes_cdata(Nodes **nd, Pages **pg, uint8_t *d)
 	uint8_t *data4 = d + l*4;
 	uint8_t *data5 = d + l*5;
 	void *output[9];
-
-	acfg.page_size = l;
+	
+	[pages initialize];
 	[pages numberPages: 100 path: "./tempfile"];
 
 	memset(data0,5,l);
@@ -224,7 +224,13 @@ static void Region_nodes_data(CuTest *tc)
 
 	printf("Running %s\n", __FUNCTION__);
 
+	acfg.page_size = l;
+	acfg.max_nodes = 10;
+	acfg.compression = "lzo";
+
 	nd = [[Nodes alloc] init];
+	[nd initialize];
+	[nd setType: TYPE_XIP];
 	pg = [[Pages alloc] init];
 	r = [[Region alloc] init];
 	[r initialize];
@@ -233,7 +239,6 @@ static void Region_nodes_data(CuTest *tc)
 
 	get_nodes_cdata(&nd, &pg, d);
 	[r addNodes: nd];
-
 	[r fsoffset: 0x4455667711223399UL];
 	[r incore: 1];
 	output = [r data];
@@ -261,7 +266,7 @@ static void Region_nodes_data(CuTest *tc)
 	CuAssertHexEquals(tc, 0x00, output[20]);
 	CuAssertHexEquals(tc, 0x00, output[21]);
 	CuAssertHexEquals(tc, 0x00, output[22]);
-	CuAssertHexEquals(tc, 0x3b, output[23]);
+	CuAssertHexEquals(tc, 0x73, output[23]);
 	CuAssertHexEquals(tc, 0x00, output[24]);
 	CuAssertHexEquals(tc, 0x00, output[25]);
 	CuAssertHexEquals(tc, 0x00, output[26]);
