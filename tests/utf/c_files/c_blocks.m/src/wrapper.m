@@ -37,6 +37,7 @@ void CBlocks___initialize(CBlocks *cb)
 {
 	pool = [[NSAutoreleasePool alloc] init];
 	[cb initialize];
+    CBlocks___init_acfg();
 }
 
 void CBlocks___free(CBlocks *cb)
@@ -44,9 +45,23 @@ void CBlocks___free(CBlocks *cb)
 	[cb free];
 	[cb release];
 	[pool drain];
+    CBlocks__free_acfg();
 }
 
-void CBlocks___set_acfg(struct axfs_config *cfg)
+void CBlocks__free_acfg(void)
+{
+    free(acfg.input);
+    free(acfg.output);
+    free(acfg.secondary_output);
+    free(acfg.compression);
+    free(acfg.page_size_str);
+    free(acfg.block_size_str);
+    free(acfg.xip_size_str);
+    free(acfg.profile);
+    free(acfg.special);
+}
+
+void CBlocks___init_acfg(void)
 {
     acfg.input = malloc(1024);
     acfg.output = malloc(1024);
@@ -57,6 +72,19 @@ void CBlocks___set_acfg(struct axfs_config *cfg)
     acfg.xip_size_str = malloc(1024);
     acfg.profile = malloc(1024);
     acfg.special = malloc(1024);
+}
+
+void CBlocks___set_acfg(struct axfs_config *cfg)
+{
+    memset(acfg.input,0,1024);
+    memset(acfg.output,0,1024);
+    memset(acfg.secondary_output,0,1024);
+    memset(acfg.compression,0,1024);
+    memset(acfg.page_size_str,0,1024);
+    memset(acfg.block_size_str,0,1024);
+    memset(acfg.xip_size_str,0,1024);
+    memset(acfg.profile,0,1024);
+    memset(acfg.special,0,1024);
 
     memcpy(acfg.input,cfg->input,strlen(cfg->input));
     memcpy(acfg.output,cfg->output,strlen(cfg->output));
