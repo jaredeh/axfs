@@ -37,7 +37,6 @@ void CBlocks___initialize(CBlocks *cb)
 {
 	pool = [[NSAutoreleasePool alloc] init];
 	[cb initialize];
-    CBlocks___init_acfg();
 }
 
 void CBlocks___free(CBlocks *cb)
@@ -63,6 +62,8 @@ void CBlocks__free_acfg(void)
 
 void CBlocks___init_acfg(void)
 {
+    if( acfg.input != 0)
+        return;
     acfg.input = malloc(1024);
     acfg.output = malloc(1024);
     acfg.secondary_output = malloc(1024);
@@ -76,6 +77,7 @@ void CBlocks___init_acfg(void)
 
 void CBlocks___set_acfg(struct axfs_config *cfg)
 {
+    CBlocks___init_acfg();
     memset(acfg.input,0,1024);
     memset(acfg.output,0,1024);
     memset(acfg.secondary_output,0,1024);
