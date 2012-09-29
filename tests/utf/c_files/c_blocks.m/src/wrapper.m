@@ -44,21 +44,7 @@ void CBlocks___free(CBlocks *cb)
 	[cb free];
 	[cb release];
 	[pool drain];
-    CBlocks__free_acfg();
-}
-
-void CBlocks__free_acfg(void)
-{
-    free(acfg.input);
-    free(acfg.output);
-    free(acfg.secondary_output);
-    free(acfg.compression);
-    free(acfg.page_size_str);
-    free(acfg.block_size_str);
-    free(acfg.xip_size_str);
-    free(acfg.profile);
-    free(acfg.special);
-}
+ }
 
 void CBlocks___init_acfg(void)
 {
@@ -87,7 +73,6 @@ void CBlocks___set_acfg(struct axfs_config *cfg)
     memset(acfg.xip_size_str,0,1024);
     memset(acfg.profile,0,1024);
     memset(acfg.special,0,1024);
-
     memcpy(acfg.input,cfg->input,strlen(cfg->input));
     memcpy(acfg.output,cfg->output,strlen(cfg->output));
     memcpy(acfg.secondary_output,cfg->secondary_output,strlen(cfg->secondary_output));
@@ -97,7 +82,6 @@ void CBlocks___set_acfg(struct axfs_config *cfg)
     memcpy(acfg.xip_size_str,cfg->xip_size_str,strlen(cfg->xip_size_str));
     memcpy(acfg.profile,cfg->profile,strlen(cfg->profile));
     memcpy(acfg.special,cfg->special,strlen(cfg->special));
-
     acfg.page_size = cfg->page_size;
     acfg.block_size = cfg->block_size;
     acfg.xip_size = cfg->xip_size;
