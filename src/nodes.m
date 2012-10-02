@@ -24,12 +24,12 @@
 	for(i=0;i<place;i++) {
 		page = pages[i];
 		if (type == TYPE_XIP) {
-			memcpy(page->data, bd, page->length);
+			memcpy(bd, page->data, page->length);
 			memset(bd + page->length, 0, acfg.page_size - page->length);
 			size += acfg.page_size;
 			bd += acfg.page_size;
 		} else if (type == TYPE_BYTEALIGNED) {
-			memcpy(page->data, bd, page->length);
+			memcpy(bd, page->data, page->length);
 			size += page->length;
 			bd += page->length;
 		} else if (type == TYPE_COMPRESS) {
