@@ -9,6 +9,7 @@
 #include "pages.m"
 #include "compressor.h"
 #include "compressor.m"
+#include "c_blocks.m"
 
 /****** Test Code ******/
 
@@ -19,8 +20,11 @@ static void Nodes_createdestroy(CuTest *tc)
 	Nodes *nodes;
 	int output;
 	printf("Running %s\n", __FUNCTION__);
-	acfg.max_nodes = 10;
-	
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+
 	nodes = [[Nodes alloc] init];
 	[nodes initialize];
 	[nodes setType: TYPE_XIP];
@@ -338,7 +342,7 @@ static void Nodes_size_bytealigned(CuTest *tc)
 	[pages release];
 }
 
-/*
+
 void print_data(void *d, uint64_t l)
 {
 	int i;
@@ -349,7 +353,7 @@ void print_data(void *d, uint64_t l)
 	}
 	printf("\n");
 }
-*/
+/**/
 
 static void Nodes_size_ba_cdata(CuTest *tc)
 {
@@ -442,6 +446,73 @@ static void Nodes_size_ba_cdata(CuTest *tc)
 	[pages release];
 }
 
+static void Nodes_compressed_little(CuTest *tc)
+{
+	Nodes *nodes;
+	Pages *pages;
+	uint64_t l = 4 * 1024;
+	uint8_t *data0;
+	uint8_t *data1;
+	uint8_t *data2;
+	uint8_t *data3;
+	uint8_t *data4;
+	void *output[5];
+	uint64_t length;
+	uint64_t size;
+	void *data;
+
+	printf("Running %s\n", __FUNCTION__);
+	acfg.max_nodes = 1000;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+
+	nodes = [[Nodes alloc] init];
+	[nodes initialize];
+	[nodes setType: TYPE_COMPRESS];
+	pages = [[Pages alloc] init];
+	[pages initialize];
+	[pages numberPages: 100 path: "./tempfile"];
+
+	data0 = malloc(l);
+	memset(data0,5,l);
+	output[0] = [pages addPage: data0 length: l];
+
+	data1 = malloc(l);
+	memset(data1,6,l);
+	output[1] = [pages addPage: data1 length: l];
+
+	data2 = malloc(l);
+	memset(data2,7,l);
+	output[2] = [pages addPage: data2 length: l];
+
+	data3 = malloc(l);
+	memset(data3,4,l);
+	output[3] = [pages addPage: data3 length: 4000];
+
+	data4 = malloc(l);
+	memset(data4,5,l);
+	output[4] = [pages addPage: data4 length: 500];
+
+	[nodes addPage: output[0]];
+	[nodes addPage: output[1]];
+	[nodes addPage: output[2]];
+	[nodes addPage: output[3]];
+	[nodes addPage: output[4]];
+
+	length = [nodes length];
+    size = [nodes size];
+ 	CuAssertIntEquals(tc, 5, length);
+	data = [nodes data];
+	CuAssertTrue(tc, 4096*5 > size);
+	CuAssertTrue(tc, 0 < size);
+
+	[nodes free];
+	[nodes release];
+	[pages free];
+	[pages release];
+}
+
 /****** End Test Code ******/
 
 static CuSuite* GetSuite(void){
@@ -453,6 +524,8 @@ static CuSuite* GetSuite(void){
 	SUITE_ADD_TEST(suite, Nodes_xip_cdata);
 	SUITE_ADD_TEST(suite, Nodes_size_bytealigned);
 	SUITE_ADD_TEST(suite, Nodes_size_ba_cdata);
+	SUITE_ADD_TEST(suite, Nodes_compressed_little);
+//	SUITE_ADD_TEST(suite, Nodes_compressed_big);
 	return suite;
 }
 

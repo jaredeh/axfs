@@ -1,4 +1,5 @@
 #import "nodes.h"
+#import "c_blocks.h"
 
 @implementation Nodes
 
@@ -14,6 +15,7 @@
 	uint64_t i;
 	struct page_struct *page;
 	uint8_t *bd = data;
+	CBlocks *cb = (CBlocks *) cblks;
 
 	if(cached) {
 		return data;
@@ -33,9 +35,14 @@
 			size += page->length;
 			bd += page->length;
 		} else if (type == TYPE_COMPRESS) {
+			nodes[i].page = page;
+			[cb addNode: &nodes[i]];
 		}
 	}
-
+	if (type == TYPE_COMPRESS) {
+		size = [cb size];
+		data = [cb data];
+	}
 	return data;
 }
 
@@ -75,27 +82,43 @@
 }
 
 -(void) initialize {
-	if (acfg.max_nodes < 1) {
+	if(acfg.max_nodes < 1) {
 		printf("can have acfg.max_nodes < 1\n");
 		exit(-1);
 	}
 	pages = malloc(sizeof(*pages)*acfg.max_nodes);
 	memset(pages,0,sizeof(*pages)*acfg.max_nodes);
-	data = malloc(acfg.page_size*acfg.max_nodes);
-	memset(data,0,acfg.page_size*acfg.max_nodes);
-	cdata = malloc(acfg.page_size*acfg.max_nodes);
-	memset(cdata,0,acfg.page_size*acfg.max_nodes);
 }
 
 -(void) setType: (int) t {
 	type = t;
+	if(type == TYPE_COMPRESS) {
+		CBlocks *cb;
+		cb = [[CBlocks alloc] init];
+		[cb initialize];
+		cblks = (void *) cb;
+		nodes = malloc(sizeof(*nodes)*acfg.max_nodes);
+		memset(nodes,0,sizeof(*nodes)*acfg.max_nodes);
+	} else {
+		data = malloc(acfg.page_size*acfg.max_nodes);
+		memset(data,0,acfg.page_size*acfg.max_nodes);
+		cdata = malloc(acfg.page_size*acfg.max_nodes);
+		memset(cdata,0,acfg.page_size*acfg.max_nodes);
+	}
 }
 
 -(void) free {
+	CBlocks *cb = (CBlocks *) cblks;
 	free(pages);
-	free(data);
 	free(cdata);
 	free(cdata_partials);
+	if(type == TYPE_COMPRESS) {
+		free(nodes);
+		[cb free];
+		[cb release];
+	} else {
+		free(data);
+	}
 }
 
 @end

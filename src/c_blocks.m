@@ -105,15 +105,14 @@
 
 -(uint64_t) size {
 	uint64_t s = 0;
+	[self data];
 	struct cblock_struct *cb = partpages;
 	while (cb != NULL) {
-		[self compressCBlock: cb];
 		s += cb->csize;
 		cb = cb->next;
 	}
 	cb = fullpages;
 	while (cb != NULL) {
-		[self compressCBlock: cb];
 		s += cb->csize;
 		cb = cb->next;
 	}
@@ -149,6 +148,14 @@
 }
 
 -(void) initialize {
+	if ((acfg.block_size == 0) || (acfg.page_size == 0) || (acfg.max_nodes == 0)) {
+		printf("can't have (acfg.block_size == 0) || (acfg.page_size == 0) || (acfg.max_nodes == 0)\n");
+		exit(-1);
+	}
+	if (acfg.compression == NULL) {
+		printf("can't have acfg.compression == NULL\n");
+		exit(-1);		
+	}
 	compressor = [[Compressor alloc] init];
 	[compressor initialize];
 	[compressor algorithm: acfg.compression];
