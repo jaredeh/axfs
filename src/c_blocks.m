@@ -40,7 +40,7 @@
 		memcpy(&uncomp[unclength],page->data,page->length);
 		unclength += page->length;
 		if (unclength > acfg.block_size) {
-			printf("unclength(%llu) > acfg.block_size(%llu)\n",unclength,acfg.block_size);
+			printf("unclength(%llu) > acfg.block_size(%llu)\n",(long long unsigned int)unclength,(long long unsigned int)acfg.block_size);
 			exit(-1);
 		}
 		node = node->next;
