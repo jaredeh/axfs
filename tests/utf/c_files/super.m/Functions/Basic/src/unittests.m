@@ -14,6 +14,8 @@
 #include "nodes.m"
 #include "pages.h"
 #include "pages.m"
+#include "c_blocks.h"
+#include "c_blocks.m"
 
 /****** Test Code ******/
 
