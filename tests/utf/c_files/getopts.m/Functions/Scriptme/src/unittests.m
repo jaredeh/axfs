@@ -32,8 +32,8 @@ int main( int argc, const char *argv[] ) {
 	printf("  compression: %s\n",denullify(acfg.compression));
 	printf("  profile: %s\n",denullify(acfg.profile));
 	printf("  special: %s\n",denullify(acfg.special));
-	printf("  page_size: %llu\n",acfg.page_size);
-	printf("  xip_size: %llu\n",acfg.xip_size);
-	printf("  block_size: %llu\n",acfg.block_size);
+	printf("  page_size: %llu\n",(long long unsigned int)acfg.page_size);
+	printf("  xip_size: %llu\n",(long long unsigned int)acfg.xip_size);
+	printf("  block_size: %llu\n",(long long unsigned int)acfg.block_size);
 	return 0;
 }

@@ -256,6 +256,8 @@ static void Nodes_xip_cdata(CuTest *tc)
 	csize = [nodes csize];
 	CuAssertTrue(tc, csize <= size);
 	CuAssertTrue(tc, csize > 0);
+	CuAssertTrue(tc, cdata != 0);
+
 	[nodes free];
 	[nodes release];
 	[pages free];
@@ -439,6 +441,7 @@ static void Nodes_size_ba_cdata(CuTest *tc)
 
 	CuAssertTrue(tc, csize <= size);
 	CuAssertTrue(tc, csize > 0);
+	CuAssertTrue(tc, cdata != 0);
 
 	[nodes free];
 	[nodes release];
@@ -506,6 +509,7 @@ static void Nodes_compressed_little(CuTest *tc)
 	data = [nodes data];
 	CuAssertTrue(tc, 4096*5 > size);
 	CuAssertTrue(tc, 0 < size);
+	CuAssertTrue(tc, data != 0);
 
 	[nodes free];
 	[nodes release];
