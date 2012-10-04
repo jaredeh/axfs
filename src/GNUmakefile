@@ -12,7 +12,8 @@ mkfs.axfs_OBJC_FILES = bytetable.m \
                        pages.m \
                        region.m \
                        strings.m \
-                       super.m
+                       super.m \
+                       c_blocks.m
 
 INC = -I ../libs/rb_tree/
 LIBDIRS = -L ../libs/rb_tree -L ../libs/squashfs_compressor 
