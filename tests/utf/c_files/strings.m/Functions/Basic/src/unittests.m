@@ -110,7 +110,7 @@ static void Strings_createdestroy(CuTest *tc){
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
-	acfg.max_text_size = 10000;
+	acfg.max_text_size = 1000000;
 	acfg.max_number_files = 10000;
 
 	printf("Running %s\n", __FUNCTION__);
@@ -136,7 +136,7 @@ static void Strings_simplesort(CuTest *tc){
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
-	acfg.max_text_size = 10000;
+	acfg.max_text_size = 1000000;
 	acfg.max_number_files = 10000;
 
 	printf("Running %s\n", __FUNCTION__);
@@ -187,7 +187,7 @@ static void Strings_duplicates(CuTest *tc){
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
-	acfg.max_text_size = 10000;
+	acfg.max_text_size = 1000000;
 	acfg.max_number_files = 10000;
 
 	Strings *str = [[Strings alloc] init];
@@ -230,7 +230,7 @@ static void Strings_falsedups(CuTest *tc){
 	uint8_t data4[4096];
 	uint64_t length = 4096;
 	int i,j;
-	acfg.max_text_size = 10000;
+	acfg.max_text_size = 1000000;
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
@@ -283,7 +283,7 @@ static void Strings_data(CuTest *tc){
 	char *data;
 	uint64_t length;
 	int explen = 0;
-	acfg.max_text_size = 10000;
+	acfg.max_text_size = 1000000;
 	acfg.max_number_files = 10000;
 
 	acfg.max_nodes = 100;
@@ -340,7 +340,7 @@ static void Strings_cdata(CuTest *tc){
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
 	acfg.compression = "gzip";
-	acfg.max_text_size = 10000;
+	acfg.max_text_size = 1000000;
 	acfg.max_number_files = 10000;
 
 	printf("Running %s\n", __FUNCTION__);
