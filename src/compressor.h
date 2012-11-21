@@ -23,8 +23,10 @@ extern struct compressor *lookup_compressor(char *name);
 @interface Compressor: NSObject {
 	struct compressor *compress;
 	void *stream;
+	bool valid_compressor;
 }
 -(bool) algorithm: (char *) name;
+-(bool) valid_compressor;
 -(void) cdata: (void *) cdata csize: (uint64_t *) csize data: (void *) data size: (uint64_t) size;
 -(void) free;
 @end

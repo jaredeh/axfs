@@ -147,7 +147,10 @@
 	return data.data;
 }
 
--(void) initialize {
+-(id) init {
+	if (!(self = [super init]))
+		return self;
+
 	if ((acfg.block_size == 0) || (acfg.page_size == 0) || (acfg.max_nodes == 0)) {
 		printf("can't have (acfg.block_size == 0) || (acfg.page_size == 0) || (acfg.max_nodes == 0)\n");
 		exit(-1);
@@ -157,8 +160,6 @@
 		exit(-1);		
 	}
 	compressor = [[Compressor alloc] init];
-	[compressor initialize];
-	[compressor algorithm: acfg.compression];
 	uncbuffer = malloc(acfg.block_size*2);
 	cbbuffer = malloc(acfg.block_size*2);
 	cblocks = malloc((sizeof(*cblocks)*acfg.page_size*acfg.max_nodes)/acfg.block_size);
@@ -168,6 +169,8 @@
 	partpages = 0;//[self allocateCBlockStructs];
 	[self configureDataStruct: &cdata length: acfg.page_size*acfg.max_nodes];
 	[self configureDataStruct: &data length: acfg.page_size*acfg.max_nodes];
+	
+	return self;
 }
 
 -(void) free {

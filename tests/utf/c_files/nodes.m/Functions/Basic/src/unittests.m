@@ -3,6 +3,7 @@
 #include "CuTest.h"
 
 /* Including function under test */
+#include "compressible_object.m"
 #include "nodes.h"
 #include "nodes.m"
 #include "pages.h"
@@ -26,19 +27,16 @@ static void Nodes_createdestroy(CuTest *tc)
 	acfg.compression = "lzo";
 
 	nodes = [[Nodes alloc] init];
-	[nodes initialize];
 	[nodes setType: TYPE_XIP];
 	[nodes free];
 	[nodes release];
 
 	nodes = [[Nodes alloc] init];
-	[nodes initialize];
 	[nodes setType: TYPE_BYTEALIGNED];
 	[nodes free];
 	[nodes release];
 
 	nodes = [[Nodes alloc] init];
-	[nodes initialize];
 	[nodes setType: TYPE_COMPRESS];
 	[nodes free];
 	[nodes release];
@@ -68,7 +66,6 @@ static void Nodes_size_xip4k(CuTest *tc)
 	acfg.max_nodes = 10;
 	
 	nodes = [[Nodes alloc] init];
-	[nodes initialize];
 	[nodes setType: TYPE_XIP];
 
 	pages = [[Pages alloc] init];
@@ -138,7 +135,6 @@ static void Nodes_size_xip64k(CuTest *tc)
 	acfg.page_size = l;
 	acfg.max_nodes = 10;
 	nodes = [[Nodes alloc] init];
-	[nodes initialize];
 	[nodes setType: TYPE_XIP];
 
 	pages = [[Pages alloc] init];
@@ -205,7 +201,6 @@ static void Nodes_xip_cdata(CuTest *tc)
 	acfg.compression = "lzo";
 
 	nodes = [[Nodes alloc] init];
-	[nodes initialize];
 	[nodes setType: TYPE_XIP];
 	pages = [[Pages alloc] init];
 
@@ -280,7 +275,6 @@ static void Nodes_size_bytealigned(CuTest *tc)
 	acfg.max_nodes = 10;
 	
 	nodes = [[Nodes alloc] init];
-	[nodes initialize];
 	[nodes setType: TYPE_BYTEALIGNED];
 
 	pages = [[Pages alloc] init];
@@ -371,7 +365,6 @@ static void Nodes_size_ba_cdata(CuTest *tc)
 	acfg.max_nodes = 10;
 	
 	nodes = [[Nodes alloc] init];
-	[nodes initialize];
 	[nodes setType: TYPE_BYTEALIGNED];
 
 	pages = [[Pages alloc] init];
@@ -462,7 +455,6 @@ static void Nodes_compressed_little(CuTest *tc)
 	acfg.compression = "lzo";
 
 	nodes = [[Nodes alloc] init];
-	[nodes initialize];
 	[nodes setType: TYPE_COMPRESS];
 	pages = [[Pages alloc] init];
 

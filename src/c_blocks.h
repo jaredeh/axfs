@@ -39,7 +39,6 @@ struct cblock_struct {
 -(uint64_t) size;
 -(uint64_t) length;
 -(void *) data;
--(void) initialize;
 -(void) free;
 
 @end

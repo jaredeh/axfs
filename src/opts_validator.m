@@ -2,9 +2,6 @@
 
 @implementation OptsValidator
 
--(void) initialize {
-}
-
 -(int) safe_strlen: (char *) str {
 	if (str == NULL)
 		return 0;
@@ -84,8 +81,7 @@
 	}
 
 	comp = [[Compressor alloc] init];
-	[comp initialize];
-	if(![comp algorithm: acfg.compression])
+	if(![comp valid_compressor])
 		sprintf(*msg,"--compression %s: is not a supported algorithm\n",acfg.compression);
 
 	[comp free];
@@ -138,7 +134,6 @@ bool do_opts_validator(char ** msg) {
 
 	memset(*msg,0,1024);
 	ov = [[OptsValidator alloc] init];
-	[ov initialize];
 	retval = [ov validate: msg];
 	[ov free];
 	[ov release];

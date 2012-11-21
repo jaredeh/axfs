@@ -11,9 +11,13 @@
 	return true;
 }
 
+-(bool) valid_compressor {
+	return valid_compressor;
+}
+
 -(id) init {
 	if (self = [super init]) {
-		[self algorithm: acfg.compression];
+		valid_compressor = [self algorithm: acfg.compression];
 	} 
 	return self;
 }

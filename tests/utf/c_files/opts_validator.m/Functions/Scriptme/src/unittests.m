@@ -28,11 +28,10 @@ int main( int argc, const char *argv[] ) {
 	memset(&acfg,0,sizeof(acfg));
 
 	go = [[GetOpts alloc] init];
-	[go initialize]; 
 	[go argc: argc argv: (char **) argv];
 
 	ov = [[OptsValidator alloc] init];
-	[ov initialize];
+	
 	retval = [ov validate: &msg];
 
 	[ov free];

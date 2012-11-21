@@ -6,7 +6,6 @@ extern struct axfs_config acfg;
 
 @interface OptsValidator: NSObject {
 }
--(void) initialize;
 -(int) safe_strlen: (char *) str;
 -(bool) is_directory: (char *) path;
 -(bool) is_file: (char *) path;

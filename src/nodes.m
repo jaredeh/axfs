@@ -50,13 +50,16 @@
 	return place;
 }
 
--(void) initialize {
-	if(acfg.max_nodes < 1) {
-		printf("can have acfg.max_nodes < 1\n");
-		exit(-1);
+-(id) init {
+	if (self = [super init]) {
+		if(acfg.max_nodes < 1) {
+			printf("can have acfg.max_nodes < 1\n");
+			exit(-1);
+		}
+		pages = malloc(sizeof(*pages)*acfg.max_nodes);
+		memset(pages,0,sizeof(*pages)*acfg.max_nodes);
 	}
-	pages = malloc(sizeof(*pages)*acfg.max_nodes);
-	memset(pages,0,sizeof(*pages)*acfg.max_nodes);
+	return self;
 }
 
 -(void) setType: (int) t {
@@ -64,7 +67,6 @@
 	if(type == TYPE_COMPRESS) {
 		CBlocks *cb;
 		cb = [[CBlocks alloc] init];
-		[cb initialize];
 		cblks = (void *) cb;
 		nodes = malloc(sizeof(*nodes)*acfg.max_nodes);
 		memset(nodes,0,sizeof(*nodes)*acfg.max_nodes);
@@ -80,7 +82,6 @@
 	CBlocks *cb = (CBlocks *) cblks;
 	free(pages);
 	free(cdata);
-	free(cdata_partials);
 	if(type == TYPE_COMPRESS) {
 		free(nodes);
 		[cb free];

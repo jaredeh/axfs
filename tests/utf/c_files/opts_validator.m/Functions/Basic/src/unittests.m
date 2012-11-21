@@ -18,7 +18,6 @@ static void OptsValidator_createdestroy(CuTest *tc){
 	
 	printf("Running %s\n", __FUNCTION__);
 
-	[ov initialize];
 	[ov free];
 	[ov release];
 

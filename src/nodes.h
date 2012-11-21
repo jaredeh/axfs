@@ -21,10 +21,6 @@ struct axfs_node {
 @interface Nodes: CompressibleObject {
 	uint64_t place;
 	bool cached;
-	bool ccached;
-	void *cdata_partials;
-	uint64_t size;
-	uint64_t csize;
 	int type;
 	struct page_struct **pages;
 	void *cblks;
@@ -33,7 +29,6 @@ struct axfs_node {
 
 -(uint64_t) addPage: (void *) page;
 -(void *) data;
--(uint64_t) size;
 -(uint64_t) length;
 -(void) setType: (int) t;
 -(void) free;
