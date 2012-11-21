@@ -8,6 +8,8 @@
 struct data_struct {
 	void *data;
 	uint64_t place;
+	uint64_t total;
+	uint64_t used;
 };
 
 struct axfs_config {

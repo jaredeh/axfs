@@ -42,6 +42,10 @@ static void ModesInfoDest(void *a){;}
 	struct mode_struct *mode_list = (struct mode_struct *) modes.data;
 	retval = &mode_list[modes.place];
 	modes.place += 1;
+	modes.used += sizeof(*retval);
+	if (modes.used > modes.total) {
+		[NSException raise: @"Overalloced mode_structs" format: @"modes.used=%d while modes.total=%d",modes.used,modes.total];
+	}
 	return retval;
 }
 
@@ -59,6 +63,8 @@ static void ModesInfoDest(void *a){;}
 	ds->data = malloc(len);
 	memset(ds->data,0,len);
 	ds->place = 0;
+	ds->used = 0;
+	ds->total = len;
 }
 
 -(void *) addMode: (NSDictionary *) attribs {

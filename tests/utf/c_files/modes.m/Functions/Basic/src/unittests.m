@@ -30,6 +30,7 @@ static void Modes_createdestroy(CuTest *tc)
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
+	acfg.max_number_files = 100;
 
 	modes = [[Modes alloc] init];
 	[modes free];
@@ -50,6 +51,7 @@ static void Modes_one_node(CuTest *tc)
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
+	acfg.max_number_files = 100;
 
 	modes = [[Modes alloc] init];
 	length = [modes length];
@@ -78,6 +80,7 @@ static void Modes_two_node(CuTest *tc)
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
+	acfg.max_number_files = 100;
 
 	modes = [[Modes alloc] init];
 	length = [modes length];
@@ -114,7 +117,8 @@ static void Modes_dup_nodes(CuTest *tc)
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
-
+	acfg.max_number_files = 100;
+	
 	modes = [[Modes alloc] init];
 	length = [modes length];
 	CuAssertIntEquals(tc, 0, length);
