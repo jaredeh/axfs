@@ -4,6 +4,8 @@
 /* actual files to compile test */
 #include "../../../../../src/image_builder.h"
 #include "../../../../../src/image_builder.m"
+#include "../../../../../src/dir_walker.h"
+#include "../../../../../src/dir_walker.m"
 
 struct axfs_config acfg;
 

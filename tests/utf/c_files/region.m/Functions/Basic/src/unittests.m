@@ -185,9 +185,6 @@ static void get_nodes_cdata(Nodes **nd, Pages **pg, uint8_t *d)
 	uint8_t *data4 = d + l*4;
 	uint8_t *data5 = d + l*5;
 	void *output[9];
-	
-	[pages initialize];
-	[pages numberPages: 100 path: "./tempfile"];
 
 	memset(data0,5,l);
 	output[0] = [pages addPage: data0 length: l];

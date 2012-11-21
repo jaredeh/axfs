@@ -18,7 +18,7 @@ struct axfs_node {
 	uint64_t cboffset;
 };
 
-@interface Nodes: NSObject {
+@interface Nodes: CompressibleObject {
 	uint64_t place;
 	bool cached;
 	bool ccached;
@@ -36,10 +36,7 @@ struct axfs_node {
 -(uint64_t) addPage: (void *) page;
 -(void *) data;
 -(uint64_t) size;
--(void *) cdata;
--(uint64_t) csize;
 -(uint64_t) length;
--(void) initialize;
 -(void) setType: (int) t;
 -(void) free;
 @end

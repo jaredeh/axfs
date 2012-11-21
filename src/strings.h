@@ -2,6 +2,9 @@
 #import "red_black_tree.h"
 #import "axfs_helper.h"
 #import "compressor.h"
+#import "compressible_object.h"
+
+extern struct axfs_config acfg;
 
 struct string_struct {
 	void *data;
@@ -9,26 +12,20 @@ struct string_struct {
 	rb_red_blk_node rb_node;
 };
 
-@interface Strings: NSObject {
+@interface Strings: CompressibleObject {
 	struct data_struct strings;
-	struct data_struct data;
+	struct data_struct data_obj;
 	uint64_t length;
 	rb_red_blk_tree *tree;
-	uint64_t csize;
-	uint8_t *cbuffer;
 }
 -(struct string_struct *) allocStringStruct;
 -(void *) allocStringData: (uint64_t) len;
 -(void) populate: (struct string_struct *) str data: (void *) data_ptr length: (uint64_t) len;
 -(void) configureRBtree;
 -(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len;
--(void) numberInodes: (uint64_t) inodes length: (uint64_t) len path: (char *) pathname;
 -(void *) addString: (void *) data_ptr length: (uint64_t) len;
 -(void *) data;
 -(uint64_t) size;
--(void *) cdata;
--(uint64_t) csize;
 -(uint64_t) length;
--(void) initialize;
 -(void) free;
 @end

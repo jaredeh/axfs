@@ -2,6 +2,7 @@
 #import "axfs_helper.h"
 #import "getopts.h"
 #import "opts_validator.h"
+#import "image_builder.h"
 
 #import "dir_walker.h"
 #import "falloc.h"
@@ -25,12 +26,19 @@ bool validate_args(int argc, const char *argv[]) {
 
 int main(int argc, const char *argv[]) {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	ImageBuilder *builder;
 
 	if (!validate_args(argc, argv)) {
 		[pool drain];
 		return -1;
 	}
 
+	builder = [[ImageBuilder alloc] init];
+	[builder initialize];
+
+	[builder sizeup];
+	[builder walk];
+	[builder build];
 
 	[pool drain];
 	return 0;

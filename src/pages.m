@@ -39,7 +39,7 @@ static void PagesInfoDest(void *a){;}
 	void *retval;
 	uint8_t *buffer = (uint8_t *) data.data;
 	retval = &buffer[data.place];
-	data.place += page_size;
+	data.place += acfg.page_size;
 	return retval;
 }
 
@@ -47,7 +47,7 @@ static void PagesInfoDest(void *a){;}
 	void *retval;
 	uint8_t *buffer = (uint8_t *) cdata.data;
 	retval = &buffer[cdata.place];
-	cdata.place += page_size;
+	cdata.place += acfg.page_size;
 	return retval;
 }
 
@@ -73,17 +73,6 @@ static void PagesInfoDest(void *a){;}
 	ds->place = 0;
 }
 
--(void) numberPages: (uint64_t) numpages path: (char *) pathname {
-	uint64_t len;
-
-	page_size = 4096;
-	len = sizeof(struct page_struct) * (numpages + 1);
-	[self configureDataStruct: &pages length: len];
-	[self configureDataStruct: &data length: page_size * numpages];
-	[self configureDataStruct: &cdata length: page_size * numpages];
-	[self configureRBtree];
-}
-
 -(void *) addPage: (void *) data_ptr length: (uint64_t) len {
 	struct page_struct temp;
 	struct page_struct *new_page;
@@ -103,11 +92,20 @@ static void PagesInfoDest(void *a){;}
 	return rb_node->key;
 }
 
--(void) initialize {}
+-(id) init {
+	if (self = [super init]) {
+		uint64_t len;
+		len = sizeof(struct page_struct) * (acfg.max_nodes + 1);
+		[self configureDataStruct: &pages length: len];
+		[self configureDataStruct: &data length: acfg.page_size * acfg.max_nodes];
+		[self configureDataStruct: &cdata length: acfg.page_size * acfg.max_nodes];
+		[self configureRBtree];
+	} 
+	return self;
+}
 
 -(void) free {
 	RBTreeDestroy(tree);
-
 	free(pages.data);
 	free(data.data);
 	free(cdata.data);

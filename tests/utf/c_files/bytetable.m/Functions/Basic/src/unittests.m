@@ -7,8 +7,13 @@
 #include "bytetable.m"
 #include "compressor.h"
 #include "compressor.m"
+#include "compressible_object.h"
+#include "compressible_object.m"
+
 
 /****** Test Code ******/
+
+struct axfs_config acfg;
 
 static void Bytetable_test_check_depth(CuTest *tc)
 {
@@ -98,13 +103,11 @@ static void Bytetable_createdestroy(CuTest *tc)
 	printf("Running %s\n", __FUNCTION__);
 
 	bt = [[ByteTable alloc] init];
-	[bt initialize];
 	[bt numberEntries: 4096 dedup: false];
 	[bt free];
 	[bt release];
 
 	bt = [[ByteTable alloc] init];
-	[bt initialize];
 	[bt numberEntries: 4096 dedup: true];
 	[bt free];
 	[bt release];
@@ -115,13 +118,20 @@ static void Bytetable_createdestroy(CuTest *tc)
 
 static void Bytetable_add_1byte(CuTest *tc)
 {
-	ByteTable *bt = [[ByteTable alloc] init];
+	ByteTable *bt;
 	uint64_t expected, actual;
 	void *data;
 
 	printf("Running %s\n", __FUNCTION__);
 
-	[bt initialize];
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+	acfg.max_text_size = 10000;
+	acfg.max_number_files = 10000;
+	bt = [[ByteTable alloc] init];
+
 	[bt numberEntries: 4096 dedup: true];
 
 	data = [bt add: 0x01];
@@ -141,9 +151,16 @@ static void Bytetable_add_1byte(CuTest *tc)
 
 static void Bytetable_add_a_size(CuTest *tc, uint64_t *inputs, uint64_t *outputs, bool dedup)
 {
-	ByteTable *bt = [[ByteTable alloc] init];
+	ByteTable *bt;
 
-	[bt initialize];
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+	acfg.max_text_size = 10000;
+	acfg.max_number_files = 10000;
+	bt = [[ByteTable alloc] init];
+
 	[bt numberEntries: 4096 dedup: dedup];
 
 	outputs[0] = (uint64_t)[bt add: inputs[0] ];
@@ -365,11 +382,18 @@ static void Bytetable_simpledata(CuTest *tc)
 	uint8_t *output;
 	uint64_t size;
 
-	ByteTable *bt = [[ByteTable alloc] init];
+	ByteTable *bt;
+
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "gzip";
+	acfg.max_text_size = 10000;
+	acfg.max_number_files = 10000;
+	bt = [[ByteTable alloc] init];
 
 	printf("Running %s\n", __FUNCTION__);
 
-	[bt initialize];
 	[bt numberEntries: 4096 dedup: true];
 	
 	[bt add: 0x123456];
@@ -394,12 +418,19 @@ static void Bytetable_simpledata(CuTest *tc)
 
 static void Bytetable_cdata(CuTest *tc)
 {
-	ByteTable *bt = [[ByteTable alloc] init];
+	ByteTable *bt;
 	int i;
+
+	acfg.max_nodes = 10000;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "gzip";
+	acfg.max_text_size = 10000;
+	acfg.max_number_files = 10000;
+	bt = [[ByteTable alloc] init];
 
 	printf("Running %s\n", __FUNCTION__);
 
-	[bt initialize];
 	[bt numberEntries: 4096 dedup: true];
 	
 	[bt add: 0x123456];
@@ -409,7 +440,7 @@ static void Bytetable_cdata(CuTest *tc)
 	}
 	[bt data];
 
-	//printf("csize = %i  size = %i\n",(int)[bt csize],(int)[bt size]);
+//	printf("csize = %i  size = %i\n",(int)[bt csize],(int)[bt size]);
 	CuAssertTrue(tc,[bt csize] <= [bt size]);
 	CuAssertTrue(tc,[bt csize] > 0);
 

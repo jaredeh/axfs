@@ -101,12 +101,13 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 		     ByteTableInfoDest, ByteTablePrint, ByteTableInfoPrint);
 }
 
--(void) initialize {
-	depth = 0;
-	length = 0;
-	dbuffer = NULL;
-	cbuffer = NULL;
-	[self configureRBtree];
+-(id) init {
+	if (self = [super init]) {
+		depth = 0;
+		length = 0;
+		[self configureRBtree];
+	}
+	return self;
 }
 
 -(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len {
@@ -128,7 +129,8 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 }
 
 -(uint64_t) size {
-	return length * depth;
+	size = length * depth;
+	return size;
 }
 
 -(void *) add: (uint64_t) datum {
@@ -163,50 +165,20 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 	struct bytetable_value *value;
 	uint8_t *buffer;
 
-	if (dbuffer != NULL) {
-		return dbuffer;
+	if (data != NULL) {
+		return data;
 	}
 
-	dbuffer = malloc([self size]);
-	buffer = dbuffer;
-	//printf("dbuffer=0x%08lx\n",(long unsigned int)dbuffer);
+	[self size];
+	data = malloc(size);
+	buffer = data;
+//	printf("dbuffer=0x%08lx\n",(long unsigned int)data);
 	for(i=0; i<length; i++) {
 		//printf("buffer=0x%08lx\n",(long unsigned int)buffer);
 		value = &((struct bytetable_value *)bytetable.data)[i];
 		buffer = output_datum(buffer,depth,value->datum);
 	}
-	return dbuffer;
-}
-
--(void *) cdata {
-	Compressor * compressor;
-	void *buffer;
-	uint64_t len;
-
-	if (cbuffer != NULL) {
-		return cbuffer;
-	}
-	cbuffer = malloc([self size]);
-	buffer = [self data];
-	len = [self size];
-	compressor = [[Compressor alloc] init];
-	[compressor initialize];
-	[compressor algorithm: "gzip"];
-	[compressor cdata: cbuffer csize: &csize_cached data: buffer size: len];
-	[compressor free];
-	[compressor release];
-	if (csize_cached == 0) {
-		if (cbuffer == NULL)
-			free(cbuffer);
-		cbuffer = NULL;
-	}
-
-	return cbuffer;
-}
-
--(uint64_t) csize {
-	[self cdata];
-	return csize_cached;
+	return data;
 }
 
 -(uint8_t) depth {
@@ -217,10 +189,10 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 	RBTreeDestroy(tree);
 
 	free(bytetable.data);
-	if (dbuffer != NULL)
-		free(dbuffer);
-	if (cbuffer != NULL)
-		free(cbuffer);
+	if (data != NULL)
+		free(data);
+	if (cdata != NULL)
+		free(cdata);
 }
 
 @end

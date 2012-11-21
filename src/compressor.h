@@ -1,6 +1,8 @@
 #import <Foundation/NSObject.h>
 #import "axfs_helper.h"
 
+extern struct axfs_config acfg;
+
 struct compressor {
 	int (*init)(void **, int, int);
 	int (*compress)(void *, void *, void *, int, int, int *);
@@ -22,7 +24,6 @@ extern struct compressor *lookup_compressor(char *name);
 	struct compressor *compress;
 	void *stream;
 }
--(void) initialize;
 -(bool) algorithm: (char *) name;
 -(void) cdata: (void *) cdata csize: (uint64_t *) csize data: (void *) data size: (uint64_t) size;
 -(void) free;

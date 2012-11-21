@@ -8,6 +8,8 @@ mkfs.axfs_OBJC_FILES = bytetable.m \
                        image_builder.m \
                        main.m \
                        nodes.m \
+                       modes.m \
+                       inodes.m \
                        opts_validator.m \
                        pages.m \
                        region.m \

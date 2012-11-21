@@ -4,6 +4,8 @@
 
 #include "image_builder.h"
 #include "image_builder.m"
+#include "dir_walker.h"
+#include "dir_walker.m"
 
 struct axfs_config acfg;
 
@@ -14,6 +16,12 @@ static void ImageBuilder_createdestroy(CuTest *tc){
 	ImageBuilder *ib = [[ImageBuilder alloc] init];
 	
 	printf("Running %s\n", __FUNCTION__);
+
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+	acfg.input = "tovfs";
 
 	[ib initialize];
 	[ib free];

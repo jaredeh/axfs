@@ -14,6 +14,11 @@ static void DirWalker_createdestroy(CuTest *tc){
 	DirWalker *dw = [[DirWalker alloc] init];
 	
 	printf("Running %s\n", __FUNCTION__);
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+	acfg.input = "tovfs";
 
 	[dw initialize];
 	[dw free];
@@ -52,6 +57,7 @@ void RunAllTests(void)
 	CuString *output = CuStringNew();
 	CuSuite* suite = CuSuiteNew();
 	CuSuite* newsuite = GetSuite();
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	CuSuiteAddSuite(suite, newsuite);
 	CuSuiteRun(suite);
@@ -63,6 +69,7 @@ void RunAllTests(void)
 	free(newsuite);
 	free(output->buffer);
 	free(output);
+	[pool drain];
 	return;
 }
 

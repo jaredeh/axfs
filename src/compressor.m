@@ -2,8 +2,6 @@
 
 @implementation Compressor
 
--(void) initialize {}
-
 
 -(bool) algorithm: (char *) name {
 	compress = lookup_compressor(name);
@@ -13,28 +11,47 @@
 	return true;
 }
 
-
+-(id) init {
+	if (self = [super init]) {
+		[self algorithm: acfg.compression];
+	} 
+	return self;
+}
 
 -(void) cdata: (void *) cdata csize: (uint64_t *) csize data: (void *) data size: (uint64_t) size {
 	int error = 0;
-//	FILE *fp;
-//	fp = fopen("data_.bin", "w+");
-//	fwrite(data,size,1,fp);
-//	fclose(fp);
+
+/*
+	FILE *fp;
+	fp = fopen("data_.bin", "w+");
+	fwrite(data,size,1,fp);
+	fclose(fp);
+*/
+/*
+	printf("\ncsize: 0x%08llx\n",(unsigned long long)*csize);
+	printf(" size: 0x%08llx\t%i\n",(unsigned long long)size,(int)size);
+	printf(" data: \t%i\t0x%08llx\t%i\n",(int)data,(unsigned long long)data,(int)data);
+	printf("cdata: \t%i\t0x%08llx\n",(int)cdata,(unsigned long long)cdata);
+*/
+
 	if (size == 0)
 		return;
 
 	*csize = compress->compress(stream, cdata, data, size, size, &error);
-//	printf("\ncsize: 0x%08llx\n",*csize);
-//	printf(" size: 0x%08llx\n",size);
-//	printf(" data: \t%i\t0x%08llx\n",data,data);
-//	printf("cdata: \t%i\t0x%08llx\n",cdata,cdata);
-//	fp = fopen("data.bin", "w+");
-//	fwrite(data,size,1,fp);
-//	fclose(fp);
-//	fp = fopen("cdata.bin", "w+");
-//	fwrite(cdata,*csize,1,fp);
-//	fclose(fp);
+/*
+	printf("\ncsize: 0x%08llx\n",(unsigned long long)*csize);
+	printf(" size: 0x%08llx\n",(unsigned long long)size);
+	printf(" data: \t%i\t0x%08llx\n",(int)data,(unsigned long long)data);
+	printf("cdata: \t%i\t0x%08llx\n",(int)cdata,(unsigned long long)cdata);
+*/
+/*
+	fp = fopen("data.bin", "w+");
+	fwrite(data,size,1,fp);
+	fclose(fp);
+	fp = fopen("cdata.bin", "w+");
+	fwrite(cdata,*csize,1,fp);
+	fclose(fp);
+*/
 }
 
 -(void) free {

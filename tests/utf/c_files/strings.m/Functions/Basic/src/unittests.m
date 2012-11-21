@@ -8,6 +8,8 @@
 
 /****** Test Code ******/
 
+struct axfs_config acfg;
+
 static void StringsComp_less(CuTest *tc){
 	int output;
 	struct string_struct a;
@@ -70,7 +72,8 @@ static void StringsComp_equal(CuTest *tc){
 	int output;
 	struct string_struct a;
 	struct string_struct b;
-
+	acfg.max_text_size = 10000;
+	acfg.max_number_files = 10000;
 	printf("Running %s\n", __FUNCTION__);
 
 	a.data = malloc(4096);
@@ -101,10 +104,16 @@ static void StringsComp_equal(CuTest *tc){
 static void Strings_createdestroy(CuTest *tc){
 	int output;
 	Strings *str = [[Strings alloc] init];
-	
+
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+	acfg.max_text_size = 10000;
+	acfg.max_number_files = 10000;
+
 	printf("Running %s\n", __FUNCTION__);
 
-	[str numberInodes: 10 length: 40000 path: "./tempfile"];
 	[str free];
 	[str release];
 
@@ -122,10 +131,16 @@ static void Strings_simplesort(CuTest *tc){
 	uint64_t length = 4096;
 	int i,j;
 
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+	acfg.max_text_size = 10000;
+	acfg.max_number_files = 10000;
+
 	printf("Running %s\n", __FUNCTION__);
 
 	Strings *str = [[Strings alloc] init];
-	[str numberInodes: 10 length: 40000 path: "./tempfile"];
 
 	memset(&data0,'5',4096);
 	output[0] = [str addString: &data0 length: length];
@@ -167,8 +182,14 @@ static void Strings_duplicates(CuTest *tc){
 	uint8_t data4[4096];
 	uint64_t length = 4096;
 
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+	acfg.max_text_size = 10000;
+	acfg.max_number_files = 10000;
+
 	Strings *str = [[Strings alloc] init];
-	[str numberInodes: 10 length: 40000 path: "./tempfile"];
 
 	printf("Running %s\n", __FUNCTION__);
 
@@ -208,9 +229,15 @@ static void Strings_falsedups(CuTest *tc){
 	uint8_t data4[4096];
 	uint64_t length = 4096;
 	int i,j;
+	acfg.max_text_size = 10000;
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+	acfg.max_text_size = 10000;
+	acfg.max_number_files = 10000;
 
 	Strings *str = [[Strings alloc] init];
-	[str numberInodes: 10 length: 40000 path: "./tempfile"];
 
 	printf("Running %s\n", __FUNCTION__);
 
@@ -251,51 +278,48 @@ static void Strings_falsedups(CuTest *tc){
 
 static void Strings_data(CuTest *tc){
 	void *output;
-	char *text;
 	char *expected;
 	char *data;
 	uint64_t length;
 	int explen = 0;
+	acfg.max_text_size = 10000;
+	acfg.max_number_files = 10000;
+
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
 
 	printf("Running %s\n", __FUNCTION__);
 
 	Strings *str = [[Strings alloc] init];
-	[str numberInodes: 1000 length: 40000 path: "./tempfile"];
 	expected = malloc(2000);
 
 	length = 5;
-	text = "hello";
-	data = [str allocStringData: length];
-	memcpy(data,text,length);
+	data = "hello";
 	[str addString: data length: length];
-	memcpy(&expected[explen],text,length);
+	memcpy(&expected[explen],data,length);
 	explen += length;
 
 	length = 5;
-	text = "jared";
-	data = [str allocStringData: length];
-	memcpy(data,text,length);
+	data = "jared";
 	[str addString: data length: length];
-	memcpy(&expected[explen],text,length);
+	memcpy(&expected[explen],data,length);
 	explen += length;
 
 	length = 13;
-	text = "jared hulbert";
-	data = [str allocStringData: length];
-	memcpy(data,text,length);
+	data = "jared hulbert";
 	[str addString: data length: length];
-	memcpy(&expected[explen],text,length);
+	memcpy(&expected[explen],data,length);
 	explen += length;
 
 	length = 1000;
-	data = [str allocStringData: length];
-	text = malloc(length);
-	memset(text,'a',length);
-	memcpy(data,text,length);
+	data = malloc(2000);
+	memset(data,'a',length);
 	[str addString: data length: length];
-	memcpy(&expected[explen],text,length);
+	memcpy(&expected[explen],data,length);
 	explen += length;
-	free(text);
+	free(data);
 
 	expected[explen] = 0;
 	output = [str data];
@@ -306,52 +330,49 @@ static void Strings_data(CuTest *tc){
 
 static void Strings_cdata(CuTest *tc){
 	void *output;
-	char *text;
 	char *expected;
 	char *data;
 	uint64_t length;
 	int explen = 0;
 
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "gzip";
+	acfg.max_text_size = 10000;
+	acfg.max_number_files = 10000;
+
 	printf("Running %s\n", __FUNCTION__);
 
 	Strings *str = [[Strings alloc] init];
-	[str numberInodes: 1000 length: 40000 path: "./tempfile"];
 	expected = malloc(2000);
-
+    
 	length = 5;
-	text = "hello";
-	data = [str allocStringData: length];
-	memcpy(data,text,length);
+	data = "hello";
 	[str addString: data length: length];
-	memcpy(&expected[explen],text,length);
+	memcpy(&expected[explen],data,length);
 	explen += length;
-
+    
 	length = 5;
-	text = "jared";
-	data = [str allocStringData: length];
-	memcpy(data,text,length);
+	data = "jared";
 	[str addString: data length: length];
-	memcpy(&expected[explen],text,length);
+	memcpy(&expected[explen],data,length);
 	explen += length;
-
+    
 	length = 13;
-	text = "jared hulbert";
-	data = [str allocStringData: length];
-	memcpy(data,text,length);
+	data = "jared hulbert";
 	[str addString: data length: length];
-	memcpy(&expected[explen],text,length);
+	memcpy(&expected[explen],data,length);
 	explen += length;
-
+    
 	length = 1000;
-	data = [str allocStringData: length];
-	text = malloc(length);
-	memset(text,'a',length);
-	memcpy(data,text,length);
+	data = malloc(2000);
+	memset(data,'a',length);
 	[str addString: data length: length];
-	memcpy(&expected[explen],text,length);
+	memcpy(&expected[explen],data,length);
 	explen += length;
-	free(text);
-
+	free(data);
+    
 	expected[explen] = 0;
 	output = [str cdata];
 	CuAssertTrue(tc, (expected[2] != ((char *)output)[2]));
@@ -396,6 +417,7 @@ void RunAllTests(void)
 	CuString *output = CuStringNew();
 	CuSuite* suite = CuSuiteNew();
 	CuSuite* newsuite = GetSuite();
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	CuSuiteAddSuite(suite, newsuite);
 	CuSuiteRun(suite);
@@ -407,6 +429,7 @@ void RunAllTests(void)
 	free(newsuite);
 	free(output->buffer);
 	free(output);
+	[pool drain];
 	return;
 }
 

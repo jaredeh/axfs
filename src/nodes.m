@@ -7,7 +7,6 @@
 	pages[place] = (struct page_struct *) page;
 	place += 1;
 	cached = false;
-	ccached = false;
 	return place-1;
 }
 
@@ -21,7 +20,8 @@
 		return data;
 	}
 	cached = true;
-	ccached = false;
+	if (cdata)
+		free(cdata);
 	size = 0;
 	for(i=0;i<place;i++) {
 		page = pages[i];
@@ -44,37 +44,6 @@
 		data = [cb data];
 	}
 	return data;
-}
-
--(uint64_t) size {
-	if(!cached) {
-		[self data];
-	}
-	return size;
-}
-
--(void *) cdata {
-	Compressor * compressor;
-	void *d;
-	uint64_t s;
-	if(ccached)
-		return cdata;
-	compressor = [[Compressor alloc] init];
-	[compressor initialize];
-	[compressor algorithm: acfg.compression];
-	d = [self data];
-	s = [self size];
-	[compressor cdata: cdata csize: &csize data: d size: s];
-	[compressor free];
-	[compressor release];
-	ccached = true;
-	return cdata;
-}
-
--(uint64_t) csize {
-	if(!ccached)
-		[self cdata];
-	return csize;
 }
 
 -(uint64_t) length {
@@ -122,4 +91,3 @@
 }
 
 @end
-

@@ -8,6 +8,9 @@
 #include "c_blocks.h"
 #include "c_blocks.m"
 
+#include "compressible_object.h"
+#include "compressible_object.m"
+
 struct axfs_config acfg;
 
 /****** Test Code ******/

@@ -6,6 +6,8 @@
 #include "pages.h"
 #include "pages.m"
 
+struct axfs_config acfg;
+
 /****** Test Code ******/
 
 static void PagesComp_less(CuTest *tc){
@@ -147,11 +149,17 @@ static void PagesComp_equal(CuTest *tc){
 
 static void Pages_createdestroy(CuTest *tc){
 	int output;
-	Pages *pages = [[Pages alloc] init];
+	Pages *pages;
 	
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+
+	pages = [[Pages alloc] init];
+
 	printf("Running %s\n", __FUNCTION__);
 
-	[pages numberPages: 4 path: "./tempfile"];
 	[pages free];
 	[pages release];
 
@@ -168,11 +176,16 @@ static void Pages_simplesort(CuTest *tc){
 	uint8_t data4[4096];
 	uint64_t length = 4096;
 	int i,j;
+	Pages *pages;
 
 	printf("Running %s\n", __FUNCTION__);
 
-	Pages *pages = [[Pages alloc] init];
-	[pages numberPages: 4 path: "./tempfile"];
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+
+	pages = [[Pages alloc] init];
 
 	memset(&data0,5,4096);
 	output[0] = [pages addPage: &data0 length: length];
@@ -214,10 +227,16 @@ static void Pages_duplicates(CuTest *tc){
 	uint8_t data4[4096];
 	uint64_t length = 4096;
 
-	Pages *pages = [[Pages alloc] init];
-	[pages numberPages: 4 path: "./tempfile"];
+	Pages *pages;
 
 	printf("Running %s\n", __FUNCTION__);
+
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+
+	pages = [[Pages alloc] init];
 
 	memset(&data0,5,4096);
 	output[0] = [pages addPage: &data0 length: length];
@@ -256,11 +275,16 @@ static void Pages_falsedups(CuTest *tc){
 	uint8_t data4[4096];
 	uint64_t length = 4096;
 	int i,j;
-
-	Pages *pages = [[Pages alloc] init];
-	[pages numberPages: 4 path: "./tempfile"];
+	Pages *pages;
 
 	printf("Running %s\n", __FUNCTION__);
+
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+
+	pages = [[Pages alloc] init];
 
 	memset(&data0,5,4096);
 	output[0] = [pages addPage: &data0 length: length];

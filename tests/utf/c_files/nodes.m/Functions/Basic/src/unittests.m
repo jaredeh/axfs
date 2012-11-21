@@ -72,8 +72,6 @@ static void Nodes_size_xip4k(CuTest *tc)
 	[nodes setType: TYPE_XIP];
 
 	pages = [[Pages alloc] init];
-	[pages initialize];
-	[pages numberPages: 100 path: "./tempfile"];
 
 	data0 = malloc(l);
 	memset(data0,5,l);
@@ -144,8 +142,7 @@ static void Nodes_size_xip64k(CuTest *tc)
 	[nodes setType: TYPE_XIP];
 
 	pages = [[Pages alloc] init];
-	[pages initialize];
-	[pages numberPages: 100 path: "./tempfile"];
+
 	memset(&data0,5,l);
 	output[0] = [pages addPage: &data0 length: l];
 
@@ -211,8 +208,6 @@ static void Nodes_xip_cdata(CuTest *tc)
 	[nodes initialize];
 	[nodes setType: TYPE_XIP];
 	pages = [[Pages alloc] init];
-	[pages initialize];
-	[pages numberPages: 100 path: "./tempfile"];
 
 	memset(&data0,5,l);
 	output[0] = [pages addPage: &data0 length: l];
@@ -289,8 +284,6 @@ static void Nodes_size_bytealigned(CuTest *tc)
 	[nodes setType: TYPE_BYTEALIGNED];
 
 	pages = [[Pages alloc] init];
-	[pages initialize];
-	[pages numberPages: 100 path: "./tempfile"];
 
 	l = 5;
 	r += l;
@@ -382,8 +375,6 @@ static void Nodes_size_ba_cdata(CuTest *tc)
 	[nodes setType: TYPE_BYTEALIGNED];
 
 	pages = [[Pages alloc] init];
-	[pages initialize];
-	[pages numberPages: 100 path: "./tempfile"];
 
 	l = 5;
 	r += l;
@@ -474,8 +465,6 @@ static void Nodes_compressed_little(CuTest *tc)
 	[nodes initialize];
 	[nodes setType: TYPE_COMPRESS];
 	pages = [[Pages alloc] init];
-	[pages initialize];
-	[pages numberPages: 100 path: "./tempfile"];
 
 	data0 = malloc(l);
 	memset(data0,5,l);

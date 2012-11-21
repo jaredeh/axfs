@@ -5,6 +5,8 @@
 #include "../../../../../src/pages.h"
 #include "../../../../../src/pages.m"
 
+struct axfs_config acfg;
+
 int main(int argc, char * argv[])
 {
 	return 0;
