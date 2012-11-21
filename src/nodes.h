@@ -22,8 +22,6 @@ struct axfs_node {
 	uint64_t place;
 	bool cached;
 	bool ccached;
-	void *data;
-	void *cdata;
 	void *cdata_partials;
 	uint64_t size;
 	uint64_t csize;

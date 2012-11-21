@@ -5,6 +5,7 @@
 /* Including function under test */
 #include "strings.m"
 #include "compressor.m"
+#include "compressible_object.m"
 
 /****** Test Code ******/
 

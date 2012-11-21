@@ -28,10 +28,10 @@
 	fclose(fp);
 */
 /*
-	printf("\ncsize: 0x%08llx\n",(unsigned long long)*csize);
-	printf(" size: 0x%08llx\t%i\n",(unsigned long long)size,(int)size);
-	printf(" data: \t%i\t0x%08llx\t%i\n",(int)data,(unsigned long long)data,(int)data);
-	printf("cdata: \t%i\t0x%08llx\n",(int)cdata,(unsigned long long)cdata);
+	printf("\n1 csize: 0x%08llx\n",(unsigned long long)*csize);
+	printf("1 size: 0x%08llx\t%i\n",(unsigned long long)size,(int)size);
+	printf("1 data: \t%i\t0x%08llx\t%i\n",(int)data,(unsigned long long)data,(int)data);
+	printf("1 cdata: \t%i\t0x%08llx\n",(int)cdata,(unsigned long long)cdata);
 */
 
 	if (size == 0)
@@ -39,10 +39,10 @@
 
 	*csize = compress->compress(stream, cdata, data, size, size, &error);
 /*
-	printf("\ncsize: 0x%08llx\n",(unsigned long long)*csize);
-	printf(" size: 0x%08llx\n",(unsigned long long)size);
-	printf(" data: \t%i\t0x%08llx\n",(int)data,(unsigned long long)data);
-	printf("cdata: \t%i\t0x%08llx\n",(int)cdata,(unsigned long long)cdata);
+	printf("\n2 csize: 0x%08llx\n",(unsigned long long)*csize);
+	printf("2 size: 0x%08llx\n",(unsigned long long)size);
+	printf("2 data: \t%i\t0x%08llx\n",(int)data,(unsigned long long)data);
+	printf("2 cdata: \t%i\t0x%08llx\n",(int)cdata,(unsigned long long)cdata);
 */
 /*
 	fp = fopen("data.bin", "w+");

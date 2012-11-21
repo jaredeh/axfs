@@ -17,6 +17,7 @@
 		return cdata;
 	}
 	[self data];
+	[self size];
 	cdata = malloc(size);
 	compressor = [[Compressor alloc] init];
 	[compressor cdata: cdata csize: &csize data: data size: size];
