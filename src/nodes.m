@@ -73,8 +73,6 @@
 	} else {
 		data = malloc(acfg.page_size*acfg.max_nodes);
 		memset(data,0,acfg.page_size*acfg.max_nodes);
-		cdata = malloc(acfg.page_size*acfg.max_nodes);
-		memset(cdata,0,acfg.page_size*acfg.max_nodes);
 	}
 }
 
