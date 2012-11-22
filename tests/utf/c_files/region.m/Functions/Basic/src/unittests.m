@@ -46,7 +46,7 @@ static void Region_big_endian_number(CuTest *tc)
 	bt = [[ByteTable alloc] init];
 	r = [[Region alloc] init];
 
-	[bt numberEntries: 4096 dedup: false];
+	[bt numberEntries: 4098 dedup: false];
 	
 	[bt add: 0x123456];
 	[bt add: 0x0];
@@ -117,13 +117,13 @@ static void Region_bytetable_data(CuTest *tc)
 	for(i=0; i<4096; i++) {
 		[bt add: 0x000000 + i];
 	}
-
+printf("b00\n");
 	[r addBytetable: bt];
-
+printf("b01\n");
 	[r fsoffset: 0x4455667711223388UL];
 	[r incore: 1];
 	output = [r data];
-
+printf("b02\n");
 	CuAssertHexEquals(tc, 0x44, output[0]);
 	CuAssertHexEquals(tc, 0x55, output[1]);
 	CuAssertHexEquals(tc, 0x66, output[2]);
@@ -158,12 +158,13 @@ static void Region_bytetable_data(CuTest *tc)
 	CuAssertHexEquals(tc, 0x02, output[31]);
 	CuAssertHexEquals(tc, 0x03, output[32]);
 	CuAssertHexEquals(tc, 0x01, output[33]);
-
+printf("b03\n");
 	[r free];
 	[r release];
-
+printf("b04\n");
 	[bt free];
 	[bt release];
+printf("b05\n");
 }
 
 static void get_nodes_cdata(Nodes **nd, Pages **pg, uint8_t *d)
