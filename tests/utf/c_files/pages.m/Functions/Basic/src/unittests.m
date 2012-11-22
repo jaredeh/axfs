@@ -3,8 +3,9 @@
 #include "CuTest.h"
 
 /* Including function under test */
-#include "pages.h"
 #include "pages.m"
+#include "btree_object.m"
+#include "compressor.m"
 
 struct axfs_config acfg;
 

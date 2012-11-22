@@ -16,13 +16,10 @@ struct string_struct {
 	struct data_struct strings;
 	struct data_struct data_obj;
 	uint64_t length;
-	rb_red_blk_tree *tree;
 }
 -(struct string_struct *) allocStringStruct;
 -(void *) allocStringData: (uint64_t) len;
 -(void) populate: (struct string_struct *) str data: (void *) data_ptr length: (uint64_t) len;
--(void) configureRBtree;
--(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len;
 -(void *) addString: (void *) data_ptr length: (uint64_t) len;
 -(void *) data;
 -(uint64_t) size;

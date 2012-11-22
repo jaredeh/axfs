@@ -12,12 +12,10 @@ struct bytetable_value {
 @interface ByteTable: CompressibleObject {
 	uint8_t depth;
 	uint64_t length;
-	rb_red_blk_tree *tree;
 	struct data_struct bytetable;
 	bool deduped;
 }
--(void) configureRBtree;
--(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len;
+-(struct bytetable_value *) allocByteTableValue: (struct data_struct *) bt;
 -(void) numberEntries: (uint64_t) entries dedup: (bool) dedup;
 -(uint64_t) length;
 -(uint64_t) size;

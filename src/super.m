@@ -182,8 +182,6 @@
 	return data;
 }
 
--(void) initialize {}
-
 -(void) free {
 	free(data);
 }

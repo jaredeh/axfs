@@ -27,7 +27,6 @@
 -(void) big_endian_64: (uint64_t) number;
 -(void) big_endian_32: (uint32_t) number;
 -(void) big_endian_byte: (uint8_t) number;
--(void) initialize;
 -(void) free;
 @end
 

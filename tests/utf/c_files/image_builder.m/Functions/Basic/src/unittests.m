@@ -2,10 +2,15 @@
 #include "stubs.h"
 #include "CuTest.h"
 
-#include "image_builder.h"
 #include "image_builder.m"
-#include "dir_walker.h"
 #include "dir_walker.m"
+#include "inodes.m"
+#include "btree_object.m"
+#include "compressible_object.m"
+#include "paths.m"
+#include "modes.m"
+#include "astrings.m"
+#include "compressor.m"
 
 struct axfs_config acfg;
 
@@ -13,7 +18,7 @@ struct axfs_config acfg;
 
 static void ImageBuilder_createdestroy(CuTest *tc){
 	int output;
-	ImageBuilder *ib = [[ImageBuilder alloc] init];
+	ImageBuilder *ib;
 	
 	printf("Running %s\n", __FUNCTION__);
 
@@ -22,8 +27,7 @@ static void ImageBuilder_createdestroy(CuTest *tc){
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
 	acfg.input = "tovfs";
-
-	[ib initialize];
+	ib = [[ImageBuilder alloc] init];
 	[ib free];
 	[ib release];
 

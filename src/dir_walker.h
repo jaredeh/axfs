@@ -14,6 +14,5 @@ extern struct axfs_config acfg;
 -(void) size_up_dir;
 -(void) walk;
 -(void) printstats;
--(void) initialize;
 -(void) free;
 @end

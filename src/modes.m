@@ -25,46 +25,11 @@ static int ModesComp(const void* av, const void* bv)
 	return ModesCompHelper((uint64_t) a->uid, (uint64_t) b->uid);
 }
 
-static void ModesDest(void* a) {;}
-
-static void ModesPrint(const void* a) {
-	printf("%i",*(int*)a);
-}
-
-static void ModesInfoPrint(void* a) {;}
-
-static void ModesInfoDest(void *a){;}
-
 @implementation Modes
 
 -(struct mode_struct *) allocModeStruct {
-	struct mode_struct *retval;
-	struct mode_struct *mode_list = (struct mode_struct *) modes.data;
-	retval = &mode_list[modes.place];
-	modes.place += 1;
-	modes.used += sizeof(*retval);
-	if (modes.used > modes.total) {
-		[NSException raise: @"Overalloced mode_structs" format: @"modes.used=%d while modes.total=%d",modes.used,modes.total];
-	}
-	return retval;
-}
-
--(void) configureRBtree {
-	rb_red_blk_node *nild;
-	nild = malloc(sizeof(*nild));
-	tree = malloc(sizeof(*tree));
-	memset(nild,0,sizeof(*nild));
-	memset(tree,0,sizeof(*tree));
-	RBTreeCreate(tree, nild, NULL, ModesComp, ModesDest, ModesInfoDest,
-		     ModesPrint, ModesInfoPrint);
-}
-
--(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len {
-	ds->data = malloc(len);
-	memset(ds->data,0,len);
-	ds->place = 0;
-	ds->used = 0;
-	ds->total = len;
+	uint64_t d = sizeof(struct mode_struct);
+	return (struct mode_struct *) [self allocData: &modes chunksize: d];
 }
 
 -(void *) addMode: (NSDictionary *) attribs {
@@ -97,11 +62,11 @@ static void ModesInfoDest(void *a){;}
 }
 
 -(id) init {
+	CompFunc = ModesComp;
 	if (self = [super init]) {
 		uint64_t len;
 		len = sizeof(struct mode_struct) * (acfg.max_number_files + 1);
 		[self configureDataStruct: &modes length: len];
-		[self configureRBtree];
 	} 
 	return self;
 }
@@ -111,7 +76,7 @@ static void ModesInfoDest(void *a){;}
 }
 
 -(void) free {
-	RBTreeDestroy(tree);
+	[super free];
 	free(modes.data);
 }
 

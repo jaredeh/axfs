@@ -3,8 +3,8 @@
 #include "CuTest.h"
 
 /* Including function under test */
-#include "modes.h"
 #include "modes.m"
+#include "btree_object.m"
 
 /****** Test Code ******/
 

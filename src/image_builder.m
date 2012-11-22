@@ -17,16 +17,15 @@
 -(void) walk {
 	[dw walk];
 	[dw printstats];
-
 }
 
--(void) initialize {
-	printf("initialize 1\n");
-	dw = [[DirWalker alloc] init];
-	printf("initialize 2\n");
-	[dw initialize];
-	printf("initialize 3\n");
+-(id) init {
+	if (self = [super init]) {
+		dw = [[DirWalker alloc] init];
+	}
+	return self;
 }
+
 -(void) free {}
 @end
 

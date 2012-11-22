@@ -70,13 +70,11 @@ NSFileTypeUnknown;
 	[self set_acfg_values];
 }
 
-
 -(void) walk {
 	NSString *original_path;
 	NSString *path;
 	NSFileManager *fm;
 	NSDirectoryEnumerator *de;
-	NSDictionary *attribs;
 	Inodes *inodes;
 	//NSString *filetype;
 	//uint64_t size;
@@ -96,8 +94,10 @@ NSFileTypeUnknown;
 	inodes = [[Inodes alloc] init];
 	while ((path = [de nextObject]))
 	{
-		attribs = [de fileAttributes];
-		[inodes parse_file: path attributes: attribs];
+		//NSDictionary *attribs;
+		//attribs = [de fileAttributes];
+
+		[inodes addInode: path];
 
 		//filetype = [attribs objectForKey:NSFileType];
 		//name = (char *)[[path lastPathComponent] UTF8String];
@@ -114,13 +114,18 @@ NSFileTypeUnknown;
 	printf("number_of_nodes= %llu\n", number_of_nodes);
 }
 
--(void) initialize {
+-(id) init {
+	if (!(self = [super init]))
+		return self;
 	rootpath = [NSString stringWithUTF8String: acfg.input];
 	filename_size = 0;
 	filedata_size = 0;
 	number_of_files = 0;
 	number_of_nodes = 0;
+
+	return self;
 }
+
 -(void) free {}
 
 @end

@@ -18,40 +18,11 @@ static int InodesComp(const void* av, const void* bv)
 	return memcmp(adata,bdata,a->length);
 }
 
-static void InodesDest(void* a) {;}
-
-static void InodesPrint(const void* a) {
-	printf("%i",*(int*)a);
-}
-
-static void InodesInfoPrint(void* a) {;}
-
-static void InodesInfoDest(void *a){;}
-
 @implementation Inodes
 
 -(struct inode_struct *) allocInodeStruct {
-	struct inode_struct *retval;
-	struct inode_struct *inode_list = (struct inode_struct *) inodes.data;
-	retval = &inode_list[inodes.place];
-	inodes.place += 1;
-	return retval;
-}
-
--(void) configureRBtree {
-	rb_red_blk_node *nild;
-	nild = malloc(sizeof(*nild));
-	tree = malloc(sizeof(*tree));
-	memset(nild,0,sizeof(*nild));
-	memset(tree,0,sizeof(*tree));
-	RBTreeCreate(tree, nild, NULL, InodesComp, InodesDest, InodesInfoDest,
-		     InodesPrint, InodesInfoPrint);
-}
-
--(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len {
-	ds->data = malloc(len);
-	memset(ds->data,0,len);
-	ds->place = 0;
+	uint64_t d = sizeof(struct inode_struct);
+	return (struct inode_struct *) [self allocData: &inodes chunksize: d];
 }
 
 -(void) placeInDirectory: (struct inode_struct *) inode {
@@ -97,8 +68,7 @@ static void InodesInfoDest(void *a){;}
 
 	if (file == nil) {
 		NSFileManager *fm = [NSFileManager defaultManager];
-		NSLog(@"Failed to open file at path=%@ from %@",inode->path, [fm currentDirectoryPath]);
-		return NULL;
+		[NSException raise: @"Bad file" format: @"Failed to open file at path=%@ from %@",inode->path, [fm currentDirectoryPath]];
 	}
 
 	while (data_read < inode->size) {
@@ -164,13 +134,13 @@ static void InodesInfoDest(void *a){;}
 }
 
 -(id) init {
+	CompFunc = InodesComp;
 	if (self = [super init]) {
 		uint64_t len;
 		len = sizeof(struct inode_struct) * (acfg.max_nodes + 1);
 		[self configureDataStruct: &inodes length: len];
 		[self configureDataStruct: &data length: acfg.page_size * acfg.max_nodes];
 		[self configureDataStruct: &cdata length: acfg.page_size * acfg.max_nodes];
-		[self configureRBtree];
 		paths = [[Paths alloc] init];
 		strings = [[Strings alloc] init];
 		modes = [[Modes alloc] init];
@@ -179,7 +149,7 @@ static void InodesInfoDest(void *a){;}
 }
 
 -(void) free {
-	RBTreeDestroy(tree);
+	[super free];
 
 	free(inodes.data);
 	free(data.data);

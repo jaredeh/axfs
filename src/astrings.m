@@ -1,4 +1,4 @@
-#import "strings.h"
+#import "astrings.h"
 
 static int StringsComp(const void* av, const void* bv)
 {
@@ -15,32 +15,15 @@ static int StringsComp(const void* av, const void* bv)
 	return memcmp(adata,bdata,a->length);
 }
 
-static void StringsDest(void* a) {;}
-
-static void StringsPrint(const void* a) {
-	printf("%i",*(int*)a);
-}
-
-static void StringsInfoPrint(void* a) {;}
-
-static void StringsInfoDest(void *a){;}
-
 @implementation Strings
 
 -(struct string_struct *) allocStringStruct {
-	struct string_struct *retval;
-	struct string_struct *strlist = (struct string_struct *) strings.data;
-	retval = &strlist[strings.place];
-	strings.place += 1;
-	return retval;
+	uint64_t d = sizeof(struct string_struct);
+	return (struct string_struct *) [self allocData: &strings chunksize: d];
 }
 
 -(void *) allocStringData: (uint64_t) len {
-	void *retval;
-	uint8_t *buffer = (uint8_t *) data_obj.data;
-	retval = &buffer[data_obj.place];
-	data_obj.place += len;
-	return retval;
+	return (struct string_struct *) [self allocData: &data_obj chunksize: len];
 }
 
 -(void) populate: (struct string_struct *) str data: (void *) data_ptr length: (uint64_t) len {
@@ -50,27 +33,6 @@ static void StringsInfoDest(void *a){;}
 	memcpy(str->data, data_ptr, len);
 	str->length = len;
 	str->rb_node.key = (void *)str;
-}
-
--(void) configureRBtree {
-	rb_red_blk_node *nild;
-	nild = malloc(sizeof(*nild));
-	tree = malloc(sizeof(*tree));
-	memset(nild,0,sizeof(*nild));
-	memset(tree,0,sizeof(*tree));
-	RBTreeCreate(tree, nild, NULL, StringsComp, StringsDest,
-		     StringsInfoDest, StringsPrint, StringsInfoPrint);
-}
-
--(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len {
-	if (!len) {
-		printf("ERROR: len must be > 0\n");
-		return;
-	}
-
-	ds->data = malloc(len);
-	memset(ds->data,0,len);
-	ds->place = 0;
 }
 
 -(void *) addString: (void *) data_ptr length: (uint64_t) len {
@@ -97,7 +59,7 @@ static void StringsInfoDest(void *a){;}
 }
 
 -(uint64_t) size {
-	size = data_obj.place;
+	size = data_obj.used;
 	return size;
 }
 
@@ -106,17 +68,18 @@ static void StringsInfoDest(void *a){;}
 }
 
 -(id) init {
+	CompFunc = StringsComp;
+
 	if (self = [super init]) {
 		uint64_t len = sizeof(struct string_struct) * acfg.max_number_files;
 		[self configureDataStruct: &strings length: len];
 		[self configureDataStruct: &data_obj length: acfg.max_text_size];
-		[self configureRBtree];
 	} 
 	return self;
 }
 
 -(void) free {
-	RBTreeDestroy(tree);
+	[super free];
 	free(strings.data);
 	free(data_obj.data);
 }

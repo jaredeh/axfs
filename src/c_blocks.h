@@ -3,6 +3,7 @@
 #import "pages.h"
 #import "nodes.h"
 #import "compressor.h"
+#import "btree_object.h"
 
 struct cblock_struct {
 	uint64_t length;
@@ -15,20 +16,19 @@ struct cblock_struct {
 	struct axfs_node *current_node;
 };
 
-@interface CBlocks: NSObject {
+@interface CBlocks: BtreeObject {
 	struct cblock_struct *cblocks;
 	struct cblock_struct *fullpages;
 	struct cblock_struct *partpages;
 	struct cblock_struct *fullpage_current;
 	struct data_struct data;
 	struct data_struct cdata;
-    uint64_t place;
-    void *cbbuffer;
-    void *uncbuffer;
-    Compressor * compressor;
+	uint64_t place;
+	void *cbbuffer;
+	void *uncbuffer;
+	Compressor * compressor;
 }
 
--(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len;
 -(struct cblock_struct *) allocateCBlockStructs;
 -(void *) allocCdata: (uint64_t) s;
 -(void) compressCBlock: (struct cblock_struct *) cblock;

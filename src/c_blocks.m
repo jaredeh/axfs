@@ -2,33 +2,23 @@
 
 @implementation CBlocks
 
--(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len {
-	ds->data = malloc(len);
-	memset(ds->data,0,len);
-	ds->place = 0;
-}
-
 -(struct cblock_struct *) allocateCBlockStructs {
 	struct cblock_struct *cblock = &cblocks[place];
 	memset(cblock,0,sizeof(*cblock));
 	cblock->num = place;
-    place += 1;
+	place += 1;
 	return cblock;
 }
 
 -(void *) allocCdata: (uint64_t) s {
-	void *retval;
-	uint8_t *buffer = (uint8_t *) cdata.data;
-	retval = &buffer[cdata.place];
-	cdata.place += s;
-	return retval;
+	return [self allocData: &cdata chunksize: s];
 }
 
 -(void) compressCBlock: (struct cblock_struct *) cblock {
 	struct axfs_node *node;
 	uint8_t *uncomp = (uint8_t *) uncbuffer;
 	uint64_t unclength = 0;
-    node = cblock->nodes;
+	node = cblock->nodes;
 	if(cblock->cdata != NULL) {
 		return;
 	}
@@ -40,8 +30,7 @@
 		memcpy(&uncomp[unclength],page->data,page->length);
 		unclength += page->length;
 		if (unclength > acfg.block_size) {
-			printf("unclength(%llu) > acfg.block_size(%llu)\n",(long long unsigned int)unclength,(long long unsigned int)acfg.block_size);
-			exit(-1);
+			[NSException raise: @"error compressing CBlock" format: @"unclength(%llu) > acfg.block_size(%llu)\n",(long long unsigned int)unclength,(long long unsigned int)acfg.block_size];
 		}
 		node = node->next;
 	}
@@ -152,12 +141,10 @@
 		return self;
 
 	if ((acfg.block_size == 0) || (acfg.page_size == 0) || (acfg.max_nodes == 0)) {
-		printf("can't have (acfg.block_size == 0) || (acfg.page_size == 0) || (acfg.max_nodes == 0)\n");
-		exit(-1);
+		[NSException raise: @"Can't init CBlocks" format: @"can't have (acfg.block_size == 0) || (acfg.page_size == 0) || (acfg.max_nodes == 0)"];
 	}
 	if (acfg.compression == NULL) {
-		printf("can't have acfg.compression == NULL\n");
-		exit(-1);		
+		[NSException raise: @"Can't init CBlocks" format: @"can't have acfg.compression == NULL"];
 	}
 	compressor = [[Compressor alloc] init];
 	uncbuffer = malloc(acfg.block_size*2);
@@ -174,6 +161,7 @@
 }
 
 -(void) free {
+	[super free];
 	free(uncbuffer);
 	free(cbbuffer);
 	free(cblocks);

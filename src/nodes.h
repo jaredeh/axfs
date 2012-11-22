@@ -3,6 +3,7 @@
 #import "pages.h"
 #import "compressor.h"
 #import "axfs_helper.h"
+#import "compressible_object.h"
 
 extern struct axfs_config acfg;
 

@@ -28,40 +28,11 @@ static int PathsComp(const void* av, const void* bv)
 	return retval;
 }
 
-static void PathsDest(void* a) {;}
-
-static void PathsPrint(const void* a) {
-	printf("%i",*(int*)a);
-}
-
-static void PathsInfoPrint(void* a) {;}
-
-static void PathsInfoDest(void *a){;}
-
 @implementation Paths
 
 -(struct paths_struct *) allocPathStruct {
-	struct paths_struct *retval;
-	struct paths_struct *list = (struct paths_struct *) data.data;
-	retval = &list[data.place];
-	data.place += 1;
-	return retval;
-}
-
--(void) configureRBtree {
-	rb_red_blk_node *nild;
-	nild = malloc(sizeof(*nild));
-	tree = malloc(sizeof(*tree));
-	memset(nild,0,sizeof(*nild));
-	memset(tree,0,sizeof(*tree));
-	RBTreeCreate(tree, nild, NULL, PathsComp, PathsDest, PathsInfoDest,
-		     PathsPrint, PathsInfoPrint);
-}
-
--(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len {
-	ds->data = malloc(len);
-	memset(ds->data,0,len);
-	ds->place = 0;
+	uint64_t d = sizeof(struct paths_struct);
+	return (struct paths_struct *) [self allocData: &data chunksize: d];
 }
 
 -(void *) addPath: (struct inode_struct *) inode {
@@ -102,18 +73,17 @@ static void PathsInfoDest(void *a){;}
 }
 
 -(id) init {
+	CompFunc = PathsComp;
 	if (self = [super init]) {
 		uint64_t len;
 		len = sizeof(struct paths_struct) * (acfg.max_number_files + 1);
 		[self configureDataStruct: &data length: len];
-		[self configureRBtree];
 	} 
 	return self;
 }
 
 -(void) free {
-	RBTreeDestroy(tree);
-
+	[super free];
 	free(data.data);
 }
 

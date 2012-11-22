@@ -3,9 +3,10 @@
 #include "CuTest.h"
 
 /* Including function under test */
-#include "strings.m"
+#include "astrings.m"
 #include "compressor.m"
 #include "compressible_object.m"
+#include "btree_object.m"
 
 /****** Test Code ******/
 

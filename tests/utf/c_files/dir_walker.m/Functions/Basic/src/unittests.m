@@ -2,8 +2,14 @@
 #include "stubs.h"
 #include "CuTest.h"
 
-#include "dir_walker.h"
 #include "dir_walker.m"
+#include "inodes.m"
+#include "btree_object.m"
+#include "compressible_object.m"
+#include "paths.m"
+#include "modes.m"
+#include "astrings.m"
+#include "compressor.m"
 
 struct axfs_config acfg;
 
@@ -11,7 +17,7 @@ struct axfs_config acfg;
 
 static void DirWalker_createdestroy(CuTest *tc){
 	int output;
-	DirWalker *dw = [[DirWalker alloc] init];
+	DirWalker *dw;
 	
 	printf("Running %s\n", __FUNCTION__);
 	acfg.max_nodes = 100;
@@ -20,7 +26,7 @@ static void DirWalker_createdestroy(CuTest *tc){
 	acfg.compression = "lzo";
 	acfg.input = "tovfs";
 
-	[dw initialize];
+	dw = [[DirWalker alloc] init];
 	[dw free];
 	[dw release];
 

@@ -13,17 +13,6 @@ int ByteTableComp(const void* av, const void* bv)
 	return 0;
 }
 
-void ByteTableDest(void* a) {;}
-
-void ByteTablePrint(const void* av) {
-	struct bytetable_value *a = (struct bytetable_value *)av;
-	printf("0x%016llx", (long long unsigned int)a->datum);
-}
-
-void ByteTableInfoPrint(void* a) {;}
-
-void ByteTableInfoDest(void* a){;}
-
 static int ByteTable_check_depth(uint8_t depth, uint64_t datum) {
 	uint64_t overflow = 0;
 
@@ -79,41 +68,12 @@ uint8_t * output_datum(uint8_t * buffer, uint8_t depth, uint64_t datum)
 	return buffer;
 }
 
-struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
-{
-	struct bytetable_value *retval;
-	struct bytetable_value *list = (struct bytetable_value *) bt->data;
-
-	retval = &list[bt->place];
-	bt->place += 1;
-	return retval;
-}
 
 @implementation ByteTable
 
--(void) configureRBtree {
-	rb_red_blk_node *nild;
-	nild = malloc(sizeof(*nild));
-	tree = malloc(sizeof(*tree));
-	memset(nild,0,sizeof(*nild));
-	memset(tree,0,sizeof(*tree));
-	RBTreeCreate(tree, nild, NULL, ByteTableComp, ByteTableDest,
-		     ByteTableInfoDest, ByteTablePrint, ByteTableInfoPrint);
-}
-
--(id) init {
-	if (self = [super init]) {
-		depth = 0;
-		length = 0;
-		[self configureRBtree];
-	}
-	return self;
-}
-
--(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len {
-	ds->data = malloc(len);
-	memset(ds->data,0,len);
-	ds->place = 0;
+-(struct bytetable_value *) allocByteTableValue: (struct data_struct *) bt {
+	uint64_t d = sizeof(struct bytetable_value);
+	return (struct bytetable_value *) [self allocData: bt chunksize: d];
 }
 
 -(void) numberEntries: (uint64_t) entries dedup: (bool) dedup {
@@ -148,7 +108,7 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 			return rb_node->key;
 	}
 
-	new_value = ByteTableValueAlloc(&bytetable);
+	new_value = [self allocByteTableValue: &bytetable];
 	memset(new_value,0,sizeof(*new_value));
 	new_value->datum = datum;
 	new_value->rb_node.key = (void *)new_value;
@@ -185,8 +145,17 @@ struct bytetable_value * ByteTableValueAlloc(struct data_struct *bt)
 	return depth;
 }
 
+-(id) init {
+	CompFunc = ByteTableComp;
+	if (self = [super init]) {
+		depth = 0;
+		length = 0;
+	}
+	return self;
+}
+
 -(void) free {
-	RBTreeDestroy(tree);
+	[super free];
 
 	free(bytetable.data);
 	if (data != NULL)

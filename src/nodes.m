@@ -53,8 +53,7 @@
 -(id) init {
 	if (self = [super init]) {
 		if(acfg.max_nodes < 1) {
-			printf("can have acfg.max_nodes < 1\n");
-			exit(-1);
+			[NSException raise: @"nodes" format: @"can have acfg.max_nodes < 1"];
 		}
 		pages = malloc(sizeof(*pages)*acfg.max_nodes);
 		memset(pages,0,sizeof(*pages)*acfg.max_nodes);
@@ -77,6 +76,7 @@
 }
 
 -(void) free {
+	[super free];
 	CBlocks *cb = (CBlocks *) cblks;
 	free(pages);
 	free(cdata);

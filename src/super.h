@@ -63,7 +63,6 @@
 -(void) cblock_size: (uint32_t) cbs;
 -(uint64_t) size;
 -(void *) data;
--(void) initialize;
 -(void) free;
 
 @end

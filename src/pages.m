@@ -15,62 +15,29 @@ static int PagesComp(const void* av, const void* bv)
 	return memcmp(adata,bdata,a->length);
 }
 
-static void PagesDest(void* a) {;}
-
-static void PagesPrint(const void* a) {
-	printf("%i",*(int*)a);
-}
-
-static void PagesInfoPrint(void* a) {;}
-
-static void PagesInfoDest(void *a){;}
-
 @implementation Pages
 
 -(struct page_struct *) allocPageStruct {
-	struct page_struct *retval;
-	struct page_struct *page_list = (struct page_struct *) pages.data;
-	retval = &page_list[pages.place];
-	pages.place += 1;
-	return retval;
+	uint64_t d = sizeof(struct page_struct);
+	return (struct page_struct *) [self allocData: &pages chunksize: d];
 }
 
 -(void *) allocPageData {
-	void *retval;
-	uint8_t *buffer = (uint8_t *) data.data;
-	retval = &buffer[data.place];
-	data.place += acfg.page_size;
-	return retval;
+	return [self allocData: &data chunksize: acfg.page_size];
 }
 
 -(void *) allocPageCdata {
-	void *retval;
-	uint8_t *buffer = (uint8_t *) cdata.data;
-	retval = &buffer[cdata.place];
-	cdata.place += acfg.page_size;
-	return retval;
+	return [self allocData: &cdata chunksize: acfg.page_size];
 }
 
 -(void) populate: (struct page_struct *) page data: (void *) data_ptr length: (uint64_t) len {
-	page->data = data_ptr;
+	page->data = [self allocPageData];
 	page->length = len;
+	memcpy(page->data, data_ptr, page->length);
+	page->cdata = [self allocPageCdata];
+	[compressor cdata: page->cdata csize: &page->clength data: page->data size: page->length];
+
 	page->rb_node.key = (void *)page;
-}
-
--(void) configureRBtree {
-	rb_red_blk_node *nild;
-	nild = malloc(sizeof(*nild));
-	tree = malloc(sizeof(*tree));
-	memset(nild,0,sizeof(*nild));
-	memset(tree,0,sizeof(*tree));
-	RBTreeCreate(tree, nild, NULL, PagesComp, PagesDest, PagesInfoDest,
-		     PagesPrint, PagesInfoPrint);
-}
-
--(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len {
-	ds->data = malloc(len);
-	memset(ds->data,0,len);
-	ds->place = 0;
 }
 
 -(void *) addPage: (void *) data_ptr length: (uint64_t) len {
@@ -93,22 +60,25 @@ static void PagesInfoDest(void *a){;}
 }
 
 -(id) init {
+	CompFunc = PagesComp;
 	if (self = [super init]) {
 		uint64_t len;
 		len = sizeof(struct page_struct) * (acfg.max_nodes + 1);
 		[self configureDataStruct: &pages length: len];
 		[self configureDataStruct: &data length: acfg.page_size * acfg.max_nodes];
 		[self configureDataStruct: &cdata length: acfg.page_size * acfg.max_nodes];
-		[self configureRBtree];
+		compressor = [[Compressor alloc] init];
 	} 
 	return self;
 }
 
 -(void) free {
-	RBTreeDestroy(tree);
+	[super free];
 	free(pages.data);
 	free(data.data);
 	free(cdata.data);
+	[compressor free];
+	[compressor release];
 }
 
 @end

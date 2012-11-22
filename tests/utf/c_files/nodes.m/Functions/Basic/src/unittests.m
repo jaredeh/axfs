@@ -3,12 +3,10 @@
 #include "CuTest.h"
 
 /* Including function under test */
+#include "btree_object.m"
 #include "compressible_object.m"
-#include "nodes.h"
 #include "nodes.m"
-#include "pages.h"
 #include "pages.m"
-#include "compressor.h"
 #include "compressor.m"
 #include "c_blocks.m"
 

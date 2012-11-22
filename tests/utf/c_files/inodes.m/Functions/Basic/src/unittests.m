@@ -3,16 +3,13 @@
 #include "CuTest.h"
 
 /* Including function under test */
-#include "inodes.h"
 #include "inodes.m"
-#include "paths.h"
 #include "paths.m"
-#include "modes.h"
 #include "modes.m"
-#include "strings.h"
-#include "strings.m"
-#include "compressor.h"
+#include "astrings.m"
 #include "compressor.m"
+#include "compressible_object.m"
+#include "btree_object.m"
 
 /****** Test Code ******/
 
@@ -28,6 +25,7 @@ static void Inodes_createdestroy(CuTest *tc)
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
 	acfg.max_text_size = 10000;
+	acfg.max_number_files = 100000;
 
 	inodes = [[Inodes alloc] init];
 	[inodes free];
@@ -48,6 +46,7 @@ static void Inodes_link(CuTest *tc)
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
 	acfg.max_text_size = 10000;
+	acfg.max_number_files = 100000;
 
 	system("ruby src/unittests.rb clean");
 	system("ruby src/unittests.rb link");
@@ -75,7 +74,7 @@ static void Inodes_devnode(CuTest *tc)
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
 	acfg.max_text_size = 10000;
-
+	acfg.max_number_files = 100000;
 
 	inodes = [[Inodes alloc] init];
 	[inodes free];
@@ -96,6 +95,7 @@ static void Inodes_file(CuTest *tc)
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
 	acfg.max_text_size = 10000;
+	acfg.max_number_files = 100000;
 
 	system("ruby src/unittests.rb clean");
 	system("ruby src/unittests.rb file");
@@ -124,6 +124,7 @@ static void Inodes_file_onepage(CuTest *tc)
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
 	acfg.max_text_size = 10000;
+	acfg.max_number_files = 100000;
 
 	system("ruby src/unittests.rb clean");
 	system("ruby src/unittests.rb file");
@@ -152,6 +153,7 @@ static void Inodes_file_threepage(CuTest *tc)
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
 	acfg.max_text_size = 10000;
+	acfg.max_number_files = 100000;
 
 	system("ruby src/unittests.rb clean");
 	system("ruby src/unittests.rb filethreepages");

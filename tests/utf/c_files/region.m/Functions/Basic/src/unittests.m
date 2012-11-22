@@ -3,18 +3,15 @@
 #include "CuTest.h"
 
 /* Including function under test */
-#include "region.h"
 #include "region.m"
-#include "bytetable.h"
 #include "bytetable.m"
-#include "nodes.h"
 #include "nodes.m"
-#include "compressor.h"
 #include "compressor.m"
-#include "pages.h"
 #include "pages.m"
-#include "c_blocks.h"
 #include "c_blocks.m"
+#include "compressible_object.m"
+#include "btree_object.m"
+
 /****** Test Code ******/
 
 struct axfs_config acfg;
@@ -47,9 +44,7 @@ static void Region_big_endian_number(CuTest *tc)
 	printf("Running %s\n", __FUNCTION__);
 
 	bt = [[ByteTable alloc] init];
-	[bt initialize];
 	r = [[Region alloc] init];
-	[r initialize];
 
 	[bt numberEntries: 4096 dedup: false];
 	
@@ -113,9 +108,7 @@ static void Region_bytetable_data(CuTest *tc)
 	printf("Running %s\n", __FUNCTION__);
 
 	bt = [[ByteTable alloc] init];
-	[bt initialize];
 	r = [[Region alloc] init];
-	[r initialize];
 
 	[bt numberEntries: 5000 dedup: false];
 	
@@ -228,11 +221,9 @@ static void Region_nodes_data(CuTest *tc)
 	acfg.compression = "lzo";
 
 	nd = [[Nodes alloc] init];
-	[nd initialize];
 	[nd setType: TYPE_XIP];
 	pg = [[Pages alloc] init];
 	r = [[Region alloc] init];
-	[r initialize];
 
 	d = malloc(l*7);
 

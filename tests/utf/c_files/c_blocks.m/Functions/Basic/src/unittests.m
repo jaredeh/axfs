@@ -2,14 +2,11 @@
 #include "stubs.h"
 #include "CuTest.h"
 
-#include "compressor.h"
 #include "compressor.m"
-
-#include "c_blocks.h"
 #include "c_blocks.m"
-
-#include "compressible_object.h"
 #include "compressible_object.m"
+#include "btree_object.m"
+
 
 struct axfs_config acfg;
 
@@ -26,7 +23,6 @@ static void CBlocks_createdestroy(CuTest *tc){
 	acfg.max_nodes = 10;
 	acfg.compression = "lzo";
 
-	[cb initialize];
 	[cb free];
 	[cb release];
 

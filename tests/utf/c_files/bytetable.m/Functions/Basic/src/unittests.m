@@ -3,13 +3,10 @@
 #include "CuTest.h"
 
 /* Including function under test */
-#include "bytetable.h"
 #include "bytetable.m"
-#include "compressor.h"
 #include "compressor.m"
-#include "compressible_object.h"
+#include "btree_object.m"
 #include "compressible_object.m"
-
 
 /****** Test Code ******/
 

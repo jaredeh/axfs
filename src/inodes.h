@@ -1,9 +1,10 @@
 #import <Foundation/Foundation.h>
 #import "red_black_tree.h"
 #import "axfs_helper.h"
+#import "btree_object.h"
 #import "paths.h"
 #import "modes.h"
-#import "strings.h"
+#import "astrings.h"
 
 extern struct axfs_config acfg;
 
@@ -20,7 +21,7 @@ struct inode_struct {
 	void *data; //remove
 };
 
-@interface Inodes: NSObject {
+@interface Inodes: BtreeObject {
 	struct data_struct inodes;
 	struct data_struct data;
 	struct data_struct cdata;
@@ -29,11 +30,8 @@ struct inode_struct {
 	Modes *modes;
 	uint64_t page_size;
 	uint64_t length;
-	rb_red_blk_tree *tree;
 }
 
--(void) configureRBtree;
--(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len;
 -(void *) addInode: (NSString *) path;
 -(void) free;
 @end

@@ -128,13 +128,16 @@
 	data_p += 1;
 }
 
--(void) initialize {
-	fsoffset = 0;
-	nodes = NULL;
-	bytetable = NULL;
-	data = malloc(8*4 + 1 + 1);
-	memset(data,0,8*4 + 1 + 1);
-	data_p = data;
+-(id) init {
+	if (self = [super init]) {
+		fsoffset = 0;
+		nodes = NULL;
+		bytetable = NULL;
+		data = malloc(8*4 + 1 + 1);
+		memset(data,0,8*4 + 1 + 1);
+		data_p = data;
+	}
+	return self;
 }
 
 -(void) free {
