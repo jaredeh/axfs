@@ -106,6 +106,7 @@ static void Region_bytetable_data(CuTest *tc)
 	ByteTable *bt;
 
 	printf("Running %s\n", __FUNCTION__);
+	acfg.compression = "lzo";
 
 	bt = [[ByteTable alloc] init];
 	r = [[Region alloc] init];
@@ -117,13 +118,11 @@ static void Region_bytetable_data(CuTest *tc)
 	for(i=0; i<4096; i++) {
 		[bt add: 0x000000 + i];
 	}
-printf("b00\n");
+
 	[r addBytetable: bt];
-printf("b01\n");
 	[r fsoffset: 0x4455667711223388UL];
 	[r incore: 1];
 	output = [r data];
-printf("b02\n");
 	CuAssertHexEquals(tc, 0x44, output[0]);
 	CuAssertHexEquals(tc, 0x55, output[1]);
 	CuAssertHexEquals(tc, 0x66, output[2]);
@@ -146,8 +145,8 @@ printf("b02\n");
 	CuAssertHexEquals(tc, 0x00, output[19]);
 	CuAssertHexEquals(tc, 0x00, output[20]);
 	CuAssertHexEquals(tc, 0x00, output[21]);
-	CuAssertHexEquals(tc, 0x20, output[22]);
-	CuAssertHexEquals(tc, 0xf3, output[23]);
+	CuAssertHexEquals(tc, 0x30, output[22]);
+	CuAssertHexEquals(tc, 0x0, output[23]);
 	CuAssertHexEquals(tc, 0x00, output[24]);
 	CuAssertHexEquals(tc, 0x00, output[25]);
 	CuAssertHexEquals(tc, 0x00, output[26]);
@@ -158,13 +157,12 @@ printf("b02\n");
 	CuAssertHexEquals(tc, 0x02, output[31]);
 	CuAssertHexEquals(tc, 0x03, output[32]);
 	CuAssertHexEquals(tc, 0x01, output[33]);
-printf("b03\n");
+
 	[r free];
 	[r release];
-printf("b04\n");
+
 	[bt free];
 	[bt release];
-printf("b05\n");
 }
 
 static void get_nodes_cdata(Nodes **nd, Pages **pg, uint8_t *d)
