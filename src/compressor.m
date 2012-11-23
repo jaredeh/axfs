@@ -41,6 +41,13 @@
 	if (size == 0)
 		return;
 
+	if (!data)
+		[NSException raise: @"Compressor.m" format: @"data == NULL"];
+	if (!cdata)
+		[NSException raise: @"Compressor.m" format: @"cdata == NULL"];
+	if (!csize)
+		[NSException raise: @"Compressor.m" format: @"(uint64_t *)csize == NULL"];
+
 	*csize = compress->compress(stream, cdata, data, size, size, &error);
 /*
 	printf("\n2 csize: 0x%08llx\n",(unsigned long long)*csize);
@@ -56,6 +63,8 @@
 	fwrite(cdata,*csize,1,fp);
 	fclose(fp);
 */
+	if (error != 0)
+		[NSException raise: @"Compressor.m" format: @"error=%d",error];
 }
 
 -(void) free {
