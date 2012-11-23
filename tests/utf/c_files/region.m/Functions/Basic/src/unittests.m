@@ -106,7 +106,11 @@ static void Region_bytetable_data(CuTest *tc)
 	ByteTable *bt;
 
 	printf("Running %s\n", __FUNCTION__);
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
 	acfg.compression = "lzo";
+	acfg.max_number_files = 100;
 
 	bt = [[ByteTable alloc] init];
 	r = [[Region alloc] init];
@@ -218,6 +222,8 @@ static void Region_nodes_data(CuTest *tc)
 	acfg.page_size = l;
 	acfg.max_nodes = 10;
 	acfg.compression = "lzo";
+	acfg.block_size = 16*1024;
+	acfg.max_number_files = 100;
 
 	nd = [[Nodes alloc] init];
 	[nd setType: TYPE_XIP];
