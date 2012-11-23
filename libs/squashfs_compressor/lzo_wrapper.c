@@ -37,7 +37,7 @@
 
 struct lzo_stream {
 	lzo_voidp wrkmem;
-	lzo_bytep out;
+	//lzo_bytep out;
 };
 
 
@@ -51,8 +51,8 @@ static int squashfs_lzo_init(void **strm, int block_size, int flags)
 	if((stream->wrkmem = malloc(LZO1X_999_MEM_COMPRESS)) == NULL)
 		goto failed2;
 	/* temporal output buffer */
-	if((stream->out = malloc(LZO_OUTPUT_BUFFER_SIZE(block_size))) == NULL)
-		goto failed3;
+//	if((stream->out = malloc(LZO_OUTPUT_BUFFER_SIZE(block_size))) == NULL)
+//		goto failed3;
 
 	return 0;
 
@@ -72,7 +72,7 @@ static int lzo_compress(void *strm, void *d, void *s, int size, int block_size,
 	lzo_uint outlen;
 	struct lzo_stream *stream = strm;
 
-	res = lzo1x_999_compress(s, size, stream->out, &outlen, stream->wrkmem);
+	res = lzo1x_999_compress(s, size, /*stream->out*/d, &outlen, stream->wrkmem);
 	if(res != LZO_E_OK)
 		goto failed;
 	if(outlen >= size)
@@ -84,7 +84,6 @@ static int lzo_compress(void *strm, void *d, void *s, int size, int block_size,
 	/*
 	 * Success, return the compressed size.
 	 */
-	memcpy(d, stream->out, outlen);
 	return outlen;
 
 failed:
