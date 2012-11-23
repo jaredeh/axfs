@@ -40,7 +40,12 @@ static void Region_big_endian_number(CuTest *tc)
 
 	Region *r;
 	ByteTable *bt;
-
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+	acfg.max_number_files = 100;
+	
 	printf("Running %s\n", __FUNCTION__);
 
 	bt = [[ByteTable alloc] init];
