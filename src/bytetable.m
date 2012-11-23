@@ -132,9 +132,9 @@ uint8_t * output_datum(uint8_t * buffer, uint8_t depth, uint64_t datum)
 	[self size];
 	data = malloc(size);
 	buffer = data;
-	printf("dbuffer=0x%08lx\n",(long unsigned int)data);
+	//printf("dbuffer=0x%08lx\n",(long unsigned int)data);
 	for(i=0; i<length; i++) {
-		printf("buffer=0x%08lx\n",(long unsigned int)buffer);
+		//printf("buffer=0x%08lx\n",(long unsigned int)buffer);
 		value = &((struct bytetable_value *)bytetable.data)[i];
 		buffer = output_datum(buffer,depth,value->datum);
 	}
