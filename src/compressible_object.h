@@ -1,4 +1,4 @@
-#import <Foundation/NSObject.h>
+#import <Foundation/Foundation.h>
 #import "axfs_helper.h"
 #import "compressor.h"
 #import "btree_object.h"

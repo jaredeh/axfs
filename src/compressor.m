@@ -16,7 +16,7 @@
 }
 
 -(id) init {
-	if (self = [super init]) {
+	if ((self = [super init])) {
 		valid_compressor = [self algorithm: acfg.compression];
 	} 
 	return self;
