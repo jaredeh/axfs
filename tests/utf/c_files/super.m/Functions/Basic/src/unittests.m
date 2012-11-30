@@ -2,20 +2,7 @@
 #include "stubs.h"
 #include "CuTest.h"
 
-#include "super.h"
 #include "super.m"
-#include "region.h"
-#include "region.m"
-#include "bytetable.h"
-#include "bytetable.m"
-#include "compressor.h"
-#include "compressor.m"
-#include "nodes.h"
-#include "nodes.m"
-#include "pages.h"
-#include "pages.m"
-#include "c_blocks.h"
-#include "c_blocks.m"
 
 /****** Test Code ******/
 

@@ -3,9 +3,10 @@
 @implementation Super
 
 -(id) init {
-	self = [super init];
-	data = malloc(500);
-	data_p = data;
+	if ((self = [super init])) {
+		data = malloc(500);
+		data_p = data;
+	}
 	return self;
 }
 
