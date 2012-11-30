@@ -41,7 +41,6 @@ class CBlocks
 
   def initialize
     @cb = CBlocksInterface.CBlocks___new
-    CBlocksInterface.CBlocks___initialize(@cb)
     @nodes_anchor = Array.new
     @pages_anchor = Array.new
  end

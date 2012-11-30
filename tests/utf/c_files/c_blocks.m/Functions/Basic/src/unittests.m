@@ -14,7 +14,7 @@ struct axfs_config acfg;
 
 static void CBlocks_createdestroy(CuTest *tc){
 	int output;
-	CBlocks *cb = [[CBlocks alloc] init];
+	CBlocks *cb;
 	
 	printf("Running %s\n", __FUNCTION__);
 
@@ -22,7 +22,7 @@ static void CBlocks_createdestroy(CuTest *tc){
 	acfg.block_size = 16*1024;
 	acfg.max_nodes = 10;
 	acfg.compression = "lzo";
-
+ 	cb = [[CBlocks alloc] init];
 	[cb free];
 	[cb release];
 
