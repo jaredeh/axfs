@@ -2,7 +2,6 @@
 #include "pre.h" // external types declarations, such as u32 or Linux struct bio;
 
 /* actual files to compile test */
-#include "../../../../../src/falloc.h"
 #include "../../../../../src/falloc.m"
 
 struct axfs_config acfg;

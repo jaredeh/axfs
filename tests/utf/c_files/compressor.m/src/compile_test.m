@@ -2,8 +2,9 @@
 #include "pre.h" // external types declarations, such as u32 or Linux struct bio;
 
 /* actual files to compile test */
-#include "../../../../../src/compressor.h"
 #include "../../../../../src/compressor.m"
+
+struct axfs_config acfg;
 
 int main(int argc, char * argv[])
 {

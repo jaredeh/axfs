@@ -2,8 +2,10 @@
 #include "pre.h" // external types declarations, such as u32 or Linux struct bio;
 
 /* actual files to compile test */
-#include "../../../../../src/modes.h"
 #include "../../../../../src/modes.m"
+
+/* too lazy to build this junk seperately. */
+#include "../../../../../src/btree_object.m"
 
 struct axfs_config acfg;
 
