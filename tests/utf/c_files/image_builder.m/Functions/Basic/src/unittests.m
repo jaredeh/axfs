@@ -7,7 +7,6 @@
 #include "inodes.m"
 #include "btree_object.m"
 #include "compressible_object.m"
-#include "paths.m"
 #include "modes.m"
 #include "astrings.m"
 #include "compressor.m"

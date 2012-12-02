@@ -9,7 +9,6 @@
 #include "../../../../../src/compressor.m"
 #include "../../../../../src/compressible_object.m"
 #include "../../../../../src/btree_object.m"
-#include "../../../../../src/paths.m"
 #include "../../../../../src/astrings.m"
 #include "../../../../../src/modes.m"
 
