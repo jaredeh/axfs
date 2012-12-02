@@ -22,6 +22,20 @@ struct inode_struct {
 	void *data; //remove
 };
 
+struct paths_struct {
+	struct inode_struct *inode;
+	rb_red_blk_node rb_node;
+};
+
+@interface Paths: BtreeObject {
+	struct data_struct data;
+}
+
+-(void *) addPath: (struct inode_struct *) inode;
+-(void *) findParentInodeByPath: (NSString *) path;
+-(void) free;
+@end
+
 @interface Inodes: BtreeObject {
 	struct data_struct inodes;
 	struct data_struct data;

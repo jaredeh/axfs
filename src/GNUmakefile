@@ -1,21 +1,23 @@
 
 TOOL_NAME = mkfs.axfs
-mkfs.axfs_OBJC_FILES = bytetable.m \
+mkfs.axfs_OBJC_FILES = astrings.m \
+                       btree_object.m \
+                       bytetable.m \
+                       c_blocks.m \
+                       compressible_object.m \
                        compressor.m \
                        dir_walker.m \
                        falloc.m \
                        getopts.m \
                        image_builder.m \
-                       main.m \
-                       nodes.m \
-                       modes.m \
                        inodes.m \
+                       main.m \
+                       modes.m \
+                       nodes.m \
                        opts_validator.m \
                        pages.m \
                        region.m \
-                       strings.m \
-                       super.m \
-                       c_blocks.m
+                       super.m
 
 INC = -I ../libs/rb_tree/
 LIBDIRS = -L ../libs/rb_tree -L ../libs/squashfs_compressor 

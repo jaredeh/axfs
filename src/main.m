@@ -34,7 +34,6 @@ int main(int argc, const char *argv[]) {
 	}
 
 	builder = [[ImageBuilder alloc] init];
-	[builder initialize];
 
 	[builder sizeup];
 	[builder walk];
