@@ -38,13 +38,25 @@ static int InodesComp(const void* av, const void* bv)
 }
 
 -(void *) addInode_symlink: (struct inode_struct *) inode {
-	NSFileManager *fm;
-	NSString *link;
+	struct stat sb;
+	const char *str;
+	int err;
 
-	fm = [NSFileManager defaultManager];
-	link = [fm destinationOfSymbolicLinkAtPath: inode->path error: NULL];
+	str = [inode->path UTF8String];
+	stat(str, &sb);
+	inode->size = sb.st_size;
 
-	inode->size = (uint64_t)[link length];
+	if (symlink.total < inode->size) {
+		free(symlink.data);
+		symlink.data = malloc(inode->size);
+		symlink.total = inode->size;
+	}
+
+	err = readlink(str, symlink.data, inode->size);
+	if (err < 0)
+		[NSException raise: @"readlink" format: @"readlink() returned error# %i",err];
+
+	//FIXME: actually copy data here
 	return inode;
 }
 
@@ -80,6 +92,7 @@ static int InodesComp(const void* av, const void* bv)
 
 	[file closeFile];
 
+	//FIXME: actually copy data
 	return inode;
 }
 
@@ -141,6 +154,7 @@ static int InodesComp(const void* av, const void* bv)
 		[self configureDataStruct: &inodes length: len];
 		[self configureDataStruct: &data length: acfg.page_size * acfg.max_nodes];
 		[self configureDataStruct: &cdata length: acfg.page_size * acfg.max_nodes];
+		[self configureDataStruct: &symlink length: acfg.page_size];
 		paths = [[Paths alloc] init];
 		strings = [[Strings alloc] init];
 		modes = [[Modes alloc] init];
@@ -154,6 +168,7 @@ static int InodesComp(const void* av, const void* bv)
 	free(inodes.data);
 	free(data.data);
 	free(cdata.data);
+	free(symlink.data);
 }
 
 @end

@@ -5,6 +5,7 @@
 #import "paths.h"
 #import "modes.h"
 #import "astrings.h"
+#include <unistd.h>
 
 extern struct axfs_config acfg;
 
@@ -25,6 +26,7 @@ struct inode_struct {
 	struct data_struct inodes;
 	struct data_struct data;
 	struct data_struct cdata;
+	struct data_struct symlink;
 	Paths *paths;
 	Strings *strings;
 	Modes *modes;
