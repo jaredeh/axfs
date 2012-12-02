@@ -113,18 +113,11 @@ static int InodesComp(const void* av, const void* bv)
 	inode = [self allocInodeStruct];
 	inode->size = (uint64_t)[[attribs objectForKey:NSFileSize] unsignedLongLongValue];
 	inode->path = path;
-	printf("a00\n");
 	inode->name = [strings addString: (void *)[name UTF8String] length: [name length]];
-	printf("a01\n");
 	inode->mode = [modes addMode: attribs];
-	printf("a02\n");
-	//deal with mode
 	//redundant files
-   //wrong... have inode struct be home for all this, pass the inode struct in then we can as
 	filetype = [attribs objectForKey:NSFileType];
-	printf("a03\n");
 	if (filetype == NSFileTypeSymbolicLink) {
-		printf("a04\n");
 		[self addInode_symlink: inode];
 	} else if (filetype == NSFileTypeCharacterSpecial) {
 		[self addInode_devnode: inode];
@@ -135,7 +128,6 @@ static int InodesComp(const void* av, const void* bv)
 	} else if (filetype == NSFileTypeRegular) {
 		[self addInode_regularfile: inode];
 	}
-
 	if (filetype != NSFileTypeDirectory) {
 		struct inode_struct *parent;
 		//NSString *directory = inode->path;

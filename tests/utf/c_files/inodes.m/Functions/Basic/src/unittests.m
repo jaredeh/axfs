@@ -55,12 +55,12 @@ static void Inodes_link(CuTest *tc)
 	NSString *path = [[NSString alloc] initWithUTF8String: "./tovtf/link1"];
 
 	inode = (struct inode_struct *) [inodes addInode: path];
-	[inodes free];
-	[inodes release];
 
 	CuAssertIntEquals(tc, 5, inode->size);
 	CuAssertIntEquals(tc, 0, (int)inode->path);
 
+	[inodes free];
+	[inodes release];
 	system("ruby src/unittests.rb clean");
 }
 
@@ -104,12 +104,12 @@ static void Inodes_file(CuTest *tc)
 	NSString *path = [[NSString alloc] initWithUTF8String: "./tovtf/file1"];
 
 	inode = (struct inode_struct *) [inodes addInode: path];
-	[inodes free];
-	[inodes release];
 
 	CuAssertIntEquals(tc, 4, inode->size);
 	CuAssertIntEquals(tc, 0, (int)inode->path);
 
+	[inodes free];
+	[inodes release];
 	system("ruby src/unittests.rb clean");
 }
 
@@ -133,12 +133,12 @@ static void Inodes_file_onepage(CuTest *tc)
 	NSString *path = [[NSString alloc] initWithUTF8String: "./tovtf/file1"];
 
 	inode = (struct inode_struct *) [inodes addInode: path];
-	[inodes free];
-	[inodes release];
 
 	CuAssertIntEquals(tc, 4, inode->size);
 	CuAssertIntEquals(tc, 0, (int)inode->path);
 
+	[inodes free];
+	[inodes release];
 	system("ruby src/unittests.rb clean");
 }
 
@@ -162,12 +162,12 @@ static void Inodes_file_threepage(CuTest *tc)
 	NSString *path = [[NSString alloc] initWithUTF8String: "./tovtf/file1"];
 
 	inode = (struct inode_struct *) [inodes addInode: path];
-	[inodes free];
-	[inodes release];
 
 	CuAssertIntEquals(tc, 4, inode->size);
 	CuAssertIntEquals(tc, 0, (int)inode->path);
 
+	[inodes free];
+	[inodes release];
 	system("ruby src/unittests.rb clean");
 }
 
@@ -190,8 +190,8 @@ static CuSuite* GetSuite(void){
 	CuSuite* suite = CuSuiteNew();
 
 	SUITE_ADD_TEST(suite, Inodes_createdestroy);
-	SUITE_ADD_TEST(suite, Inodes_link);
 	SUITE_ADD_TEST(suite, Inodes_devnode);
+	SUITE_ADD_TEST(suite, Inodes_link);
 	SUITE_ADD_TEST(suite, Inodes_file);
 	SUITE_ADD_TEST(suite, Inodes_file_onepage);
 	SUITE_ADD_TEST(suite, Inodes_file_threepage);

@@ -65,10 +65,12 @@ static int PathsComp(const void* av, const void* bv)
 	inode.path = path;
 	temp.inode = &inode;
 	rb_node = RBExactQuery(tree,(void *)&temp);
-	if (rb_node)
+	if (rb_node) {
 		parent_paths = (struct paths_struct *)rb_node->key;
 		parent = parent_paths->inode;
 		return parent;
+	}
+
 	return NULL;
 }
 

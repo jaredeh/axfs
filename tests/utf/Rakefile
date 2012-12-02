@@ -87,6 +87,9 @@ task :unit_tests, :unit, :test do |t, args|
         puts "stderr[#{stderr}]"
         fail "Running test " + test + " failed."
       end
+      if stdout.include?("!!!FAILURES!!!")
+        fail "Failures detected running " + test
+      end
     end
     cd rootdir
   end
