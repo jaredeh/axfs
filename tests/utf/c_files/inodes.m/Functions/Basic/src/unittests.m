@@ -4,7 +4,6 @@
 
 /* Including function under test */
 #include "inodes.m"
-#include "paths.m"
 #include "modes.m"
 #include "astrings.m"
 #include "compressor.m"
@@ -163,7 +162,7 @@ static void Inodes_file_threepage(CuTest *tc)
 
 	inode = (struct inode_struct *) [inodes addInode: path];
 
-	CuAssertIntEquals(tc, 4, inode->size);
+	CuAssertIntEquals(tc, 10243, inode->size);
 	CuAssertIntEquals(tc, 0, (int)inode->path);
 
 	[inodes free];

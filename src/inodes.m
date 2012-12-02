@@ -38,13 +38,10 @@ static int InodesComp(const void* av, const void* bv)
 }
 
 -(void *) addInode_symlink: (struct inode_struct *) inode {
-	struct stat sb;
 	const char *str;
 	int err;
 
 	str = [inode->path UTF8String];
-	stat(str, &sb);
-	inode->size = sb.st_size;
 
 	if (symlink.total < inode->size) {
 		free(symlink.data);
@@ -55,7 +52,6 @@ static int InodesComp(const void* av, const void* bv)
 	err = readlink(str, symlink.data, inode->size);
 	if (err < 0)
 		[NSException raise: @"readlink" format: @"readlink() returned error# %i",err];
-
 	//FIXME: actually copy data here
 	return inode;
 }
