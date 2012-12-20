@@ -13,63 +13,50 @@ int ByteTableComp(const void* av, const void* bv)
 	return 0;
 }
 
-static int ByteTable_check_depth(uint8_t depth, uint64_t datum) {
+@implementation ByteTable
+
+-(void) checkDepth: (uint64_t) datum depth: (uint8_t *) i {
 	uint64_t overflow = 0;
 
 	overflow = datum & ~0xFFffFFffFFffFFULL;
-	if ((overflow != 0) && (depth < 8))
-		return 8;
-	overflow = datum & ~0xFFffFFffFFffULL;
-	if ((overflow != 0) && (depth < 7))
-		return 7;
-	overflow = datum & ~0xFFffFFffFFULL;
-	if ((overflow != 0) && (depth < 6))
-		return 6;
-	overflow = datum & ~0xFFffFFffULL;
-	if ((overflow != 0) && (depth < 5))
-		return 5;
-	overflow = datum & ~0xFFffFF;
-	if ((overflow != 0) && (depth < 4))
-		return 4;
-	overflow = datum & ~0xFFff;
-	if ((overflow != 0) && (depth < 3))
-		return 3;
-	overflow = datum & ~0xFF;
-	if ((overflow != 0) && (depth < 2))
-		return 2;
-	if (depth < 1)
-		return 1;
-	return depth;
-}
-
-uint8_t output_byte1(uint64_t datum, uint8_t i)
-{
-	uint64_t mask;
-	uint64_t byte;
-
-	mask = 0xFF << (i*8);
-	//printf("mask: 0x%016llx\n",(long long unsigned int)mask);
-	byte = datum & mask;
-	//printf("0byte:0x%016llx\n",(long long unsigned int)byte);
-	byte = byte >> (i*8);
-	//printf("1byte:0x%016llx\n",(long long unsigned int)byte);
-	return (uint8_t) byte;
-}
-
-uint8_t * output_datum(uint8_t * buffer, uint8_t depth, uint64_t datum)
-{
-	int i;
-	
-	//printf("output datum 0x%016llx\n",(long long unsigned int)datum);
-	for(i=0; i<depth; i++) {
-		*buffer = output_byte1(datum, depth-1-i);
-		buffer++;
+	if ((overflow != 0) && (*i < 8)) {
+		*i = 8;
+		return;
 	}
-	return buffer;
+	overflow = datum & ~0xFFffFFffFFffULL;
+	if ((overflow != 0) && (*i < 7)) {
+		*i = 7;
+		return;
+	}
+	overflow = datum & ~0xFFffFFffFFULL;
+	if ((overflow != 0) && (*i < 6)) {
+		*i = 6;
+		return;
+	}
+	overflow = datum & ~0xFFffFFffULL;
+	if ((overflow != 0) && (*i < 5)) {
+		*i = 5;
+		return;
+	}
+	overflow = datum & ~0xFFffFF;
+	if ((overflow != 0) && (*i < 4)) {
+		*i = 4;
+		return;
+	}
+	overflow = datum & ~0xFFff;
+	if ((overflow != 0) && (*i < 3)) {
+		*i = 3;
+		return;
+	}
+	overflow = datum & ~0xFF;
+	if ((overflow != 0) && (*i < 2)) {
+		*i = 2;
+		return;
+	}
+	if (*i < 1) {
+		*i = 1;
+	}
 }
-
-
-@implementation ByteTable
 
 -(struct bytetable_value *) allocByteTableValue: (struct data_struct *) bt {
 	uint64_t d = sizeof(struct bytetable_value);
@@ -115,7 +102,7 @@ uint8_t * output_datum(uint8_t * buffer, uint8_t depth, uint64_t datum)
 	rb_node = &new_value->rb_node;
 	if (deduped)
 		RBTreeInsert(rb_node,tree,(void *)new_value,0);
-	depth = ByteTable_check_depth(depth, datum);
+	[self checkDepth: datum depth: &depth];
 	length += 1;
 	return rb_node->key;
 }
@@ -136,7 +123,7 @@ uint8_t * output_datum(uint8_t * buffer, uint8_t depth, uint64_t datum)
 	for(i=0; i<length; i++) {
 		//printf("buffer=0x%08lx\n",(long unsigned int)buffer);
 		value = &((struct bytetable_value *)bytetable.data)[i];
-		buffer = output_datum(buffer,depth,value->datum);
+		buffer = [self outputDatum: value->datum depth: depth buffer: buffer];
 	}
 	return data;
 }
@@ -147,10 +134,12 @@ uint8_t * output_datum(uint8_t * buffer, uint8_t depth, uint64_t datum)
 
 -(id) init {
 	CompFunc = ByteTableComp;
-	if (self = [super init]) {
-		depth = 0;
-		length = 0;
-	}
+	if (!(self = [super init]))
+		return self;
+
+	depth = 0;
+	length = 0;
+
 	return self;
 }
 

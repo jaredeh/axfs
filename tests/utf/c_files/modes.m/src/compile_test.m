@@ -6,6 +6,7 @@
 
 /* too lazy to build this junk seperately. */
 #include "../../../../../src/btree_object.m"
+#include "../../../../../src/region.m"
 
 struct axfs_config acfg;
 

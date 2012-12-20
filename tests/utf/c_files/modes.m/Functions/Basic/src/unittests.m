@@ -5,6 +5,7 @@
 /* Including function under test */
 #include "modes.m"
 #include "btree_object.m"
+#include "region.m"
 
 /****** Test Code ******/
 

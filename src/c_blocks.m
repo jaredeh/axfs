@@ -156,7 +156,7 @@
 	partpages = 0;//[self allocateCBlockStructs];
 	[self configureDataStruct: &cdata length: acfg.page_size*acfg.max_nodes];
 	[self configureDataStruct: &data length: acfg.page_size*acfg.max_nodes];
-	
+
 	return self;
 }
 

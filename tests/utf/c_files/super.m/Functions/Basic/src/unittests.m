@@ -3,10 +3,12 @@
 #include "CuTest.h"
 
 #include "super.m"
+#include "axfs_helper.m"
 
 /****** Test Code ******/
 
 struct axfs_config acfg;
+struct axfs_objects aobj;
 
 static void Super_createdestroy(CuTest *tc){
 	int output;

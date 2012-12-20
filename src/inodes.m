@@ -18,6 +18,30 @@ static int InodesComp(const void* av, const void* bv)
 	return memcmp(adata,bdata,a->length);
 }
 
+static int InodeNameComp(const void *x, const void *y) {
+	int min;
+	int retval;
+	struct inode_struct *a = (struct inode_struct *) x;
+	struct inode_struct *b = (struct inode_struct *) y;
+
+	min = b->name->length;
+	if (a->name->length < b->name->length)
+		min = a->name->length;
+
+	retval = strncmp(a->name->data,b->name->data, min);
+
+	if (a->name->length == b->name->length)
+		return retval;
+
+	if (retval != 0)
+		return retval;
+
+	if (a->name->length > b->name->length)
+		return 1;
+
+	return -1;
+}
+
 @implementation Inodes
 
 -(struct inode_struct *) allocInodeStruct {
@@ -25,16 +49,34 @@ static int InodesComp(const void* av, const void* bv)
 	return (struct inode_struct *) [self allocData: &inodes chunksize: d];
 }
 
+-(struct inode_struct **) allocInodeList: (uint64_t) len {
+	uint64_t d = sizeof(struct inode_struct *) * len;
+	return (struct inode_struct **) [self allocData: &inode_list chunksize: d];
+}
+
+-(struct node_struct **) allocNodeList: (uint64_t) len {
+	uint64_t d = sizeof(struct node_struct *) * len;
+	return (struct node_struct **) [self allocData: &node_list chunksize: d];
+}
+
 -(void) placeInDirectory: (struct inode_struct *) inode {
 	struct inode_struct *parent;
 	NSString *directory;
+	struct inode_struct **list;
+	uint64_t pos;
+
 	directory = [inode->path stringByDeletingLastPathComponent];
 
 	parent = [paths findParentInodeByPath: directory];
 	if (!parent)
 		return;
 
-	//parent  //put inode in list
+	list = parent->list.inodes;
+	pos = parent->list.position;
+	parent->list.position++;
+	list[pos] = inode;
+	//only want to qsort when we call data
+	qsort(list,parent->list.position,sizeof(inode),InodeNameComp);
 }
 
 -(void *) addInode_symlink: (struct inode_struct *) inode {
@@ -53,6 +95,7 @@ static int InodesComp(const void* av, const void* bv)
 	if (err < 0)
 		[NSException raise: @"readlink" format: @"readlink() returned error# %i",err];
 	//FIXME: actually copy data here
+
 	return inode;
 }
 
@@ -71,6 +114,9 @@ static int InodesComp(const void* av, const void* bv)
 	NSData *databuffer;
 	uint64_t data_read = 0;
 	NSUInteger d;
+	struct entry_list *list;
+
+	list = &inode->list;
 
 	file = [NSFileHandle fileHandleForReadingAtPath: inode->path];
 
@@ -78,6 +124,9 @@ static int InodesComp(const void* av, const void* bv)
 		NSFileManager *fm = [NSFileManager defaultManager];
 		[NSException raise: @"Bad file" format: @"Failed to open file at path=%@ from %@",inode->path, [fm currentDirectoryPath]];
 	}
+
+	list->length = inode->size / acfg.page_size + 1;
+	list->node = [self allocNodeList: list->length];
 
 	while (data_read < inode->size) {
 		databuffer = [file readDataOfLength: acfg.page_size];
@@ -93,7 +142,11 @@ static int InodesComp(const void* av, const void* bv)
 }
 
 -(void *) addInode_directory: (struct inode_struct *) inode {
-	inode->is_dir = 1;
+	NSArray *dir  = [[NSFileManager defaultManager] contentsOfDirectoryAtPath: inode->path error:nil];
+	struct entry_list *list;
+	list = &inode->list;
+	list->length = [dir count];
+	list->inodes = [self allocInodeList: list->length];
 	[paths addPath: inode];
 	return inode;
 }
@@ -125,28 +178,51 @@ static int InodesComp(const void* av, const void* bv)
 		[self addInode_regularfile: inode];
 	}
 	if (filetype != NSFileTypeDirectory) {
-		struct inode_struct *parent;
-		//NSString *directory = inode->path;
-		parent = [paths findParentInodeByPath: inode->path];
+		[self placeInDirectory: inode];
 	}
 
 	inode->path = NULL;
 	return inode;
 }
 
+-(id) fileSizeIndex {
+	return fileSizeIndex;
+}
+
+-(id) nameOffset {
+	return nameOffset;
+}
+
+-(id) numEntriescblockOffset {
+	return numEntriescblockOffset;
+}
+
+-(id) modeIndex {
+	return modeIndex;
+}
+
+-(id) arrayIndex {
+	return arrayIndex;
+}
+
 -(id) init {
+	uint64_t len;
 	CompFunc = InodesComp;
-	if (self = [super init]) {
-		uint64_t len;
-		len = sizeof(struct inode_struct) * (acfg.max_nodes + 1);
-		[self configureDataStruct: &inodes length: len];
-		[self configureDataStruct: &data length: acfg.page_size * acfg.max_nodes];
-		[self configureDataStruct: &cdata length: acfg.page_size * acfg.max_nodes];
-		[self configureDataStruct: &symlink length: acfg.page_size];
-		paths = [[Paths alloc] init];
-		strings = [[Strings alloc] init];
-		modes = [[Modes alloc] init];
-	} 
+
+	if (!(self = [super init]))
+		return self;
+
+	len = sizeof(struct inode_struct) * (acfg.max_nodes + 1);
+	[self configureDataStruct: &inodes length: len];
+	[self configureDataStruct: &data length: acfg.page_size * acfg.max_nodes];
+	[self configureDataStruct: &cdata length: acfg.page_size * acfg.max_nodes];
+	[self configureDataStruct: &symlink length: acfg.page_size];
+	[self configureDataStruct: &inode_list length: acfg.max_nodes * sizeof(struct inode_struct *)];
+	[self configureDataStruct: &node_list length: acfg.max_nodes * sizeof(struct node_struct *)];
+	paths = [[Paths alloc] init];
+	strings = [[Strings alloc] init];
+	modes = [[Modes alloc] init];
+
 	return self;
 }
 
@@ -157,6 +233,8 @@ static int InodesComp(const void* av, const void* bv)
 	free(data.data);
 	free(cdata.data);
 	free(symlink.data);
+	free(inode_list.data);
+	free(node_list.data);
 }
 
 @end

@@ -11,6 +11,7 @@
 #include "../../../../../src/btree_object.m"
 #include "../../../../../src/astrings.m"
 #include "../../../../../src/modes.m"
+#include "../../../../../src/region.m"
 
 struct axfs_config acfg;
 

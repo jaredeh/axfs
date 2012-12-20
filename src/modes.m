@@ -61,6 +61,22 @@ static int ModesComp(const void* av, const void* bv)
 	return rb_node->key;
 }
 
+-(uint64_t) length {
+	return modes.place;
+}
+
+-(id) modesTable {
+	return modesTable;
+}
+
+-(id) uids {
+	return uids;
+}
+
+-(id) gids {
+	return gids;
+}
+
 -(id) init {
 	CompFunc = ModesComp;
 	if (self = [super init]) {
@@ -69,10 +85,6 @@ static int ModesComp(const void* av, const void* bv)
 		[self configureDataStruct: &modes length: len];
 	} 
 	return self;
-}
-
--(uint64_t) length {
-	return modes.place;
 }
 
 -(void) free {

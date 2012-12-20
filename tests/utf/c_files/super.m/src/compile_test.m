@@ -4,18 +4,11 @@
 /* actual files to compile test */
 #include "../../../../../src/super.m"
 
-/* too lazy to build this junk seperately. 
-#include "../../../../../src/region.h"
+/* too lazy to build this junk seperately. */
 #include "../../../../../src/region.m"
-#include "../../../../../src/bytetable.h"
-#include "../../../../../src/bytetable.m"
-#include "../../../../../src/compressor.h"
-#include "../../../../../src/compressor.m"
-#include "../../../../../src/nodes.h"
-#include "../../../../../src/nodes.m"
-#include "../../../../../src/pages.h"
-#include "../../../../../src/pages.m"
-*/
+
+struct axfs_config acfg;
+struct axfs_objects aobj;
 
 int main(int argc, char * argv[])
 {

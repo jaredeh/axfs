@@ -5,13 +5,25 @@
 #include "image_builder.m"
 #include "dir_walker.m"
 #include "inodes.m"
+#include "nodes.m"
+#include "c_blocks.m"
 #include "btree_object.m"
+#include "bytetable.m"
 #include "compressible_object.m"
 #include "modes.m"
 #include "astrings.m"
 #include "compressor.m"
+#include "region.m"
+#include "xip_nodes.m"
+#include "ba_nodes.m"
+#include "comp_nodes.m"
+#include "nodes_object.m"
+#include "super.m"
+#include "region_descriptors.m"
+
 
 struct axfs_config acfg;
+struct axfs_objects aobj;
 
 /****** Test Code ******/
 
@@ -26,6 +38,8 @@ static void ImageBuilder_createdestroy(CuTest *tc){
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
 	acfg.input = "tovfs";
+	acfg.max_text_size = 10000;
+	acfg.max_number_files = 1000;
 	ib = [[ImageBuilder alloc] init];
 	[ib free];
 	[ib release];

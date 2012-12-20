@@ -1,32 +1,32 @@
 #import <Foundation/Foundation.h>
-#import "nodes.h"
-#import "bytetable.h"
+#import "axfs_helper.h"
+
+#define AXFS_REGION_SIZE (8*4+1+1)
+
+@interface NSObject(RegionMethods)
+-(uint64_t) size;
+-(uint64_t) csize;
+-(uint64_t) length;
+-(uint64_t) fsoffset;
+-(uint8_t) depth;
+@end
 
 @interface Region: NSObject {
 	uint64_t size;
-	ByteTable *bytetable;
-	Nodes *nodes;
 	void *data;
 	uint8_t *data_p;
 	uint64_t fsoffset;
 	uint8_t incore;
+	id o;
 }
--(void) addBytetable: (ByteTable *) bt;
--(void) addNodes: (Nodes *) nd;
+
+-(void) add: (id) oobj;
 -(uint8_t *) data_p;
 -(void *) data;
 -(void) fsoffset: (uint64_t) offset;
+-(uint64_t) fsoffset;
 -(void) incore: (uint8_t) core;
--(void *) get_data;
--(void *) get_cdata;
--(uint64_t) get_size;
--(uint64_t) get_csize;
--(uint64_t) get_max_index;
--(uint8_t) get_table_byte_depth;
--(uint8_t) output_byte: (uint64_t) datum shift: (uint64_t) i;
--(void) big_endian_64: (uint64_t) number;
--(void) big_endian_32: (uint32_t) number;
--(void) big_endian_byte: (uint8_t) number;
+-(uint64_t) size;
 -(void) free;
 @end
 

@@ -9,6 +9,7 @@
 #include "compressor.m"
 #include "compressible_object.m"
 #include "btree_object.m"
+#include "region.m"
 
 /****** Test Code ******/
 

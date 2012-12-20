@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "red_black_tree.h"
 #import "pages.h"
-#import "nodes.h"
+#import "nodes_object.h"
 #import "compressor.h"
 #import "btree_object.h"
 

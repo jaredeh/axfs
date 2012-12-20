@@ -8,6 +8,7 @@
 #include "../../../../../src/compressor.m"
 #include "../../../../../src/compressible_object.m"
 #include "../../../../../src/btree_object.m"
+#include "../../../../../src/region.m"
 
 struct axfs_config acfg;
 

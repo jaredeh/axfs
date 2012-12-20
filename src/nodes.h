@@ -1,37 +1,28 @@
-#import <Foundation/Foundation.h>
-#import "red_black_tree.h"
-#import "pages.h"
-#import "compressor.h"
-#import "axfs_helper.h"
-#import "compressible_object.h"
+#import "xip_nodes.h"
+#import "ba_nodes.h"
+#import "comp_nodes.h"
+#import "bytetable.h"
+#include "linux/axfs_ducttape.h"
+#include "linux/axfs_fs.h"
 
-extern struct axfs_config acfg;
-
-enum {
-	TYPE_XIP,
-	TYPE_BYTEALIGNED,
-	TYPE_COMPRESS
-};
-
-struct axfs_node {
-	struct page_struct *page;
-	struct axfs_node *next;
-	uint64_t cboffset;
-};
-
-@interface Nodes: CompressibleObject {
-	uint64_t place;
-	bool cached;
-	int type;
-	struct page_struct **pages;
-	void *cblks;
-	struct axfs_node *nodes;
+@interface Nodes: NSObject {
+	XipNodes *xip;
+	BaNodes *byte_aligned;
+	CompNodes *compressed;
+	ByteTable *node_type;
+	ByteTable *node_index;
 }
 
 -(uint64_t) addPage: (void *) page;
--(void *) data;
 -(uint64_t) length;
--(void) setType: (int) t;
+-(id) xip;
+-(id) byte_aligned;
+-(id) compressed;
+-(id) nodeType;
+-(id) nodeIndex;
+-(uint64_t) size;
+-(uint64_t) csize;
 -(void) free;
+
 @end
 

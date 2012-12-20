@@ -48,10 +48,30 @@ static void InfoDestFunc(void *a){;}
 	ds->total = len;
 }
 
+-(Region *) region {
+	return region;
+}
+
+-(void) fsalign: (uint64_t) align {
+	fsalign = align;
+}
+
+-(void) fsoffset: (uint64_t) offset {
+	fsoffset = [self alignNumber: offset bytes: fsalign];
+}
+
+-(uint64_t) fsoffset {
+	return fsoffset;
+}
+
 -(id) init {
-	if (self = [super init]) {
-		[self configureRBtree];
-	} 
+	if (!(self = [super init]))
+		return self;
+
+	[self configureRBtree];
+	region = [[Region alloc] init];
+	[region add: self];
+
 	return self;
 }
 

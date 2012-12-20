@@ -9,6 +9,7 @@
 #import <Foundation/NSAutoreleasePool.h>
 
 struct axfs_config acfg;
+struct axfs_objects aobj;
 
 bool validate_args(int argc, const char *argv[]) {
 	bool retval;

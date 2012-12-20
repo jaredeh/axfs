@@ -3,180 +3,88 @@
 @implementation Super
 
 -(id) init {
-	if ((self = [super init])) {
-		data = malloc(500);
-		data_p = data;
-	}
+	if (!(self = [super init]))
+		return self;
+
+	data = malloc(AXFS_SUPER_SIZE);
+	data_p = data;
+	sb = (struct axfs_super_onmedia *) data;
+
 	return self;
 }
 
--(void) do_magic {
-	*(data_p++) = 0x48;
-	*(data_p++) = 0xA0;
-	*(data_p++) = 0xE4;
-	*(data_p++) = 0xCD;
+-(void) processRegion: (Region *) r ptr: (void *) ptr {
+	[self bigEndian64: [r fsoffset] ptr: ptr];
 }
 
--(void) do_signature {
-	void *signature = "Advanced XIP FS\0";
-	memcpy(data_p, signature, strlen(signature));
-	data_p += 16;
+-(void) do_magic {
+	uint32_t magic = AXFS_MAGIC;
+	[self bigEndian32: magic ptr: &sb->magic];
 }
 
 /* sha1 digest for checking data integrity */
 -(void) do_digest {
-	data_p += 40;
-}
-
-/* maximum size of the block being compressed */
--(void) do_cblock_size {
-}
-
-/* number of inodes/files in fs */
--(void) do_files {
-}
-
-/* total image size */
--(void) do_size {
-}
-
-/* number of nodes in fs */
--(void) do_blocks {
-}
-
-/* size of the memory mapped part of image */
--(void) do_mmap_size {
-}
-
-/* offset to strings region descriptor */
--(void) do_strings {
-}
-
-/* offset to xip region descriptor */
--(void) do_xip {
-}
-
-/* offset to the byte aligned region desc */
--(void) do_byte_aligned {
-}
-
-/* offset to the compressed region desc */
--(void) do_compressed {
-}
-
-/* offset to node type region desc */
--(void) do_node_type {
-}
-
-/* offset to node index region desc */
--(void) do_node_index {
-}
-
-/* offset to cnode offset region desc */
--(void) do_cnode_offset {
-}
-
-/* offset to cnode index region desc */
--(void) do_cnode_index {
-}
-
-/* offset to banode offset region desc */
--(void) do_banode_offset {
-}
-
-/* offset to cblock offset region desc */
--(void) do_cblock_offset {
-}
-
-/* offset to inode file size desc */
--(void) do_inode_file_size {
-}
-
-/* offset to inode num_entries region desc */
--(void) do_inode_name_offset {
-}
-
-/* offset to inode num_entries region desc */
--(void) do_inode_num_entries {
-}
-
-/* offset to inode mode index region desc */
--(void) do_inode_mode_index {
-}
-
-/* offset to inode node index region desc */
--(void) do_inode_array_index {
-}
-
-/* offset to mode mode region desc */
--(void) do_modes {
-}
-
-/* offset to mode uid index region desc */
--(void) do_uids {
-}
-
-/* offset to mode gid index region desc */
--(void) do_gids {
-}
-
--(void) do_version_major {
-}
-
--(void) do_version_minor {
-}
-
--(void) do_version_sub {
 }
 
 /* Identifies type of compression used on FS */
 -(void) do_compression_type {
+
 }
 
 /* UNIX time_t of filesystem build time */
 -(void) do_timestamp {
+	uint32_t ts =0;
+	[self bigEndian32: ts ptr: &sb->timestamp];
 }
 
 -(void) do_page_shift {
-}
+	uint64_t page_shift;
 
--(void) cblock_size: (uint32_t) cbs {
+	page_shift = log2(acfg.page_size);
+	sb->page_shift = (uint8_t) page_shift;
 }
 
 -(uint64_t) size {
-	return 253;
+	return sizeof(*sb);
 }
 
 -(void *) data {
+	struct axfs_region_descriptors *r = &aobj.regions;
+
 	[self do_magic];
-	[self do_signature];
+
+	memcpy(sb->signature, AXFS_SIGNATURE, strlen(AXFS_SIGNATURE));
 	[self do_digest];
-	[self do_cblock_size];
-	[self do_files];
-	[self do_size];
-	[self do_blocks];
-	[self do_mmap_size];
-	[self do_strings];
-	[self do_xip];
-	[self do_byte_aligned];
-	[self do_compressed];
-	[self do_node_type];
-	[self do_node_index];
-	[self do_cnode_offset];
-	[self do_cnode_index];
-	[self do_banode_offset];
-	[self do_cblock_offset];
-	[self do_inode_file_size];
-	[self do_inode_name_offset];
-	[self do_inode_num_entries];
-	[self do_inode_mode_index];
-	[self do_inode_array_index];
-	[self do_modes];
-	[self do_uids];
-	[self do_gids];
-	[self do_version_major];
-	[self do_version_minor];
-	[self do_version_sub];
+
+	[self bigEndian64: acfg.block_size ptr: &sb->cblock_size];
+	[self bigEndian64: acfg.real_number_files ptr: &sb->files];
+	[self bigEndian64: acfg.real_imagesize ptr: &sb->size];
+	[self bigEndian64: acfg.real_number_nodes ptr: &sb->blocks];
+	[self bigEndian64: acfg.mmap_size ptr: &sb->mmap_size];
+
+	[self processRegion: r->strings ptr: &sb->strings];
+	[self processRegion: r->xip ptr: &sb->xip];
+	[self processRegion: r->byte_aligned ptr: &sb->byte_aligned];
+	[self processRegion: r->compressed ptr: &sb->compressed];
+	[self processRegion: r->node_type ptr: &sb->node_type];
+	[self processRegion: r->node_index ptr: &sb->node_index];
+	[self processRegion: r->cnode_offset ptr: &sb->cnode_offset];
+	[self processRegion: r->cnode_index ptr: &sb->cnode_index];
+	[self processRegion: r->banode_offset ptr: &sb->banode_offset];
+	[self processRegion: r->cblock_offset ptr: &sb->cblock_offset];
+	[self processRegion: r->inode_file_size ptr: &sb->inode_file_size];
+	[self processRegion: r->inode_name_offset ptr: &sb->inode_name_offset];
+	[self processRegion: r->inode_num_entries ptr: &sb->inode_num_entries];
+	[self processRegion: r->inode_mode_index ptr: &sb->inode_mode_index];
+	[self processRegion: r->inode_array_index ptr: &sb->inode_array_index];
+	[self processRegion: r->modes ptr: &sb->modes];
+	[self processRegion: r->uids ptr: &sb->uids];
+	[self processRegion: r->gids ptr: &sb->gids];
+
+	sb->version_major = acfg.version_major;
+	sb->version_minor = acfg.version_minor;
+	sb->version_sub = acfg.version_sub;
+
 	[self do_compression_type];
 	[self do_timestamp];
 	[self do_page_shift];

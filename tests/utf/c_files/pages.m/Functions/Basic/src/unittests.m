@@ -6,6 +6,7 @@
 #include "pages.m"
 #include "btree_object.m"
 #include "compressor.m"
+#include "region.m"
 
 struct axfs_config acfg;
 

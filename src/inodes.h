@@ -9,6 +9,13 @@
 
 extern struct axfs_config acfg;
 
+struct entry_list {
+	struct inode_struct **inodes;
+	struct node_struct **node;
+	uint64_t length;
+	uint64_t position;
+};
+
 struct inode_struct {
 	uint64_t size;
 	struct mode_struct *mode;
@@ -16,7 +23,8 @@ struct inode_struct {
 	struct string_struct *name;
 	NSString *path; //use to find parent dir to link into our entry_list then delete?
 	struct inode_struct *next;
-	struct entry_list *list; //inodes for dir, nodes for files
+	struct inode_struct *prev;
+	struct entry_list list; //inodes for dir, nodes for files
 	uint64_t length; /* for dir: # of children; for file: # of node */
 	rb_red_blk_node rb_node;
 	void *data; //remove
@@ -41,13 +49,25 @@ struct paths_struct {
 	struct data_struct data;
 	struct data_struct cdata;
 	struct data_struct symlink;
+	struct data_struct inode_list;
+	struct data_struct node_list;
 	Paths *paths;
 	Strings *strings;
 	Modes *modes;
 	uint64_t page_size;
 	uint64_t length;
+	ByteTable *fileSizeIndex;
+	ByteTable *nameOffset;
+	ByteTable *numEntriescblockOffset;
+	ByteTable *modeIndex;
+	ByteTable *arrayIndex;
 }
 
 -(void *) addInode: (NSString *) path;
+-(id) fileSizeIndex;
+-(id) nameOffset;
+-(id) numEntriescblockOffset;
+-(id) modeIndex;
+-(id) arrayIndex;
 -(void) free;
 @end

@@ -1,92 +1,98 @@
 #import "nodes.h"
-#import "c_blocks.h"
 
 @implementation Nodes
 
--(uint64_t) addPage: (void *) page {
-	pages[place] = (struct page_struct *) page;
-	place += 1;
-	cached = false;
-	return place-1;
+-(bool) pageIsXip {
+	return false;
 }
 
--(void *) data {
-	uint64_t i;
-	struct page_struct *page;
-	uint8_t *bd = data;
-	CBlocks *cb = (CBlocks *) cblks;
+-(uint64_t) addPage: (void *) page {
+	struct page_struct *pg = (struct page_struct *) page;
+	uint64_t retval;
+	uint8_t type;
 
-	if(cached) {
-		return data;
+	if ([self pageIsXip]) {
+		type = XIP;
+		retval = [xip addPage: page];
+	} else if (pg->clength < pg->length) {
+		type = Compressed;
+		retval = [compressed addPage: page];
+	} else {
+		type = Byte_Aligned;
+		retval = [byte_aligned addPage: page];
 	}
-	cached = true;
-	if (cdata)
-		free(cdata);
-	size = 0;
-	for(i=0;i<place;i++) {
-		page = pages[i];
-		if (type == TYPE_XIP) {
-			memcpy(bd, page->data, page->length);
-			memset(bd + page->length, 0, acfg.page_size - page->length);
-			size += acfg.page_size;
-			bd += acfg.page_size;
-		} else if (type == TYPE_BYTEALIGNED) {
-			memcpy(bd, page->data, page->length);
-			size += page->length;
-			bd += page->length;
-		} else if (type == TYPE_COMPRESS) {
-			nodes[i].page = page;
-			[cb addNode: &nodes[i]];
-		}
-	}
-	if (type == TYPE_COMPRESS) {
-		size = [cb size];
-		data = [cb data];
-	}
-	return data;
+
+	//add to node type
+	//add to node_index
+	return retval;
 }
 
 -(uint64_t) length {
-	return place;
+	uint64_t len;
+	len = [xip length];
+	len += [compressed length];
+	len += [byte_aligned length];
+	return len;
 }
 
--(id) init {
-	if (self = [super init]) {
-		if(acfg.max_nodes < 1) {
-			[NSException raise: @"nodes" format: @"can have acfg.max_nodes < 1"];
-		}
-		pages = malloc(sizeof(*pages)*acfg.max_nodes);
-		memset(pages,0,sizeof(*pages)*acfg.max_nodes);
-	}
-	return self;
+-(id) xip {
+	return xip;
 }
 
--(void) setType: (int) t {
-	type = t;
-	if(type == TYPE_COMPRESS) {
-		CBlocks *cb;
-		cb = [[CBlocks alloc] init];
-		cblks = (void *) cb;
-		nodes = malloc(sizeof(*nodes)*acfg.max_nodes);
-		memset(nodes,0,sizeof(*nodes)*acfg.max_nodes);
-	} else {
-		data = malloc(acfg.page_size*acfg.max_nodes);
-		memset(data,0,acfg.page_size*acfg.max_nodes);
-	}
+-(id) byte_aligned {
+	return byte_aligned;
+}
+
+-(id) compressed {
+	return compressed;
+}
+
+-(id) nodeType {
+	return node_type;
+}
+
+-(id) nodeIndex {
+	return node_index;
+}
+
+-(uint64_t) size {
+	uint64_t size = [xip size];
+	size += [byte_aligned size];
+	size += [compressed size];
+
+	return size;
+}
+
+-(uint64_t) csize {
+	uint64_t csize = [xip csize];
+	csize += [byte_aligned csize];
+	csize += [compressed csize];
+
+	return csize;
 }
 
 -(void) free {
-	[super free];
-	CBlocks *cb = (CBlocks *) cblks;
-	free(pages);
-	free(cdata);
-	if(type == TYPE_COMPRESS) {
-		free(nodes);
-		[cb free];
-		[cb release];
-	} else {
-		free(data);
-	}
+	[xip free];
+	[byte_aligned free];
+	[compressed free];
+	[xip release];
+	[byte_aligned release];
+	[compressed release];
+}
+
+-(id) init {
+	if (!(self = [super init]))
+		return self;
+
+	xip = [[XipNodes alloc] init];
+	byte_aligned = [[BaNodes alloc] init];
+	compressed = [[CompNodes alloc] init];
+	node_type = [[ByteTable alloc] init];
+	node_index = [[ByteTable alloc] init];
+	//init bytetable for node_type
+	//init bytetable for node_index
+
+	return self;
 }
 
 @end

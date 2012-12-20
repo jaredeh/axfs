@@ -6,6 +6,7 @@
 
 /* too lazy to build this junk seperately. */
 #include "../../../../../src/compressor.m"
+#include "../../../../../src/region.m"
 #include "../../../../../src/compressible_object.m"
 #include "../../../../../src/btree_object.m"
 

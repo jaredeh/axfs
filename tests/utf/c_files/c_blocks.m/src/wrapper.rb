@@ -94,7 +94,7 @@ class CBlocks
 
   def self.CreateAxfsConfig(config)
     acfg_ptr = FFI::MemoryPointer.new :pointer
-    acfg_ptr = CLib.malloc(1024)
+    acfg_ptr = CLib.malloc(4096)
     acfg = AxfsConfig.new(acfg_ptr)
 
     acfg[:input] = FFI::MemoryPointer.from_string(config[:input].to_s + "\x0")
@@ -169,7 +169,18 @@ class AxfsConfig < FFI::Struct
     :xip_size_str, :pointer,
     :profile, :pointer,
     :special, :pointer,
-    :max_nodes, :uint64
+    :mmap_size, :uint64,
+    :max_nodes, :uint64,
+    :max_text_size, :uint64,
+    :max_number_files, :uint64,
+    :max_filedata_size, :uint64,
+    :real_number_files, :uint64,
+    :real_number_nodes, :uint64,
+    :real_imagesize, :uint64,
+    :version_major, :uint8,
+    :version_minor, :uint8,
+    :version_sub, :uint8
+
 end
 
 

@@ -1,7 +1,10 @@
 #import <Foundation/Foundation.h>
 #import "c_blocks.m"
-#include "btree_object.m"
-#include "compressor.m"
+#import "compressible_object.m"
+#import "btree_object.m"
+#import "compressor.m"
+#import "region.m"
+
 #import <Foundation/NSAutoreleasePool.h>
 
 struct axfs_config acfg;

@@ -5,12 +5,17 @@
 /* Including function under test */
 #include "region.m"
 #include "bytetable.m"
+#include "nodes_object.m"
 #include "nodes.m"
+#include "ba_nodes.m"
+#include "xip_nodes.m"
+#include "comp_nodes.m"
 #include "compressor.m"
 #include "pages.m"
 #include "c_blocks.m"
 #include "compressible_object.m"
 #include "btree_object.m"
+#include "axfs_helper.m"
 
 /****** Test Code ******/
 
@@ -30,76 +35,6 @@ static void Region_createdestroy(CuTest *tc)
 
 	output = 0;
 	CuAssertIntEquals(tc, 0, output);
-}
-
-static void Region_big_endian_number(CuTest *tc)
-{
-	uint64_t number;
-	uint8_t *output;
-	int i;
-
-	Region *r;
-	ByteTable *bt;
-	acfg.max_nodes = 100;
-	acfg.block_size = 16*1024;
-	acfg.page_size = 4096;
-	acfg.compression = "lzo";
-	acfg.max_number_files = 100;
-	
-	printf("Running %s\n", __FUNCTION__);
-
-	bt = [[ByteTable alloc] init];
-	r = [[Region alloc] init];
-
-	[bt numberEntries: 4098 dedup: false];
-	
-	[bt add: 0x123456];
-	[bt add: 0x0];
-	for(i=0; i<4096; i++) {
-		[bt add: 0x789AB0 + i];
-	}
-
-	[r addBytetable: bt];
-
-	number = 0x0102030405060708UL;
-	[r big_endian_64: number];
-
-	output = [r data_p];
-	CuAssertHexEquals(tc, 0x01, output[0]);
-	CuAssertHexEquals(tc, 0x02, output[1]);
-	CuAssertHexEquals(tc, 0x03, output[2]);
-	CuAssertHexEquals(tc, 0x04, output[3]);
-	CuAssertHexEquals(tc, 0x05, output[4]);
-	CuAssertHexEquals(tc, 0x06, output[5]);
-	CuAssertHexEquals(tc, 0x07, output[6]);
-	CuAssertHexEquals(tc, 0x08, output[7]);
-	number = 0x090a0b0c0d0e0f10UL;
-	[r big_endian_64: number];
-	output = [r data_p];
-	CuAssertHexEquals(tc, 0x09, output[8]);
-	CuAssertHexEquals(tc, 0x0a, output[9]);
-	CuAssertHexEquals(tc, 0x0b, output[10]);
-	CuAssertHexEquals(tc, 0x0c, output[11]);
-	CuAssertHexEquals(tc, 0x0d, output[12]);
-	CuAssertHexEquals(tc, 0x0e, output[13]);
-	CuAssertHexEquals(tc, 0x0f, output[14]);
-	CuAssertHexEquals(tc, 0x10, output[15]);
-	number = 0x1112131415161718UL;
-	[r big_endian_64: number];
-	output = [r data_p];
-	CuAssertHexEquals(tc, 0x11, output[16]);
-	CuAssertHexEquals(tc, 0x12, output[17]);
-	CuAssertHexEquals(tc, 0x13, output[18]);
-	CuAssertHexEquals(tc, 0x14, output[19]);
-	CuAssertHexEquals(tc, 0x15, output[20]);
-	CuAssertHexEquals(tc, 0x16, output[21]);
-	CuAssertHexEquals(tc, 0x17, output[22]);
-	CuAssertHexEquals(tc, 0x18, output[23]);
-
-	[r free];
-	[r release];
-	[bt free];
-	[bt release];
 }
 
 static void Region_bytetable_data(CuTest *tc)
@@ -128,10 +63,12 @@ static void Region_bytetable_data(CuTest *tc)
 		[bt add: 0x000000 + i];
 	}
 
-	[r addBytetable: bt];
-	[r fsoffset: 0x4455667711223388UL];
+	[r add: bt];
+	[bt fsoffset: 0x4455667711223388UL];
 	[r incore: 1];
 	output = [r data];
+
+//	u64 fsoffset;
 	CuAssertHexEquals(tc, 0x44, output[0]);
 	CuAssertHexEquals(tc, 0x55, output[1]);
 	CuAssertHexEquals(tc, 0x66, output[2]);
@@ -140,6 +77,7 @@ static void Region_bytetable_data(CuTest *tc)
 	CuAssertHexEquals(tc, 0x22, output[5]);
 	CuAssertHexEquals(tc, 0x33, output[6]);
 	CuAssertHexEquals(tc, 0x88, output[7]);
+//	u64 size;
 	CuAssertHexEquals(tc, 0x00, output[8]);
 	CuAssertHexEquals(tc, 0x00, output[9]);
 	CuAssertHexEquals(tc, 0x00, output[10]);
@@ -148,6 +86,7 @@ static void Region_bytetable_data(CuTest *tc)
 	CuAssertHexEquals(tc, 0x00, output[13]);
 	CuAssertHexEquals(tc, 0x30, output[14]);
 	CuAssertHexEquals(tc, 0x06, output[15]);
+//	u64 compressed_size;
 	CuAssertHexEquals(tc, 0x00, output[16]);
 	CuAssertHexEquals(tc, 0x00, output[17]);
 	CuAssertHexEquals(tc, 0x00, output[18]);
@@ -155,7 +94,8 @@ static void Region_bytetable_data(CuTest *tc)
 	CuAssertHexEquals(tc, 0x00, output[20]);
 	CuAssertHexEquals(tc, 0x00, output[21]);
 	CuAssertHexEquals(tc, 0x30, output[22]);
-	CuAssertHexEquals(tc, 0x0, output[23]);
+	CuAssertHexEquals(tc, 0x00, output[23]);
+//	u64 max_index;
 	CuAssertHexEquals(tc, 0x00, output[24]);
 	CuAssertHexEquals(tc, 0x00, output[25]);
 	CuAssertHexEquals(tc, 0x00, output[26]);
@@ -164,8 +104,89 @@ static void Region_bytetable_data(CuTest *tc)
 	CuAssertHexEquals(tc, 0x00, output[29]);
 	CuAssertHexEquals(tc, 0x10, output[30]);
 	CuAssertHexEquals(tc, 0x02, output[31]);
+//	u8 table_byte_depth;
 	CuAssertHexEquals(tc, 0x03, output[32]);
+//	u8 incore;
 	CuAssertHexEquals(tc, 0x01, output[33]);
+
+	[r free];
+	[r release];
+
+	[bt free];
+	[bt release];
+}
+
+static void Region_bytetable_data_notcore(CuTest *tc)
+{
+	uint8_t *output;
+	int i;
+
+	Region *r;
+	ByteTable *bt;
+
+	printf("Running %s\n", __FUNCTION__);
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+	acfg.max_number_files = 100;
+
+	bt = [[ByteTable alloc] init];
+	r = [[Region alloc] init];
+
+	[bt numberEntries: 5000 dedup: false];
+	
+	[bt add: 0x123456];
+	[bt add: 0x0];
+	for(i=0; i<4096; i++) {
+		[bt add: 0x000000 + i];
+	}
+
+	[r add: bt];
+	[bt fsoffset: 0x4455667711223388UL];
+	[r incore: 0];
+	output = [r data];
+
+//	u64 fsoffset;
+	CuAssertHexEquals(tc, 0x44, output[0]);
+	CuAssertHexEquals(tc, 0x55, output[1]);
+	CuAssertHexEquals(tc, 0x66, output[2]);
+	CuAssertHexEquals(tc, 0x77, output[3]);
+	CuAssertHexEquals(tc, 0x11, output[4]);
+	CuAssertHexEquals(tc, 0x22, output[5]);
+	CuAssertHexEquals(tc, 0x33, output[6]);
+	CuAssertHexEquals(tc, 0x88, output[7]);
+//	u64 size;
+	CuAssertHexEquals(tc, 0x00, output[8]);
+	CuAssertHexEquals(tc, 0x00, output[9]);
+	CuAssertHexEquals(tc, 0x00, output[10]);
+	CuAssertHexEquals(tc, 0x00, output[11]);
+	CuAssertHexEquals(tc, 0x00, output[12]);
+	CuAssertHexEquals(tc, 0x00, output[13]);
+	CuAssertHexEquals(tc, 0x30, output[14]);
+	CuAssertHexEquals(tc, 0x06, output[15]);
+//	u64 compressed_size;
+	CuAssertHexEquals(tc, 0x00, output[16]);
+	CuAssertHexEquals(tc, 0x00, output[17]);
+	CuAssertHexEquals(tc, 0x00, output[18]);
+	CuAssertHexEquals(tc, 0x00, output[19]);
+	CuAssertHexEquals(tc, 0x00, output[20]);
+	CuAssertHexEquals(tc, 0x00, output[21]);
+	CuAssertHexEquals(tc, 0x30, output[22]);
+	CuAssertHexEquals(tc, 0x00, output[23]);
+//	u64 max_index;
+	CuAssertHexEquals(tc, 0x00, output[24]);
+	CuAssertHexEquals(tc, 0x00, output[25]);
+	CuAssertHexEquals(tc, 0x00, output[26]);
+	CuAssertHexEquals(tc, 0x00, output[27]);
+	CuAssertHexEquals(tc, 0x00, output[28]);
+	CuAssertHexEquals(tc, 0x00, output[29]);
+	CuAssertHexEquals(tc, 0x10, output[30]);
+	CuAssertHexEquals(tc, 0x02, output[31]);
+//	u8 table_byte_depth;
+	CuAssertHexEquals(tc, 0x03, output[32]);
+//	u8 incore;
+	CuAssertHexEquals(tc, 0x00, output[33]);
 
 	[r free];
 	[r release];
@@ -231,18 +252,19 @@ static void Region_nodes_data(CuTest *tc)
 	acfg.max_number_files = 100;
 
 	nd = [[Nodes alloc] init];
-	[nd setType: TYPE_XIP];
 	pg = [[Pages alloc] init];
 	r = [[Region alloc] init];
 
 	d = malloc(l*7);
 
 	get_nodes_cdata(&nd, &pg, d);
-	[r addNodes: nd];
-	[r fsoffset: 0x4455667711223399UL];
+	[r add: [nd xip]];
+	[[nd xip] fsoffset: 0x4455667711223399UL];
 	[r incore: 1];
 	output = [r data];
 
+
+//	u64 fsoffset;
 	CuAssertHexEquals(tc, 0x44, output[0]);
 	CuAssertHexEquals(tc, 0x55, output[1]);
 	CuAssertHexEquals(tc, 0x66, output[2]);
@@ -251,14 +273,16 @@ static void Region_nodes_data(CuTest *tc)
 	CuAssertHexEquals(tc, 0x22, output[5]);
 	CuAssertHexEquals(tc, 0x33, output[6]);
 	CuAssertHexEquals(tc, 0x99, output[7]);
+//	u64 size;
 	CuAssertHexEquals(tc, 0x00, output[8]);
 	CuAssertHexEquals(tc, 0x00, output[9]);
 	CuAssertHexEquals(tc, 0x00, output[10]);
 	CuAssertHexEquals(tc, 0x00, output[11]);
 	CuAssertHexEquals(tc, 0x00, output[12]);
 	CuAssertHexEquals(tc, 0x00, output[13]);
-	CuAssertHexEquals(tc, 0x50, output[14]);
+	CuAssertHexEquals(tc, 0x00, output[14]);
 	CuAssertHexEquals(tc, 0x00, output[15]);
+//	u64 compressed_size;
 	CuAssertHexEquals(tc, 0x00, output[16]);
 	CuAssertHexEquals(tc, 0x00, output[17]);
 	CuAssertHexEquals(tc, 0x00, output[18]);
@@ -266,7 +290,8 @@ static void Region_nodes_data(CuTest *tc)
 	CuAssertHexEquals(tc, 0x00, output[20]);
 	CuAssertHexEquals(tc, 0x00, output[21]);
 	CuAssertHexEquals(tc, 0x00, output[22]);
-	//CuAssertHexEquals(tc, 0x73, output[23]);
+	CuAssertHexEquals(tc, 0x00, output[23]);
+//	u64 max_index;
 	CuAssertHexEquals(tc, 0x00, output[24]);
 	CuAssertHexEquals(tc, 0x00, output[25]);
 	CuAssertHexEquals(tc, 0x00, output[26]);
@@ -274,8 +299,10 @@ static void Region_nodes_data(CuTest *tc)
 	CuAssertHexEquals(tc, 0x00, output[28]);
 	CuAssertHexEquals(tc, 0x00, output[29]);
 	CuAssertHexEquals(tc, 0x00, output[30]);
-	CuAssertHexEquals(tc, 0x05, output[31]);
+	CuAssertHexEquals(tc, 0x00, output[31]);
+//	u8 table_byte_depth;
 	CuAssertHexEquals(tc, 0x00, output[32]);
+//	u8 incore;
 	CuAssertHexEquals(tc, 0x01, output[33]);
 
 	[r free];
@@ -294,9 +321,9 @@ static CuSuite* GetSuite(void){
 	CuSuite* suite = CuSuiteNew();
 
 	SUITE_ADD_TEST(suite, Region_createdestroy);
-	SUITE_ADD_TEST(suite, Region_big_endian_number);
 	SUITE_ADD_TEST(suite, Region_bytetable_data);
 	SUITE_ADD_TEST(suite, Region_nodes_data);
+	SUITE_ADD_TEST(suite, Region_bytetable_data_notcore);
 	return suite;
 }
 

@@ -4,9 +4,11 @@
 
 /* Including function under test */
 #include "bytetable.m"
+#include "axfs_helper.m"
 #include "compressor.m"
 #include "btree_object.m"
 #include "compressible_object.m"
+#include "region.m"
 
 /****** Test Code ******/
 
@@ -14,81 +16,92 @@ struct axfs_config acfg;
 
 static void Bytetable_test_check_depth(CuTest *tc)
 {
+	ByteTable *bt;
 	uint8_t depth = 0;
 
 	printf("Running %s\n", __FUNCTION__);
 
-	depth = ByteTable_check_depth(depth,0x0);
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "lzo";
+	acfg.max_text_size = 10000;
+	acfg.max_number_files = 10000;
+	bt = [[ByteTable alloc] init];
+
+	[bt checkDepth: 0x00 depth: &depth];
 	CuAssertIntEquals(tc, 1, depth);
-	depth = ByteTable_check_depth(depth,0x01);
+	[bt checkDepth: 0x01 depth: &depth];
 	CuAssertIntEquals(tc, 1, depth);
-	depth = ByteTable_check_depth(depth,0x10);
+	[bt checkDepth: 0x10 depth: &depth];
 	CuAssertIntEquals(tc, 1, depth);
-	depth = ByteTable_check_depth(depth,0xFF);
+	[bt checkDepth: 0xFF depth: &depth];
 	CuAssertIntEquals(tc, 1, depth);
 
-	depth = ByteTable_check_depth(depth,0x0100);
+	[bt checkDepth: 0x0100 depth: &depth];
 	CuAssertIntEquals(tc, 2, depth);
-	depth = ByteTable_check_depth(depth,0x1000);
+	[bt checkDepth: 0x1000 depth: &depth];
 	CuAssertIntEquals(tc, 2, depth);
-	depth = ByteTable_check_depth(depth,0xFFff);
+	[bt checkDepth: 0xFFff depth: &depth];
 	CuAssertIntEquals(tc, 2, depth);
-	depth = ByteTable_check_depth(depth,0x0);
+	[bt checkDepth: 0x0 depth: &depth];
 	CuAssertIntEquals(tc, 2, depth);
 
-	depth = ByteTable_check_depth(depth,0x010000);
+	[bt checkDepth: 0x010000 depth: &depth];
 	CuAssertIntEquals(tc, 3, depth);
-	depth = ByteTable_check_depth(depth,0x100000);
+	[bt checkDepth: 0x100000 depth: &depth];
 	CuAssertIntEquals(tc, 3, depth);
-	depth = ByteTable_check_depth(depth,0xFFffFF);
+	[bt checkDepth: 0xFFffFF depth: &depth];
 	CuAssertIntEquals(tc, 3, depth);
-	depth = ByteTable_check_depth(depth,0x0);
+	[bt checkDepth: 0x0 depth: &depth];
 	CuAssertIntEquals(tc, 3, depth);
 
-	depth = ByteTable_check_depth(depth,0x01000000);
+	[bt checkDepth: 0x01000000 depth: &depth];
 	CuAssertIntEquals(tc, 4, depth);
-	depth = ByteTable_check_depth(depth,0x10000000);
+	[bt checkDepth: 0x10000000 depth: &depth];
 	CuAssertIntEquals(tc, 4, depth);
-	depth = ByteTable_check_depth(depth,0xFFffFFff);
+	[bt checkDepth: 0xFFffFFff depth: &depth];
 	CuAssertIntEquals(tc, 4, depth);
-	depth = ByteTable_check_depth(depth,0x0);
+	[bt checkDepth: 0x0 depth: &depth];
 	CuAssertIntEquals(tc, 4, depth);
 
-	depth = ByteTable_check_depth(depth,0x0100000000ULL);
+	[bt checkDepth: 0x0100000000ULL depth: &depth];
 	CuAssertIntEquals(tc, 5, depth);
-	depth = ByteTable_check_depth(depth,0x1000000000ULL);
+	[bt checkDepth: 0x1000000000ULL depth: &depth];
 	CuAssertIntEquals(tc, 5, depth);
-	depth = ByteTable_check_depth(depth,0xFFffFFffFFULL);
+	[bt checkDepth: 0xFFffFFffFFULL depth: &depth];
 	CuAssertIntEquals(tc, 5, depth);
-	depth = ByteTable_check_depth(depth,0x0);
+	[bt checkDepth: 0x0 depth: &depth];
 	CuAssertIntEquals(tc, 5, depth);
 
-	depth = ByteTable_check_depth(depth,0x010000000000ULL);
+	[bt checkDepth: 0x010000000000ULL depth: &depth];
 	CuAssertIntEquals(tc, 6, depth);
-	depth = ByteTable_check_depth(depth,0x100000000000ULL);
+	[bt checkDepth: 0x100000000000ULL depth: &depth];
 	CuAssertIntEquals(tc, 6, depth);
-	depth = ByteTable_check_depth(depth,0xFFffFFffFFffULL);
+	[bt checkDepth: 0xFFffFFffFFffULL depth: &depth];
 	CuAssertIntEquals(tc, 6, depth);
-	depth = ByteTable_check_depth(depth,0x0);
+	[bt checkDepth: 0x0 depth: &depth];
 	CuAssertIntEquals(tc, 6, depth);
 
-	depth = ByteTable_check_depth(depth,0x01000000000000ULL);
+	[bt checkDepth: 0x01000000000000ULL depth: &depth];
 	CuAssertIntEquals(tc, 7, depth);
-	depth = ByteTable_check_depth(depth,0x10000000000000ULL);
+	[bt checkDepth: 0x10000000000000ULL depth: &depth];
 	CuAssertIntEquals(tc, 7, depth);
-	depth = ByteTable_check_depth(depth,0xFFffFFffFFffFFULL);
+	[bt checkDepth: 0xFFffFFffFFffFFULL depth: &depth];
 	CuAssertIntEquals(tc, 7, depth);
-	depth = ByteTable_check_depth(depth,0x0);
+	[bt checkDepth: 0x0 depth: &depth];
 	CuAssertIntEquals(tc, 7, depth);
 
-	depth = ByteTable_check_depth(depth,0x0100000000000000ULL);
+	[bt checkDepth: 0x0100000000000000ULL depth: &depth];
 	CuAssertIntEquals(tc, 8, depth);
-	depth = ByteTable_check_depth(depth,0x1000000000000000ULL);
+	[bt checkDepth: 0x1000000000000000ULL depth: &depth];
 	CuAssertIntEquals(tc, 8, depth);
-	depth = ByteTable_check_depth(depth,0xFFffFFffFFffFFffULL);
+	[bt checkDepth: 0xFFffFFffFFffFFffULL depth: &depth];
 	CuAssertIntEquals(tc, 8, depth);
-	depth = ByteTable_check_depth(depth,0x0);
+	[bt checkDepth: 0x0 depth: &depth];
 	CuAssertIntEquals(tc, 8, depth);
+	[bt free];
+	[bt release];
 }
 
 static void Bytetable_createdestroy(CuTest *tc)

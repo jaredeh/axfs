@@ -9,6 +9,7 @@
 #include "modes.m"
 #include "astrings.m"
 #include "compressor.m"
+#include "region.m"
 
 struct axfs_config acfg;
 
