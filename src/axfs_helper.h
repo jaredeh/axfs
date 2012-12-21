@@ -41,7 +41,7 @@ struct axfs_config {
 
 #define AXFS_DEFAULT__PAGE_SIZE 4096
 #define AXFS_DEFAULT__BLOCK_SIZE 4096
-
+#define AXFS_DEFAULT__COMPRESSION "gzip"
 
 @interface NSObject (axfs)
 -(uint64_t) alignNumber: (uint64_t) number bytes: (uint64_t) d;

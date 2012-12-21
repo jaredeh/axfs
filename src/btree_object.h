@@ -16,6 +16,7 @@ extern struct axfs_config acfg;
 -(void *) allocData: (struct data_struct *) ds chunksize: (uint64_t) chunksize;
 -(void) configureRBtree;
 -(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len;
+-(uint64_t) depth;
 -(Region *) region;
 -(void) fsalign: (uint64_t) align;
 -(void) fsoffset: (uint64_t) offset;

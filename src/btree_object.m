@@ -48,6 +48,10 @@ static void InfoDestFunc(void *a){;}
 	ds->total = len;
 }
 
+-(uint64_t) depth {
+	return 0;
+}
+
 -(Region *) region {
 	return region;
 }

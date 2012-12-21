@@ -74,8 +74,10 @@
 	Compressor *comp;
 
 	if (acfg.compression == NULL) {
-		return true;
-	} else if ([self safe_strlen: acfg.compression] < 1) {
+		acfg.compression = AXFS_DEFAULT__COMPRESSION;
+	}
+
+	if ([self safe_strlen: acfg.compression] < 1) {
 		sprintf(*msg,"--compression has zero length\n");
 		return false;
 	}

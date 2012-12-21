@@ -24,6 +24,16 @@ static int InodeNameComp(const void *x, const void *y) {
 	struct inode_struct *a = (struct inode_struct *) x;
 	struct inode_struct *b = (struct inode_struct *) y;
 
+	if (a == NULL)
+		[NSException raise: @"a == NULL" format: @""];
+	if (b == NULL)
+		[NSException raise: @"a == NULL" format: @""];
+	if (a->name == NULL)
+		[NSException raise: @"a->name == NULL" format: @""];
+	if (b->name == NULL)
+		[NSException raise: @"b->name == NULL" format: @""];
+
+
 	min = b->name->length;
 	if (a->name->length < b->name->length)
 		min = a->name->length;
@@ -76,7 +86,7 @@ static int InodeNameComp(const void *x, const void *y) {
 	parent->list.position++;
 	list[pos] = inode;
 	//only want to qsort when we call data
-	qsort(list,parent->list.position,sizeof(inode),InodeNameComp);
+	//qsort(list,parent->list.position,sizeof(inode),InodeNameComp);
 }
 
 -(void *) addInode_symlink: (struct inode_struct *) inode {
