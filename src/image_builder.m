@@ -49,6 +49,8 @@
 	[obj fsoffset: input_offset];
 	actual_offset = [obj fsoffset];
 	padding_size = actual_offset - input_offset;
+
+printf("actual_offset=%d - input_offset=%d",actual_offset ,input_offset);
 	if (padding_size != 0) {
 		ds = &data_segments[current_segment];
 		current_segment++;
