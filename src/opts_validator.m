@@ -103,16 +103,46 @@
 		sprintf(*msg,"--block_size %s: is not correct\n",acfg.block_size_str);
 	}
 
+	if (acfg.page_size == 0)
+		acfg.page_size = AXFS_DEFAULT__PAGE_SIZE;
+
+	if (acfg.block_size == 0)
+		acfg.block_size = AXFS_DEFAULT__BLOCK_SIZE;
+
 	if (strlen(*msg) != 0)
 		return false;
 
 	return true;
 }
 
+-(void) print_config {
+	printf("--input=%s\n",acfg.input == NULL ? "" : acfg.input);
+	printf("--output=%s\n",acfg.output == NULL ? "" : acfg.output);
+	printf("--secondary_output=%s\n",acfg.secondary_output == NULL ? "" : acfg.secondary_output);
+	printf("--compression=%s\n",acfg.compression == NULL ? "" : acfg.compression);
+	printf("--page_size=%llu %s\n",acfg.page_size,acfg.page_size_str == NULL ? "" : acfg.page_size_str);
+	printf("--block_size=%llu %s\n",acfg.block_size,acfg.block_size_str == NULL ? "" : acfg.block_size_str);
+	printf("--xip_size=%llu %s\n",acfg.xip_size,acfg.xip_size_str == NULL ? "" : acfg.xip_size_str);
+	printf("--profile=%s\n",acfg.profile == NULL ? "" : acfg.profile);
+	printf("--special=%s\n",acfg.special == NULL ? "" : acfg.special);
+	printf("..mmap_size=%llu\n",acfg.mmap_size);
+	printf("..max_nodes=%llu\n",acfg.max_nodes);
+	printf("..max_text_size=%llu\n",acfg.max_text_size);
+	printf("..max_number_files=%llu\n",acfg.max_number_files);
+	printf("..max_filedata_size=%llu\n",acfg.max_filedata_size);
+	printf("..real_number_files=%llu\n",acfg.real_number_files);
+	printf("..real_number_nodes=%llu\n",acfg.real_number_nodes);
+	printf("..real_imagesize=%llu\n",acfg.real_imagesize);
+	printf("..version_major=0x%02x\n",acfg.version_major);
+	printf("..version_minor=0x%02x\n",acfg.version_minor);
+	printf("..version_sub=0x%02x\n",acfg.version_sub);
+}
+
 -(bool) validate: (char **) msg {
 	char buffer[256];
 	memset(buffer,0,256);
 
+	[self print_config];
 	if (![self validate_properfiles: msg]) {
 	} else if (![self validate_compression: msg]) {
 	} else if (![self validate_numbers: msg]) {

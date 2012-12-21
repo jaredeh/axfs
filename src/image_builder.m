@@ -10,10 +10,8 @@
 	aobj.compressed = [aobj.nodes compressed];
 	aobj.inodes = [[Inodes alloc] init];
 	aobj.modes = [[Modes alloc] init];
-	aobj.dirwalker = [[DirWalker alloc] init];
 	aobj.superblock = [[Super alloc] init];
 	aobj.regdesc = [[RegionDescriptors alloc] init];
-	dw = aobj.dirwalker;
 	sb = aobj.superblock;
 	rd = aobj.regdesc;
 }
@@ -122,6 +120,10 @@
 
 -(void) build {
 	uint64_t offset = 0;
+
+	[self setupObjs];
+	[self setupRegions];
+
 	[aobj.xip data];
 	[aobj.strings data];
 	[aobj.byte_aligned data];
@@ -172,6 +174,8 @@
 }
 
 -(void) sizeup {
+	aobj.dirwalker = [[DirWalker alloc] init];
+	dw = aobj.dirwalker;
 	printf("foo	1\n");
 	[dw size_up_dir];
 	printf("foo 2\n");
@@ -188,8 +192,6 @@
 	if (!(self = [super init]))
 		return self;
 
-	[self setupObjs];
-	[self setupRegions];
 	current_segment = 1;
 	return self;
 }

@@ -28,7 +28,6 @@ extern struct axfs_config acfg;
 -(void) switch_long_options: (int) index optarg: (char *) optarg;
 -(void) switch_short_options: (int) c index: (int) index optarg: (char *) optarg;
 -(void) argc: (int) count argv: (char **) v;
--(void) initialize;
 -(void) free;
 @end
 

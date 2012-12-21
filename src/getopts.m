@@ -290,15 +290,14 @@
 		[self switch_short_options: c index: index optarg: optarg];
 	}
 }
--(void) initialize {
-}
+
 -(void) free {
 }
+
 @end
 
 void do_getopts(int argc, const char *argv[]) {
 	GetOpts *go = [[GetOpts alloc] init];
-	[go initialize];
 	[go argc: argc argv: (char **) argv];
 	[go free];
 	[go release];

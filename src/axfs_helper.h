@@ -39,6 +39,10 @@ struct axfs_config {
 	uint8_t version_sub;
 };
 
+#define AXFS_DEFAULT__PAGE_SIZE 4096
+#define AXFS_DEFAULT__BLOCK_SIZE 4096
+
+
 @interface NSObject (axfs)
 -(uint64_t) alignNumber: (uint64_t) number bytes: (uint64_t) d;
 -(uint8_t) outputByte: (uint64_t) datum byte: (uint8_t) i;

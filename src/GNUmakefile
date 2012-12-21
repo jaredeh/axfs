@@ -14,12 +14,17 @@ mkfs.axfs_OBJC_FILES = astrings.m \
                        main.m \
                        modes.m \
                        nodes.m \
+                       nodes_object.m \
+                       ba_nodes.m \
+                       comp_nodes.m \
+                       xip_nodes.m \
+                       region_descriptors.m \
                        opts_validator.m \
                        pages.m \
                        region.m \
                        super.m
 
-INC = -I ../libs/rb_tree/
+INC = -I ../libs/rb_tree/  -I ./
 LIBDIRS = -L ../libs/rb_tree -L ../libs/squashfs_compressor 
 LIBS = -l rb_tree -l squashfs_compressor
 

@@ -94,16 +94,16 @@ NSFileTypeUnknown;
 	inodes = [[Inodes alloc] init];
 	while ((path = [de nextObject]))
 	{
-		//NSDictionary *attribs;
-		//attribs = [de fileAttributes];
+		NSDictionary *attribs;
+		attribs = [de fileAttributes];
 
 		[inodes addInode: path];
 
-		//filetype = [attribs objectForKey:NSFileType];
-		//name = (char *)[[path lastPathComponent] UTF8String];
-		//size = (uint64_t)[[attribs objectForKey:NSFileSize] unsignedLongLongValue];
-		//printf("path:'%s'\n",[path UTF8String]);
-		//printf("  file name: '%s' type: '%s' size: '%i'\n", name, [[attribs objectForKey:NSFileType] UTF8String], (int) size);
+		filetype = [attribs objectForKey:NSFileType];
+		name = (char *)[[path lastPathComponent] UTF8String];
+		size = (uint64_t)[[attribs objectForKey:NSFileSize] unsignedLongLongValue];
+		printf("path:'%s'\n",[path UTF8String]);
+		printf("  file name: '%s' type: '%s' size: '%i'\n", name, [[attribs objectForKey:NSFileType] UTF8String], (int) size);
 	}
 }
 

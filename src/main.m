@@ -37,8 +37,11 @@ int main(int argc, const char *argv[]) {
 	builder = [[ImageBuilder alloc] init];
 
 	[builder sizeup];
+	printf("sizedup\n");
 	[builder walk];
+	printf("walked\n");
 	[builder build];
+	printf("built\n");
 
 	[pool drain];
 	return 0;
