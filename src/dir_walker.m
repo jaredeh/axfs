@@ -95,15 +95,17 @@ NSFileTypeUnknown;
 	while ((path = [de nextObject]))
 	{
 		NSDictionary *attribs;
+		char *name;
+		uint64_t ddsize;
 		attribs = [de fileAttributes];
 
 		[inodes addInode: path];
 
-		filetype = [attribs objectForKey:NSFileType];
+		//filetype = [attribs objectForKey:NSFileType];
 		name = (char *)[[path lastPathComponent] UTF8String];
-		size = (uint64_t)[[attribs objectForKey:NSFileSize] unsignedLongLongValue];
+		ddsize = (uint64_t)[[attribs objectForKey:NSFileSize] unsignedLongLongValue];
 		printf("path:'%s'\n",[path UTF8String]);
-		printf("  file name: '%s' type: '%s' size: '%i'\n", name, [[attribs objectForKey:NSFileType] UTF8String], (int) size);
+		printf("  file name: '%s' type: '%s' size: '%i'\n", name, [[attribs objectForKey:NSFileType] UTF8String], (int) ddsize);
 	}
 }
 
