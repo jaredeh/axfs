@@ -142,8 +142,20 @@ static int InodeNameComp(const void *x, const void *y) {
 }
 
 -(void *) addInode_directory: (struct inode_struct *) inode {
-	NSArray *dir  = [[NSFileManager defaultManager] contentsOfDirectoryAtPath: inode->path error:nil];
+	NSDirectoryEnumerator *em;
 	struct entry_list *list;
+	NSString* file;
+	uint64_t count = 0;
+
+	//NSArray *dir  = [[NSFileManager defaultManager] contentsOfDirectoryAtPath: inode->path error:nil];
+	em = [[NSFileManager defaultManager] enumeratorAtPath: inode->path];
+	[em skipDescendents];
+	while ((file = [em nextObject])) {
+		count++;
+	}
+
+
+
 	list = &inode->list;
 	list->length = [dir count];
 	list->inodes = [self allocInodeList: list->length];
