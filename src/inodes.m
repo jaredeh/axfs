@@ -157,7 +157,7 @@ static int InodeNameComp(const void *x, const void *y) {
 
 
 	list = &inode->list;
-	list->length = [dir count];
+	list->length = count;
 	list->inodes = [self allocInodeList: list->length];
 	[paths addPath: inode];
 	return inode;
