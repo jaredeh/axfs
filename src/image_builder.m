@@ -50,7 +50,7 @@
 	actual_offset = [obj fsoffset];
 	padding_size = actual_offset - input_offset;
 
-printf("actual_offset=%d - input_offset=%d",actual_offset ,input_offset);
+	printf("actual_offset=%d - input_offset=%d\n",actual_offset ,input_offset);
 	if (padding_size != 0) {
 		ds = &data_segments[current_segment];
 		current_segment++;
@@ -66,6 +66,8 @@ printf("actual_offset=%d - input_offset=%d",actual_offset ,input_offset);
 	ds->start = actual_offset;
 	ds->size = [obj size];
 	ds->end = ds->start + ds->size;
+	printf("ds[start=%d size=%d end=%d]\n",ds->start,ds->size,ds->end);
+
 }
 
 -(void) hashImage {
@@ -74,16 +76,21 @@ printf("actual_offset=%d - input_offset=%d",actual_offset ,input_offset);
 
 -(void) writeFile: (char *) filename size: (uint64_t) filesize fsoffset: (uint64_t *) offset {
 	NSFileHandle *file;
-	NSString *path = [NSString stringWithUTF8String: filename];
+	NSString *path;
 	NSMutableData *buffer;
 	uint64_t data_written = 0;
 	int i = 0;
 
-	file = [NSFileHandle fileHandleForUpdatingAtPath: path];
-
-	if (file == nil) {
-		[NSException raise: @"Bad file" format: @"Failed to open file at path=%@ from %@", filename, [[NSFileManager defaultManager] currentDirectoryPath]];
+	if (filename == NULL) {
+		[NSException raise: @"Bad file" format: @"-- filename is NULL"];
 	}
+
+	path = [NSString stringWithUTF8String: filename];
+
+	[[NSFileManager defaultManager] createFileAtPath: path contents: nil attributes: nil];
+	file = [NSFileHandle fileHandleForUpdatingAtPath: path];
+	if (file == nil)
+		[NSException raise: @"Bad file" format: @" -- Failed to open file at path=%@", path];
 
 	while (data_written < filesize) {
 		uint64_t bytes_to_write;
@@ -113,9 +120,9 @@ printf("actual_offset=%d - input_offset=%d",actual_offset ,input_offset);
 
 		buffer = [NSMutableData dataWithBytes: d_ptr length: bytes_to_write];
 		data_written += bytes_to_write;
+
 		[file writeData: buffer];
 	}
-
 	[file closeFile];
 	*offset += data_written;
 }
@@ -154,7 +161,7 @@ printf("actual_offset=%d - input_offset=%d",actual_offset ,input_offset);
 	[self buildPart: aobj.byte_aligned];
 	[self buildPart: aobj.compressed];
 
-	acfg.real_imagesize = data_segments[current_segment].end;
+	acfg.real_imagesize = data_segments[current_segment-1].end;
 
 	data_segments[0].data = [sb data];
 	[self hashImage];
@@ -172,17 +179,13 @@ printf("actual_offset=%d - input_offset=%d",actual_offset ,input_offset);
 
 	if (offset != acfg.real_imagesize)
 		[NSException raise: @"Write incomplete" format: @"offset != acfg.real_imagesize %d != %d",offset,acfg.real_imagesize];
-
 }
 
 -(void) sizeup {
 	aobj.dirwalker = [[DirWalker alloc] init];
 	dw = aobj.dirwalker;
-	printf("foo	1\n");
 	[dw size_up_dir];
-	printf("foo 2\n");
 	[dw printstats];
-	printf("foo 3\n");
 }
 
 -(void) walk {

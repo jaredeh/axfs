@@ -25,6 +25,7 @@ task :all do
   sh "make -C #{rootdir}/rb_tree lib"
   sh "make -C #{rootdir}/squashfs_compressor lib"
   sh "make -C #{rootdir}/yaml; mv #{rootdir}/yaml/src/.libs/libyaml.a #{rootdir}/yaml/libyamlaxfs.a"
+  sh "make -C #{rootdir}/libtomcrypt"
   sh "git rev-parse HEAD > git_rev"
 end
 
@@ -32,6 +33,7 @@ task :clobber do
   cd rootdir
   sh "make -C #{rootdir}/squashfs_compressor clobber"
   sh "make -C #{rootdir}/rb_tree clobber"
+  sh "make -C #{rootdir}/libtomcrypt clean"
   if File.exists?("#{rootdir}/yaml/Makefile")
     sh "make -C #{rootdir}/yaml distclean"
     rm_rf "#{rootdir}/yaml/libyamlaxfs.a"

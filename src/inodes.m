@@ -245,6 +245,12 @@ static int InodeNameComp(const void *x, const void *y) {
 	strings = [[Strings alloc] init];
 	modes = [[Modes alloc] init];
 
+	fileSizeIndex = [[ByteTable alloc] init];
+	nameOffset = [[ByteTable alloc] init];
+	numEntriescblockOffset = [[ByteTable alloc] init];
+	modeIndex = [[ByteTable alloc] init];
+	arrayIndex = [[ByteTable alloc] init];
+
 	return self;
 }
 

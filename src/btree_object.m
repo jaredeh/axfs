@@ -61,7 +61,9 @@ static void InfoDestFunc(void *a){;}
 }
 
 -(void) fsoffset: (uint64_t) offset {
+	printf("1offset=%d fsoffset=%d fsalign=%d\n",offset,fsoffset,fsalign);
 	fsoffset = [self alignNumber: offset bytes: fsalign];
+	printf("2offset=%d fsoffset=%d fsalign=%d\n",offset,fsoffset,fsalign);
 }
 
 -(uint64_t) fsoffset {

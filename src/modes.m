@@ -83,7 +83,12 @@ static int ModesComp(const void* av, const void* bv)
 		uint64_t len;
 		len = sizeof(struct mode_struct) * (acfg.max_number_files + 1);
 		[self configureDataStruct: &modes length: len];
-	} 
+	}
+
+	modesTable = [[ByteTable alloc] init];
+	uids = [[ByteTable alloc] init];
+	gids = [[ByteTable alloc] init];
+
 	return self;
 }
 

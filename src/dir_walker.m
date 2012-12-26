@@ -107,6 +107,11 @@ NSFileTypeUnknown;
 		printf("path:'%s'\n",[path UTF8String]);
 		printf("  file name: '%s' type: '%s' size: '%i'\n", name, [[attribs objectForKey:NSFileType] UTF8String], (int) ddsize);
 	}
+
+	if ([fm changeCurrentDirectoryPath: original_path] == NO) {
+		NSLog(@"Couldn't chdir() to %@ from %@",original_path,rootpath);
+		return;
+	}
 }
 
 -(void) printstats {

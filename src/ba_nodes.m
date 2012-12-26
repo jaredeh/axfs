@@ -30,7 +30,7 @@
 -(id) init {
 	if (!(self = [super init]))
 		return self;
-
+	banodeOffset = [[ByteTable alloc] init];
 	return self;
 }
 
