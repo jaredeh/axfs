@@ -7,7 +7,7 @@
 
 struct bytetable_value {
 	uint64_t datum;
-	rb_red_blk_node rb_node;
+	struct bytetable_value *next;
 };
 
 @interface ByteTable: CompressibleObject {
