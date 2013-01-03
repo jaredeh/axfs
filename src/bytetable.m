@@ -13,28 +13,6 @@ int ByteTableComp(const void* av, const void* bv)
 	return 0;
 }
 
-void BTPrintFunc (const void* a)
-{
-	struct bytetable_value *abt = (struct bytetable_value *) a;
-	if (abt == NULL) {
-		printf("abt == NULL");
-		return;
-	}
-
-	printf("abt->datum=0x%08llX",(unsigned long long)abt->datum);
-}
-
-void BTProcess(void *key)
-{
-	struct bytetable_value *abt = (struct bytetable_value *) key;
-	if (abt == NULL) {
-		printf("abt == NULL");
-		return;
-	}
-
-	printf("abt->datum=0x%08llX",(unsigned long long)abt->datum);
-}
-
 @implementation ByteTable
 
 -(void) checkDepth: (uint64_t) datum depth: (uint8_t *) i {
@@ -80,9 +58,9 @@ void BTProcess(void *key)
 	}
 }
 
--(struct bytetable_value *) allocByteTableValue: (struct data_struct *) bt {
+-(struct bytetable_value *) allocByteTableValue {
 	uint64_t d = sizeof(struct bytetable_value);
-	return (struct bytetable_value *) [self allocData: bt chunksize: d];
+	return (struct bytetable_value *) [self allocData: &bytetable chunksize: d];
 }
 
 -(void) numberEntries: (uint64_t) entries dedup: (bool) dedup {
@@ -91,6 +69,15 @@ void BTProcess(void *key)
 	deduped = dedup;
 	len = sizeof(struct bytetable_value) * (entries + 1);
 	[self configureDataStruct: &bytetable length: len];
+	if (deduped) {
+		len = sizeof(*hashtable) * AXFS_BYTETABLE_HASHTABLE_SIZE;
+		[self configureDataStruct: &hashablestruct length: len];
+		hashtable = hashablestruct.data;
+	}
+}
+
+-(uint64_t) hash: (uint64_t) datum {
+	return datum % AXFS_BYTETABLE_HASHTABLE_SIZE;
 }
 
 -(uint64_t) length {
@@ -102,32 +89,48 @@ void BTProcess(void *key)
 	return size;
 }
 
--(void *) add: (uint64_t) datum {
-	struct bytetable_value temp;
+-(void *) allocForAdd: (uint64_t) datum {
 	struct bytetable_value *new_value;
-	rb_red_blk_node *rb_node;
 
-	printf("bytetable add: %i\n", (int)datum);
-	if (deduped) {
-		memset(&temp,0,sizeof(temp));
-		temp.datum = datum;
-		temp.rb_node.key = (void *)&temp;
-
-		rb_node = RBExactQuery(tree,(void *)&temp);
-		if (rb_node)
-			return rb_node->key;
-	}
-
-	new_value = [self allocByteTableValue: &bytetable];
+	new_value = [self allocByteTableValue];
 	memset(new_value,0,sizeof(*new_value));
 	new_value->datum = datum;
-	new_value->rb_node.key = (void *)new_value;
-	rb_node = &new_value->rb_node;
-	if (deduped)
-		RBTreeInsert(rb_node,tree,(void *)new_value,0);
 	[self checkDepth: datum depth: &depth];
+	new_value->index = length;
 	length += 1;
-	return rb_node->key;
+	return new_value;
+}
+
+-(void *) add: (uint64_t) datum {
+	struct bytetable_value *list;
+	struct bytetable_value *new_value;
+	uint64_t hash;
+
+//	printf("bytetable add: %i\n", (int)datum);
+	if (!deduped) {
+		return [self allocForAdd: datum];
+	}
+
+	hash = [self hash: datum];
+
+	if (hashtable[hash] == NULL) {
+		new_value = [self allocForAdd: datum];
+		hashtable[hash] = new_value;
+		return new_value;
+	}
+
+	list = hashtable[hash];
+	while(true) {
+		if (list->datum == datum) {
+			return list;
+		}
+		if (list->next == NULL) {
+			new_value = [self allocForAdd: datum];
+			list->next = new_value;
+			return new_value;
+		}
+		list = list->next;
+	}
 }
 
 -(void *) data {
@@ -156,8 +159,6 @@ void BTProcess(void *key)
 }
 
 -(id) init {
-	CompFunc = ByteTableComp;
-	PrintFunc = BTPrintFunc;
 	if (!(self = [super init]))
 		return self;
 
@@ -171,6 +172,8 @@ void BTProcess(void *key)
 	[super free];
 
 	free(bytetable.data);
+	if (hashtable != NULL)
+		free(hashtable);
 	if (data != NULL)
 		free(data);
 	if (cdata != NULL)

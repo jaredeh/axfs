@@ -179,8 +179,6 @@ static void Bytetable_add_a_size(CuTest *tc, uint64_t *inputs, uint64_t *outputs
 	outputs[3] = [bt length];
 	outputs[4] = [bt size];
 
-	[bt inorderTree: BTProcess];
-	printf("\n");
 	[bt free];
 	[bt release];
 }

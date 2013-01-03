@@ -5,19 +5,24 @@
 #import "compressible_object.h"
 #import "region.h"
 
+#define AXFS_BYTETABLE_HASHTABLE_SIZE 65535
+
 struct bytetable_value {
 	uint64_t datum;
+	uint64_t index;
 	struct bytetable_value *next;
 };
 
 @interface ByteTable: CompressibleObject {
 	uint8_t depth;
 	uint64_t length;
+	struct bytetable_value **hashtable;
 	struct data_struct bytetable;
+	struct data_struct hashablestruct;
 	bool deduped;
 }
 -(void) checkDepth: (uint64_t) datum depth: (uint8_t *) depth;
--(struct bytetable_value *) allocByteTableValue: (struct data_struct *) bt;
+-(struct bytetable_value *) allocByteTableValue;
 -(void) numberEntries: (uint64_t) entries dedup: (bool) dedup;
 -(uint64_t) length;
 -(uint64_t) size;
