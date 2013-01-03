@@ -20,7 +20,7 @@ extern struct axfs_objects aobj;
 	struct axfs_super_onmedia *sb;
 }
 -(id) init;
--(void) do_digest;
+-(void) do_digest: (unsigned char *) hash;
 /* Identifies type of compression used on FS */
 -(void) do_compression_type;
 /* UNIX time_t of filesystem build time */

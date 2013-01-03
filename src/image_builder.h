@@ -7,6 +7,7 @@
 #import "astrings.h"
 #import "nodes.h"
 #import "inodes.h"
+#import "tomcrypt.h"
 
 //20 unique segments of data, assume each could have padding
 #define AXFS_MAX_DATASSEGMENTS 40

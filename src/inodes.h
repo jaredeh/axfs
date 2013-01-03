@@ -69,5 +69,6 @@ struct paths_struct {
 -(id) numEntriescblockOffset;
 -(id) modeIndex;
 -(id) arrayIndex;
+-(void *) data;
 -(void) free;
 @end

@@ -50,7 +50,7 @@
 	actual_offset = [obj fsoffset];
 	padding_size = actual_offset - input_offset;
 
-	printf("actual_offset=%d - input_offset=%d\n",actual_offset ,input_offset);
+	//printf("actual_offset=%d - input_offset=%d\n",(int)actual_offset ,(int)input_offset);
 	if (padding_size != 0) {
 		ds = &data_segments[current_segment];
 		current_segment++;
@@ -66,12 +66,32 @@
 	ds->start = actual_offset;
 	ds->size = [obj size];
 	ds->end = ds->start + ds->size;
-	printf("ds[start=%d size=%d end=%d]\n",ds->start,ds->size,ds->end);
+	//printf("ds[start=%d size=%d end=%d]\n",(int)ds->start,(int)ds->size,(int)ds->end);
 
 }
 
 -(void) hashImage {
+	hash_state md;
+	int i = 0;
+	unsigned char *d;
+	unsigned long len;
+	unsigned char hash[40];
 
+	memset(hash,0,40);
+
+	sha1_init(&md);
+
+	while (i < AXFS_MAX_DATASSEGMENTS) {
+		d = (unsigned char *)data_segments[i].data;
+		len = (unsigned long)data_segments[i].size;
+		if (d == NULL)
+			break;
+		if (len != 0)
+			sha1_process(&md, d, len);
+		i++;
+	}
+	sha1_done(&md, hash);
+	[sb do_digest: hash];
 }
 
 -(void) writeFile: (char *) filename size: (uint64_t) filesize fsoffset: (uint64_t *) offset {
@@ -137,6 +157,8 @@
 	[aobj.strings data];
 	[aobj.byte_aligned data];
 	[aobj.compressed data];
+	[aobj.inodes data];
+	[aobj.modes data];
 
 	data_segments[0].start = 0;
 	data_segments[0].size = [sb size];

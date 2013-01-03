@@ -177,22 +177,28 @@ void TreeInsertHelp(rb_red_blk_tree* tree, rb_red_blk_node* z) {
   rb_red_blk_node* y;
   rb_red_blk_node* nild=tree->nild;
   
+  printf("TreeInsertHelp\n");
   z->left=z->right=nild;
   y=tree->root;
   x=tree->root->left;
   while( x != nild) {
+    printf("TreeInsertHelp 1\n");
     y=x;
     if (1 == tree->Compare(x->key,z->key)) { /* x.key > z.key */
+          printf("TreeInsertHelp 2\n");
       x=x->left;
     } else { /* x,key <= z.key */
+          printf("TreeInsertHelp 3\n");
       x=x->right;
     }
   }
   z->parent=y;
   if ( (y == tree->root) ||
        (1 == tree->Compare(y->key,z->key))) { /* y.key > z.key */
+        printf("TreeInsertHelp 4\n");
     y->left=z;
   } else {
+            printf("TreeInsertHelp 5\n");
     y->right=z;
   }
 
@@ -227,6 +233,7 @@ void RBTreeInsert(rb_red_blk_node * x, rb_red_blk_tree* tree, void* key, void* i
   x->key=key;
   x->info=info;
 
+  printf("RBTreeInsert\n");
   TreeInsertHelp(tree,x);
   x->red=1;
   while(x->parent->red) { /* use sentinel instead of checking for root */
@@ -360,6 +367,7 @@ rb_red_blk_node* TreePredecessor(rb_red_blk_tree* tree, rb_red_blk_node* x) {
 void InorderTreePrint(rb_red_blk_tree* tree, rb_red_blk_node* x) {
   rb_red_blk_node* nild=tree->nild;
   rb_red_blk_node* root=tree->root;
+  printf("InorderTreePrint\n");
   if (x != tree->nild) {
     InorderTreePrint(tree,x->left);
     printf("info=");
@@ -439,7 +447,8 @@ void RBTreeDestroy(rb_red_blk_tree* tree) {
 /***********************************************************************/
 
 void RBTreePrint(rb_red_blk_tree* tree) {
-  InorderTreePrint(tree,tree->root->left);
+  printf("RBTreePrint\n");
+  InorderTreePrint(tree,tree->root);
 }
 
 

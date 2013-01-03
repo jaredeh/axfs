@@ -179,6 +179,8 @@ static int InodeNameComp(const void *x, const void *y) {
 	struct inode_struct *inode;
 	NSDictionary *attribs;
 
+	printf("inodes addInode='%s'\n",[path UTF8String]);
+
 	attribs = [[NSFileManager alloc] attributesOfItemAtPath: path error: nil];
 	name = [path lastPathComponent];
 	inode = [self allocInodeStruct];
@@ -225,6 +227,10 @@ static int InodeNameComp(const void *x, const void *y) {
 
 -(id) arrayIndex {
 	return arrayIndex;
+}
+
+-(void *) data {
+	return NULL;
 }
 
 -(id) init {

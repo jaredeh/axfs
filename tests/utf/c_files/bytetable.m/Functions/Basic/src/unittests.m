@@ -179,6 +179,8 @@ static void Bytetable_add_a_size(CuTest *tc, uint64_t *inputs, uint64_t *outputs
 	outputs[3] = [bt length];
 	outputs[4] = [bt size];
 
+	[bt inorderTree: BTProcess];
+	printf("\n");
 	[bt free];
 	[bt release];
 }
@@ -385,6 +387,7 @@ static void Bytetable_depdup(CuTest *tc)
 	CuAssertHexEquals(tc, expected, outputs[2] );
 	CuAssertIntEquals(tc, length, outputs[3] );
 	CuAssertIntEquals(tc, size, outputs[4] );
+
 }
 
 static void Bytetable_simpledata(CuTest *tc)

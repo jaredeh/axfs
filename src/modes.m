@@ -25,6 +25,23 @@ static int ModesComp(const void* av, const void* bv)
 	return ModesCompHelper((uint64_t) a->uid, (uint64_t) b->uid);
 }
 
+static void ModesProcess(void *key)
+{
+	struct mode_struct *m = (struct mode_struct *) key;
+	ByteTable *bt;
+
+	printf("ModesProcess\n");
+	if (m == NULL)
+		return;
+	printf("mode=%i uid=%i gid =%i\n",(int)m->mode,(int)m->uid,(int)m->gid);
+	bt = [aobj.modes modesTable];
+	[bt add: m->mode];
+	bt = [aobj.modes uids];
+	[bt add: m->uid];
+	bt = [aobj.modes gids];
+	[bt add: m->gid];
+}
+
 @implementation Modes
 
 -(struct mode_struct *) allocModeStruct {
@@ -40,6 +57,7 @@ static int ModesComp(const void* av, const void* bv)
 	uint32_t uid;
 	uint16_t mode;
 
+	printf("modes addMode\n");
 	memset(&temp,0,sizeof(temp));
 	gid = (uint32_t)[[attribs objectForKey:NSFileGroupOwnerAccountID] unsignedLongValue];
 	uid = (uint32_t)[[attribs objectForKey:NSFileOwnerAccountID] unsignedLongValue];
@@ -48,8 +66,10 @@ static int ModesComp(const void* av, const void* bv)
 	temp.uid = uid;
 	temp.mode = mode;
 	rb_node = RBExactQuery(tree,(void *)&temp);
-	if (rb_node)
+	if (rb_node) {
+		printf("found\n");
 		return rb_node->key;
+	}
 	new_mode = [self allocModeStruct];
 	new_mode->gid = gid;
 	new_mode->uid = uid;
@@ -58,6 +78,7 @@ static int ModesComp(const void* av, const void* bv)
 	rb_node = &new_mode->rb_node;
 	RBTreeInsert(rb_node,tree,(void *)new_mode,0);
 
+	printf("new\n");
 	return rb_node->key;
 }
 
@@ -75,6 +96,12 @@ static int ModesComp(const void* av, const void* bv)
 
 -(id) gids {
 	return gids;
+}
+
+-(void *) data {
+	printf("modes data\n");
+	[self inorderTree: ModesProcess];
+	return NULL;
 }
 
 -(id) init {

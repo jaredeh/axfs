@@ -13,6 +13,28 @@ int ByteTableComp(const void* av, const void* bv)
 	return 0;
 }
 
+void BTPrintFunc (const void* a)
+{
+	struct bytetable_value *abt = (struct bytetable_value *) a;
+	if (abt == NULL) {
+		printf("abt == NULL");
+		return;
+	}
+
+	printf("abt->datum=0x%08llX",(unsigned long long)abt->datum);
+}
+
+void BTProcess(void *key)
+{
+	struct bytetable_value *abt = (struct bytetable_value *) key;
+	if (abt == NULL) {
+		printf("abt == NULL");
+		return;
+	}
+
+	printf("abt->datum=0x%08llX",(unsigned long long)abt->datum);
+}
+
 @implementation ByteTable
 
 -(void) checkDepth: (uint64_t) datum depth: (uint8_t *) i {
@@ -85,6 +107,7 @@ int ByteTableComp(const void* av, const void* bv)
 	struct bytetable_value *new_value;
 	rb_red_blk_node *rb_node;
 
+	printf("bytetable add: %i\n", (int)datum);
 	if (deduped) {
 		memset(&temp,0,sizeof(temp));
 		temp.datum = datum;
@@ -134,6 +157,7 @@ int ByteTableComp(const void* av, const void* bv)
 
 -(id) init {
 	CompFunc = ByteTableComp;
+	PrintFunc = BTPrintFunc;
 	if (!(self = [super init]))
 		return self;
 

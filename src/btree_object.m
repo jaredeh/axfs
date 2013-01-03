@@ -2,9 +2,9 @@
 
 static void DestFunc(void* a) {;}
 
-static void PrintFunc(const void* a) {
-	printf("%i",*(int*)a);
-}
+//static void PrintFunc(const void* a) {
+//	printf("%i",a);
+//}
 
 static void PrintInfo(void* a) {;}
 
@@ -24,12 +24,52 @@ static void InfoDestFunc(void *a){;}
 	return retval;
 }
 
+-(void) inorderTree: (InorderProcessFuncType) p {
+	printf("START inorderTree\n");
+	RBTreePrint(tree);
+	[self inorderTreeProcess: tree->root->left processor: p];
+	printf("END inorderTree\n");
+}
+
+-(void) inorderTreeProcess: (rb_red_blk_node*) x processor: (InorderProcessFuncType) p {
+	printf("inorderTreeProcess: x=0x%08llx t=0x%08llx n=0x%08llx r=0x%08llx\n",(unsigned long long)x,(unsigned long long)tree,(unsigned long long)nild,(unsigned long long)root);
+
+	if (x == nild)
+		return;
+	if (x == NULL)
+		return;
+
+	printf("-->");
+	p(x->key);
+	printf("<--\n");
+
+	//printf("<--left\n");
+	[self inorderTreeProcess: x->left processor: p];
+	/*
+	printf("info=");
+	tree->PrintInfo(x->info);
+	printf("  key="); 
+	tree->PrintKey(x->key);
+	printf("  l->key=");
+	if( x->left == nild) printf("NULL"); else tree->PrintKey(x->left->key);
+	printf("  r->key=");
+	if( x->right == nild) printf("NULL"); else tree->PrintKey(x->right->key);
+	printf("  p->key=");
+	if( x->parent == root) printf("NULL"); else tree->PrintKey(x->parent->key);
+	printf("  red=%i\n",x->red);
+	*/
+	//printf("right-->\n");
+	[self inorderTreeProcess: x->right processor: p];
+	//printf("}\n");
+}
+
 -(void) configureRBtree {
-	rb_red_blk_node *nild;
 	nild = malloc(sizeof(*nild));
 	tree = malloc(sizeof(*tree));
+	root = malloc(sizeof(*root));
 	memset(nild,0,sizeof(*nild));
 	memset(tree,0,sizeof(*tree));
+	memset(root,0,sizeof(*root));
 	RBTreeCreate(tree, nild, NULL, CompFunc, DestFunc, InfoDestFunc,
 		     PrintFunc, PrintInfo);
 }
@@ -48,7 +88,7 @@ static void InfoDestFunc(void *a){;}
 	ds->total = len;
 }
 
--(uint64_t) depth {
+-(uint8_t) depth {
 	return 0;
 }
 
@@ -61,9 +101,9 @@ static void InfoDestFunc(void *a){;}
 }
 
 -(void) fsoffset: (uint64_t) offset {
-	printf("1offset=%d fsoffset=%d fsalign=%d\n",offset,fsoffset,fsalign);
+	//printf("1offset=%d fsoffset=%d fsalign=%d\n",(int)offset,(int)fsoffset,(int)fsalign);
 	fsoffset = [self alignNumber: offset bytes: fsalign];
-	printf("2offset=%d fsoffset=%d fsalign=%d\n",offset,fsoffset,fsalign);
+	//printf("2offset=%d fsoffset=%d fsalign=%d\n",(int)offset,(int)fsoffset,(int)fsalign);
 }
 
 -(uint64_t) fsoffset {

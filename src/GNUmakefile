@@ -25,10 +25,10 @@ mkfs.axfs_OBJC_FILES = astrings.m \
                        region.m \
                        super.m
 
-INC = -I ../libs/rb_tree/  -I ./
-LIBDIRS = -L ../libs/rb_tree -L ../libs/squashfs_compressor 
-LIBS = -l rb_tree -l squashfs_compressor
-
+INC = -I ../libs/rb_tree/ -I ../libs/libtomcrypt/src/headers/ -I ./
+LIBDIRS = -L ../libs/rb_tree -L ../libs/squashfs_compressor -L ../libs/libtomcrypt
+LIBS = -l rb_tree -l squashfs_compressor -l tomcrypt
+CFLAGS = -g
 ifeq ($(firstword $(shell uname -a)),Linux)
 
 GNUSTEP_MAKEFILES=/usr/share/GNUstep/Makefiles/
@@ -47,7 +47,7 @@ OBJ = $(subst .m,.o,$(mkfs.axfs_OBJC_FILES))
 	$(CC) $(INC) $(CFLAGS) -c -o $@ $<
 
 all: $(OBJ)
-	$(CC) -o $(TOOL_NAME) $(OBJ) $(LIBDIRS) $(LIBS) -framework Foundation
+	$(CC) $(CFLAGS) -o $(TOOL_NAME) $(OBJ) $(LIBDIRS) $(LIBS) -framework Foundation
 
 endif
 

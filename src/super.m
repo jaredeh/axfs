@@ -23,7 +23,8 @@
 }
 
 /* sha1 digest for checking data integrity */
--(void) do_digest {
+-(void) do_digest: (unsigned char *) hash {
+	memcpy((void *)sb->digest,(void *)hash,40);
 }
 
 /* Identifies type of compression used on FS */
@@ -54,7 +55,6 @@
 	[self do_magic];
 
 	memcpy(sb->signature, AXFS_SIGNATURE, strlen(AXFS_SIGNATURE));
-	[self do_digest];
 
 	[self bigEndian64: acfg.block_size ptr: &sb->cblock_size];
 	[self bigEndian64: acfg.real_number_files ptr: &sb->files];
