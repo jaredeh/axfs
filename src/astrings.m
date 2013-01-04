@@ -1,5 +1,6 @@
 #import "astrings.h"
 
+
 static int StringsComp(const void* av, const void* bv)
 {
 	struct string_struct * a = (struct string_struct *)av;
@@ -27,30 +28,67 @@ static int StringsComp(const void* av, const void* bv)
 }
 
 -(void) populate: (struct string_struct *) str data: (void *) data_ptr length: (uint64_t) len {
-	void *d;
-	d = [self allocStringData: len];
-	str->data = d;
-	memcpy(str->data, data_ptr, len);
-	str->length = len;
-	str->rb_node.key = (void *)str;
+
+}
+
+-(uint64_t) hash: (struct string_struct *) temp {
+	uint64_t hash = 0;
+	uint8_t *str;
+	str = (uint8_t *) temp->data;
+
+	for (int i=0;i<temp->length;i++){
+		hash += str[i];
+	}
+
+	return hash % hashlen;
+}
+
+
+-(void *) allocForAdd: (struct string_struct *) temp {
+	struct string_struct *new_value;
+
+	new_value = [self allocStringStruct];
+	new_value->data = [self allocStringData: temp->length];
+
+	memcpy(new_value->data, temp->data, temp->length);
+	new_value->length = temp->length;
+	return new_value;
 }
 
 -(void *) addString: (void *) data_ptr length: (uint64_t) len {
 	struct string_struct temp;
-	struct string_struct *new_string;
-	rb_red_blk_node *rb_node;
+	struct string_struct *new_value;
+	struct string_struct *list;
+	uint64_t hash;
+
 	memset(&temp,0,sizeof(temp));
 	temp.data = data_ptr;
 	temp.length = len;
-	rb_node = RBExactQuery(tree,(void *)&temp);
-	if (rb_node)
-		return rb_node->key;
-	new_string = [self allocStringStruct];
-	[self populate: new_string data: data_ptr length: len];
-	rb_node = &new_string->rb_node;
-	RBTreeInsert(rb_node,tree,(void *)new_string,0);
 
-	return rb_node->key;
+	if (!deduped) {
+		return [self allocForAdd: &temp];
+	}
+
+	hash = [self hash: &temp];
+
+	if (hashtable[hash] == NULL) {
+		new_value = [self allocForAdd: &temp];
+		hashtable[hash] = new_value;
+		return new_value;
+	}
+
+	list = hashtable[hash];
+	while(true) {
+		if (!StringsComp(list,&temp)) {
+			return list;
+		}
+		if (list->next == NULL) {
+			new_value = [self allocForAdd: &temp];
+			list->next = new_value;
+			return new_value;
+		}
+		list = list->next;
+	}
 }
 
 -(void *) data {
@@ -68,13 +106,15 @@ static int StringsComp(const void* av, const void* bv)
 }
 
 -(id) init {
-	CompFunc = StringsComp;
+	hashlen = AXFS_STRINGS_HASHTABLE_SIZE;
+	if (!(self = [super init]))
+		return self;
 
-	if (self = [super init]) {
-		uint64_t len = sizeof(struct string_struct) * acfg.max_number_files;
-		[self configureDataStruct: &strings length: len];
-		[self configureDataStruct: &data_obj length: acfg.max_text_size];
-	} 
+	uint64_t len = sizeof(struct string_struct) * acfg.max_number_files;
+	[self configureDataStruct: &strings length: len];
+	[self configureDataStruct: &data_obj length: acfg.max_text_size];
+	deduped = true;
+ 
 	return self;
 }
 

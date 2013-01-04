@@ -1,15 +1,16 @@
 #import <Foundation/Foundation.h>
-#import "red_black_tree.h"
 #import "axfs_helper.h"
 #import "compressor.h"
 #import "compressible_object.h"
+
+#define AXFS_STRINGS_HASHTABLE_SIZE 65535
 
 extern struct axfs_config acfg;
 
 struct string_struct {
 	void *data;
 	uint64_t length;
-	rb_red_blk_node rb_node;
+	struct string_struct *next;
 };
 
 @interface Strings: CompressibleObject {
