@@ -69,15 +69,11 @@ int ByteTableComp(const void* av, const void* bv)
 	deduped = dedup;
 	len = sizeof(struct bytetable_value) * (entries + 1);
 	[self configureDataStruct: &bytetable length: len];
-	if (deduped) {
-		len = sizeof(*hashtable) * AXFS_BYTETABLE_HASHTABLE_SIZE;
-		[self configureDataStruct: &hashablestruct length: len];
-		hashtable = hashablestruct.data;
-	}
+
 }
 
 -(uint64_t) hash: (uint64_t) datum {
-	return datum % AXFS_BYTETABLE_HASHTABLE_SIZE;
+	return datum % hashlen;
 }
 
 -(uint64_t) length {
@@ -98,7 +94,7 @@ int ByteTableComp(const void* av, const void* bv)
 	[self checkDepth: datum depth: &depth];
 	new_value->index = length;
 	length += 1;
-	return new_value;
+	return (void *) new_value;
 }
 
 -(void *) add: (uint64_t) datum {
@@ -159,6 +155,8 @@ int ByteTableComp(const void* av, const void* bv)
 }
 
 -(id) init {
+	hashlen = AXFS_BYTETABLE_HASHTABLE_SIZE;
+
 	if (!(self = [super init]))
 		return self;
 
@@ -172,8 +170,6 @@ int ByteTableComp(const void* av, const void* bv)
 	[super free];
 
 	free(bytetable.data);
-	if (hashtable != NULL)
-		free(hashtable);
 	if (data != NULL)
 		free(data);
 	if (cdata != NULL)

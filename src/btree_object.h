@@ -10,6 +10,10 @@ extern struct axfs_config acfg;
 	uint64_t fsoffset;
 	uint64_t fsalign;
 	uint64_t fspadding;
+	struct data_struct hashablestruct;
+	void **hashtable;
+	uint64_t hashlen;
+	bool deduped;
 }
 -(void *) allocData: (struct data_struct *) ds chunksize: (uint64_t) chunksize;
 -(void) configureDataStruct: (struct data_struct *) ds length: (uint64_t) len;

@@ -1,5 +1,4 @@
 #import <Foundation/Foundation.h>
-#import "red_black_tree.h"
 #import "btree_object.h"
 #import "axfs_helper.h"
 #import "axfs_objects.h"
@@ -8,11 +7,13 @@
 extern struct axfs_config acfg;
 extern struct axfs_objects aobj;
 
+#define AXFS_MODES_HASHTABLE_SIZE 65535
+
 struct mode_struct {
 	uint32_t gid;
 	uint32_t uid;
 	uint16_t mode;
-	rb_red_blk_node rb_node;
+	struct mode_struct *next;
 };
 
 @interface Modes: BtreeObject {

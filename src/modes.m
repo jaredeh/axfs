@@ -1,5 +1,6 @@
 #import "modes.h"
 
+/*
 static int ModesCompHelper(uint64_t a, uint64_t b) {
 	if (a > b)
 		return 1;
@@ -24,23 +25,7 @@ static int ModesComp(const void* av, const void* bv)
 
 	return ModesCompHelper((uint64_t) a->uid, (uint64_t) b->uid);
 }
-
-static void ModesProcess(void *key)
-{
-	struct mode_struct *m = (struct mode_struct *) key;
-	ByteTable *bt;
-
-	printf("ModesProcess\n");
-	if (m == NULL)
-		return;
-	printf("mode=%i uid=%i gid =%i\n",(int)m->mode,(int)m->uid,(int)m->gid);
-	bt = [aobj.modes modesTable];
-	[bt add: m->mode];
-	bt = [aobj.modes uids];
-	[bt add: m->uid];
-	bt = [aobj.modes gids];
-	[bt add: m->gid];
-}
+*/
 
 @implementation Modes
 
@@ -49,15 +34,36 @@ static void ModesProcess(void *key)
 	return (struct mode_struct *) [self allocData: &modes chunksize: d];
 }
 
+-(uint64_t) hash: (struct mode_struct *) temp {
+	uint64_t hash;
+
+	hash = temp->gid;
+	hash = hash << 32;
+	hash += temp->uid;
+	hash += temp->mode;
+
+	return hash % hashlen;
+}
+
+-(void *) allocForAdd: (struct mode_struct *) temp {
+	struct mode_struct *new_mode;
+	
+	new_mode = [self allocModeStruct];
+	new_mode->gid = temp->gid;
+	new_mode->uid = temp->uid;
+	new_mode->mode = temp->mode;
+	return new_mode;
+}
+
 -(void *) addMode: (NSDictionary *) attribs {
 	struct mode_struct temp;
-	struct mode_struct *new_mode;
-	rb_red_blk_node *rb_node;
+	struct mode_struct *new_value;
+	struct mode_struct *list;
+	uint64_t hash;
 	uint32_t gid;
 	uint32_t uid;
 	uint16_t mode;
 
-	printf("modes addMode\n");
 	memset(&temp,0,sizeof(temp));
 	gid = (uint32_t)[[attribs objectForKey:NSFileGroupOwnerAccountID] unsignedLongValue];
 	uid = (uint32_t)[[attribs objectForKey:NSFileOwnerAccountID] unsignedLongValue];
@@ -65,21 +71,31 @@ static void ModesProcess(void *key)
 	temp.gid = gid;
 	temp.uid = uid;
 	temp.mode = mode;
-	rb_node = RBExactQuery(tree,(void *)&temp);
-	if (rb_node) {
-		printf("found\n");
-		return rb_node->key;
-	}
-	new_mode = [self allocModeStruct];
-	new_mode->gid = gid;
-	new_mode->uid = uid;
-	new_mode->mode = mode;
-	new_mode->rb_node.key = (void *) new_mode;
-	rb_node = &new_mode->rb_node;
-	RBTreeInsert(rb_node,tree,(void *)new_mode,0);
 
-	printf("new\n");
-	return rb_node->key;
+	if (!deduped) {
+		return [self allocForAdd: &temp];
+	}
+
+	hash = [self hash: &temp];
+
+	if (hashtable[hash] == NULL) {
+		new_value = [self allocForAdd: &temp];
+		hashtable[hash] = new_value;
+		return new_value;
+	}
+
+	list = hashtable[hash];
+	while(true) {
+		if ((list->gid == gid)&&(list->uid == uid)&&(list->mode == mode)){
+			return list;
+		}
+		if (list->next == NULL) {
+			new_value = [self allocForAdd: &temp];
+			list->next = new_value;
+			return new_value;
+		}
+		list = list->next;
+	}
 }
 
 -(uint64_t) length {
@@ -98,19 +114,43 @@ static void ModesProcess(void *key)
 	return gids;
 }
 
+-(void) split: (struct mode_struct *) mode {
+	ByteTable *bt;
+
+	printf("split\n");
+	if (mode == NULL)
+		return;
+	printf("mode=%i uid=%i gid =%i\n",(int)mode->mode,(int)mode->uid,(int)mode->gid);
+	bt = [aobj.modes modesTable];
+	[bt add: mode->mode];
+	bt = [aobj.modes uids];
+	[bt add: mode->uid];
+	bt = [aobj.modes gids];
+	[bt add: mode->gid];
+}
+
 -(void *) data {
+	struct mode_struct *m;
+	uint64_t i=0;
 	printf("modes data\n");
-	[self inorderTree: ModesProcess];
+	m = modes.data;
+	while(i<modes.place) {
+		[self split: &m[i]];
+		i++;
+	}
 	return NULL;
 }
 
 -(id) init {
-	CompFunc = ModesComp;
-	if (self = [super init]) {
-		uint64_t len;
-		len = sizeof(struct mode_struct) * (acfg.max_number_files + 1);
-		[self configureDataStruct: &modes length: len];
-	}
+	uint64_t len;
+	hashlen = AXFS_MODES_HASHTABLE_SIZE;
+
+	if (!(self = [super init]))
+		return self;
+
+	deduped = true;
+	len = sizeof(struct mode_struct) * (acfg.max_number_files + 1);
+	[self configureDataStruct: &modes length: len];
 
 	modesTable = [[ByteTable alloc] init];
 	uids = [[ByteTable alloc] init];

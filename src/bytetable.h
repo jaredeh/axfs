@@ -16,10 +16,7 @@ struct bytetable_value {
 @interface ByteTable: CompressibleObject {
 	uint8_t depth;
 	uint64_t length;
-	struct bytetable_value **hashtable;
 	struct data_struct bytetable;
-	struct data_struct hashablestruct;
-	bool deduped;
 }
 -(void) checkDepth: (uint64_t) datum depth: (uint8_t *) depth;
 -(struct bytetable_value *) allocByteTableValue;

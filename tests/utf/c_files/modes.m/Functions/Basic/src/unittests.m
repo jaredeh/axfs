@@ -5,11 +5,15 @@
 /* Including function under test */
 #include "modes.m"
 #include "btree_object.m"
+#include "compressible_object.m"
+#include "compressor.m"
+#include "bytetable.m"
 #include "region.m"
 
 /****** Test Code ******/
 
 struct axfs_config acfg;
+struct axfs_objects aobj;
 
 NSDictionary *makeattribs(uint32_t igid, uint32_t iuid, uint16_t imode)
 {

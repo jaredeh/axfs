@@ -51,16 +51,28 @@
 }
 
 -(id) init {
+	uint64_t len;
+
 	if (!(self = [super init]))
 		return self;
 
 	region = [[Region alloc] init];
 	[region add: self];
 
+	len = sizeof(*hashtable) * hashlen;
+	if (len > 0) {
+		[self configureDataStruct: &hashablestruct length: len];
+		hashtable = hashablestruct.data;
+	}
+
+	deduped = false;
+
 	return self;
 }
 
 -(void) free {
+	if (hashtable != NULL)
+		free(hashtable);
 }
 
 @end
