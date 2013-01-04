@@ -1,8 +1,9 @@
 #import <Foundation/Foundation.h>
-#import "red_black_tree.h"
 #import "axfs_helper.h"
 #import "btree_object.h"
 #import "compressor.h"
+
+#define AXFS_PAGES_HASHTABLE_SIZE 65535
 
 extern struct axfs_config acfg;
 
@@ -11,7 +12,7 @@ struct page_struct {
 	uint64_t length;
 	void *cdata;
 	uint64_t clength;
-	rb_red_blk_node rb_node;
+	struct page_struct *next;
 };
 
 @interface Pages: BtreeObject {
@@ -24,7 +25,6 @@ struct page_struct {
 -(struct page_struct *) allocPageStruct;
 -(void *) allocPageData;
 -(void *) allocPageCdata;
--(void) populate: (struct page_struct *) page data: (void *) data_ptr length: (uint64_t) len;
 -(void *) addPage: (void *) data_ptr length: (uint64_t) len;
 -(void) free;
 @end
