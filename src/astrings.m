@@ -34,9 +34,10 @@ static int StringsComp(const void* av, const void* bv)
 -(uint64_t) hash: (struct string_struct *) temp {
 	uint64_t hash = 0;
 	uint8_t *str;
+	int i;
 	str = (uint8_t *) temp->data;
 
-	for (int i=0;i<temp->length;i++){
+	for (i=0;i<temp->length;i++){
 		hash += str[i];
 	}
 
