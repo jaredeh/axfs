@@ -14,7 +14,6 @@ int main( int argc, const char *argv[] ) {
 	GetOpts *go;
 
 	go = [[GetOpts alloc] init];
-	[go initialize]; 
 	[go argc: argc argv: (char **) argv];
 	[go free];
 	[go release];

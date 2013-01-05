@@ -8,10 +8,10 @@ class TestOptsValidator < Test::Unit::TestCase
     cmd = File.dirname(File.dirname(__FILE__))
     cmd = File.join(cmd,"./test")
     IO.popen(cmd + " " + arg_str + " 2>&1") { |io| str += io.read }
-    #puts  "<--" + str + "-->"
-    #puts "fafafa--" + cmd + " " + arg_str + " 2>&1 --fafafa"
+    #puts  "<--" + str + "-->\n\n\n"
+    #puts "fafafa--" + cmd + " " + arg_str + " 2>&1 --fafafa\n\n\n"
     a = YAML::load(str)
-    #puts "--[" + a.to_s + "]--"
+    #puts "--[" + a.to_s + "]--\n\n\n"
     if a == nil
       a = Hash.new
       a["opts_validator"] = Hash.new
