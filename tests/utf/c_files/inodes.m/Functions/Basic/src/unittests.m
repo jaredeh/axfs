@@ -9,11 +9,13 @@
 #include "compressor.m"
 #include "compressible_object.m"
 #include "btree_object.m"
+#include "bytetable.m"
 #include "region.m"
 
 /****** Test Code ******/
 
 struct axfs_config acfg;
+struct axfs_objects aobj;
 
 static void Inodes_createdestroy(CuTest *tc)
 {

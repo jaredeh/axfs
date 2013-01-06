@@ -77,6 +77,7 @@ static int InodeNameComp(const void *x, const void *y) {
 
 	directory = [inode->path stringByDeletingLastPathComponent];
 
+	printf("placeInDirectory: '%s'\n",[directory UTF8String]);
 	parent = [paths findParentInodeByPath: directory];
 	if (!parent)
 		return;
@@ -164,8 +165,6 @@ static int InodeNameComp(const void *x, const void *y) {
 		count++;
 	}
 
-
-
 	list = &inode->list;
 	list->length = count;
 	list->inodes = [self allocInodeList: list->length];
@@ -235,7 +234,6 @@ static int InodeNameComp(const void *x, const void *y) {
 
 -(id) init {
 	uint64_t len;
-	CompFunc = InodesComp;
 
 	if (!(self = [super init]))
 		return self;
@@ -306,52 +304,122 @@ static int PathsComp(const void* av, const void* bv)
 	return (struct paths_struct *) [self allocData: &data chunksize: d];
 }
 
+-(uint64_t) hash: (struct paths_struct *) temp {
+	NSString *apath;
+	uint8_t *str;
+	uint64_t len;
+	uint8_t *strhash;
+	uint64_t hash = 0;
+	int i=0;
+	int j=0;
+
+	printf("hash--\n");
+	apath = (NSString *)temp->inode->path;
+	str = (uint8_t *) [apath UTF8String];
+	len = [apath length];
+	strhash = (uint8_t *) &hash;
+
+	while(i<len) {
+		printf("++-hash[]%08llX\n",hash);
+
+		strhash[j] += str[i];
+		j++;
+		if (j>7)
+			j = 0;
+		i++;
+	}
+
+	hash = hash % hashlen;
+	printf("+++-hash[]%08llX\n",hash);
+
+	return hash;
+}
+
+-(void *) allocForAdd: (struct paths_struct *) temp {
+	struct paths_struct *new_value;
+
+	new_value = [self allocPathStruct];
+	new_value->inode = temp->inode;
+	return new_value;
+}
+
 -(void *) addPath: (struct inode_struct *) inode {
 	struct paths_struct temp;
-	struct paths_struct *new_path;
-	rb_red_blk_node *rb_node;
+	struct paths_struct *new_value;
+	struct paths_struct *list;
+	uint64_t hash;
 
 	memset(&temp,0,sizeof(temp));
 	temp.inode = inode;
-	rb_node = RBExactQuery(tree,(void *)&temp);
-	if (rb_node)
-		return rb_node->key;
-	new_path = [self allocPathStruct];
-	new_path->inode = temp.inode;
-	rb_node = &new_path->rb_node;
-	RBTreeInsert(rb_node,tree,(void *)new_path,0);
 
-	return rb_node->key;
+	if (!deduped) {
+		return [self allocForAdd: &temp];
+	}
+
+	hash = [self hash: &temp];
+
+	if (hashtable[hash] == NULL) {
+		new_value = [self allocForAdd: &temp];
+		hashtable[hash] = new_value;
+		return new_value;
+	}
+
+	list = hashtable[hash];
+	while(true) {
+		if (!PathsComp(list,&temp)) {
+			return list;
+		}
+		if (list->next == NULL) {
+			new_value = [self allocForAdd: &temp];
+			list->next = new_value;
+			return new_value;
+		}
+		list = list->next;
+	}
 }
 
 -(void *) findParentInodeByPath: (NSString *) path {
 	struct paths_struct temp;
-	struct paths_struct *parent_paths;
+	struct paths_struct *list;
 	struct inode_struct inode;
 	struct inode_struct *parent;
-	rb_red_blk_node *rb_node;
+	uint64_t hash;
 
 	memset(&temp,0,sizeof(temp));
 	memset(&inode,0,sizeof(inode));
 	inode.path = path;
 	temp.inode = &inode;
-	rb_node = RBExactQuery(tree,(void *)&temp);
-	if (rb_node) {
-		parent_paths = (struct paths_struct *)rb_node->key;
-		parent = parent_paths->inode;
-		return parent;
+
+	hash = [self hash: &temp];
+	printf("-hash[]%08llX\n",hash);
+
+	if (hashtable[hash] == NULL)
+		return NULL;
+
+	list = hashtable[hash];
+	while(true) {
+		if (!PathsComp(list,&temp)) {
+			parent = list->inode;
+			return parent;
+		}
+		if (list->next == NULL) {
+			return NULL;
+		}
+		list = list->next;
 	}
 
-	return NULL;
+
 }
 
 -(id) init {
-	CompFunc = PathsComp;
-	if (self = [super init]) {
-		uint64_t len;
-		len = sizeof(struct paths_struct) * (acfg.max_number_files + 1);
-		[self configureDataStruct: &data length: len];
-	} 
+	uint64_t len;
+	hashlen = AXFS_PATHS_HASHTABLE_SIZE;
+	if (!(self = [super init]))
+		return self;
+
+	len = sizeof(struct paths_struct) * (acfg.max_number_files + 1);
+	[self configureDataStruct: &data length: len];
+
 	return self;
 }
 

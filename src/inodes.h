@@ -1,5 +1,4 @@
 #import <Foundation/Foundation.h>
-#import "red_black_tree.h"
 #import "axfs_helper.h"
 #import "btree_object.h"
 #import "paths.h"
@@ -7,7 +6,11 @@
 #import "astrings.h"
 #include <unistd.h>
 
+#define AXFS_INODES_HASHTABLE_SIZE 65535
+#define AXFS_PATHS_HASHTABLE_SIZE 65535
+
 extern struct axfs_config acfg;
+extern struct axfs_objects aobj;
 
 struct entry_list {
 	struct inode_struct **inodes;
@@ -26,13 +29,12 @@ struct inode_struct {
 	struct inode_struct *prev;
 	struct entry_list list; //inodes for dir, nodes for files
 	uint64_t length; /* for dir: # of children; for file: # of node */
-	rb_red_blk_node rb_node;
 	void *data; //remove
 };
 
 struct paths_struct {
 	struct inode_struct *inode;
-	rb_red_blk_node rb_node;
+	struct paths_struct *next;
 };
 
 @interface Paths: BtreeObject {
