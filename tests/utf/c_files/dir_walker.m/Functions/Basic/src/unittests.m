@@ -13,6 +13,7 @@
 #include "region.m"
 
 struct axfs_config acfg;
+struct axfs_objects aobj;
 
 /****** Test Code ******/
 
