@@ -5,6 +5,7 @@
 #include "dir_walker.m"
 #include "inodes.m"
 #include "btree_object.m"
+#include "bytetable.m"
 #include "compressible_object.m"
 #include "modes.m"
 #include "astrings.m"
