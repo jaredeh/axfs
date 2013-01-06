@@ -4,11 +4,13 @@ SRCROOT   = ${abspath ../../../../../../src}
 RBROOT    = ${abspath ../../../../../../libs/rb_tree}
 SQROOT    = ${abspath ../../../../../../libs/squashfs_compressor}
 YAMLROOT  = ${abspath ../../../../../../libs/yaml}
+TOMROOT   = ${abspath ../../../../../../libs/libtomcrypt}
 
 INC  = -I./inc -I${CFILEROOT}/inc -I${CFILEROOT}/src -I${UTEROOT}/inc -I${SRCROOT}
-INC += -I${RBROOT} -I${YAMLROOT}/include
+INC += -I${RBROOT} -I${YAMLROOT}/include -I${TOMROOT}/src/headers
 LIBS  = -L ${RBROOT} -lrb_tree
 LIBS += -L ${SQROOT} -lsquashfs_compressor
+LIBS += -L ${TOMROOT} -ltomcrypt
 
 CFLAGS = -fPIC -Wall -g -O2
 
