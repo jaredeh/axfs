@@ -6,9 +6,13 @@
 
 /* too lazy to build this junk seperately. */
 #include "../../../../../src/btree_object.m"
+#include "../../../../../src/bytetable.m"
 #include "../../../../../src/region.m"
+#include "../../../../../src/compressor.m"
+#include "../../../../../src/compressible_object.m"
 
 struct axfs_config acfg;
+struct axfs_objects aobj;
 
 int main(int argc, char * argv[])
 {
