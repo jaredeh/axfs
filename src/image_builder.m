@@ -3,17 +3,29 @@
 @implementation ImageBuilder
 
 -(void) setupObjs {
+	printf("<setupObjs\n");
 	aobj.strings = [[Strings alloc] init];
+	printf("a0\n");
 	aobj.nodes = [[Nodes alloc] init];
+	printf("a1\n");
 	aobj.xip = [aobj.nodes xip];
+	printf("a2\n");
 	aobj.byte_aligned = [aobj.nodes byte_aligned];
+	printf("a3\n");
 	aobj.compressed = [aobj.nodes compressed];
+	printf("a4\n");
 	aobj.inodes = [[Inodes alloc] init];
+	printf("a5\n");
 	aobj.modes = [[Modes alloc] init];
+	printf("a6\n");
 	aobj.superblock = [[Super alloc] init];
+	printf("a7\n");
 	aobj.regdesc = [[RegionDescriptors alloc] init];
+	printf("a8\n");
 	sb = aobj.superblock;
+	printf("a9\n");
 	rd = aobj.regdesc;
+	printf("setupObjs>\n");
 }
 
 -(void) setupRegions {
@@ -30,7 +42,7 @@
 	r->cblock_offset = [[aobj.compressed cblockOffset] region];
 	r->inode_file_size = [[aobj.inodes fileSizeIndex] region];
 	r->inode_name_offset = [[aobj.inodes nameOffset] region];
-	r->inode_num_entries = [[aobj.inodes numEntriescblockOffset] region];
+	r->inode_num_entries = [[aobj.inodes numEntries] region];
 	r->inode_mode_index = [[aobj.inodes modeIndex] region];
 	r->inode_array_index = [[aobj.inodes arrayIndex] region];
 	r->modes = [[aobj.modes modesTable] region];
@@ -150,9 +162,6 @@
 -(void) build {
 	uint64_t offset = 0;
 
-	[self setupObjs];
-	[self setupRegions];
-
 	[aobj.xip data];
 	[aobj.strings data];
 	[aobj.byte_aligned data];
@@ -172,7 +181,7 @@
 	[self buildPart: [aobj.compressed cblockOffset]];
 	[self buildPart: [aobj.inodes fileSizeIndex]];
 	[self buildPart: [aobj.inodes nameOffset]];
-	[self buildPart: [aobj.inodes numEntriescblockOffset]];
+	[self buildPart: [aobj.inodes numEntries]];
 	[self buildPart: [aobj.inodes modeIndex]];
 	[self buildPart: [aobj.inodes arrayIndex]];
 	[self buildPart: [aobj.modes modesTable]];
@@ -180,6 +189,7 @@
 	[self buildPart: [aobj.modes gids]];
 	[self buildPart: aobj.xip];
 	[self buildPart: aobj.strings];
+	printf("strings='%s'\n",[aobj.strings data]);
 	[self buildPart: aobj.byte_aligned];
 	[self buildPart: aobj.compressed];
 

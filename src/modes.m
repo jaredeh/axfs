@@ -31,7 +31,10 @@ static int ModesComp(const void* av, const void* bv)
 
 -(struct mode_struct *) allocModeStruct {
 	uint64_t d = sizeof(struct mode_struct);
-	return (struct mode_struct *) [self allocData: &modes chunksize: d];
+	struct mode_struct *m;
+	m = [self allocData: &modes chunksize: d];
+	m->position = modes.place - 1;
+	return m;
 }
 
 -(uint64_t) hash: (struct mode_struct *) temp {

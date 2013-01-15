@@ -10,6 +10,7 @@ extern struct axfs_config acfg;
 struct string_struct {
 	void *data;
 	uint64_t length;
+	uint64_t position;
 	struct string_struct *next;
 };
 
@@ -20,7 +21,6 @@ struct string_struct {
 }
 -(struct string_struct *) allocStringStruct;
 -(void *) allocStringData: (uint64_t) len;
--(void) populate: (struct string_struct *) str data: (void *) data_ptr length: (uint64_t) len;
 -(void *) addString: (void *) data_ptr length: (uint64_t) len;
 -(void *) data;
 -(uint64_t) size;

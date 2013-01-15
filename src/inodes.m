@@ -3,21 +3,6 @@
 
 
 //use path
-static int InodesComp(const void* av, const void* bv)
-{
-	struct inode_struct * a = (struct inode_struct *)av;
-	struct inode_struct * b = (struct inode_struct *)bv;
-	void *adata = (void *)a->data;
-	void *bdata = (void *)b->data;
-
-	if( a->length > b->length )
-		return 1;
-	if( a->length < b->length )
-		return -1;
-
-	return memcmp(adata,bdata,a->length);
-}
-
 static int InodeNameComp(const void *x, const void *y) {
 	int min;
 	int retval;
@@ -28,6 +13,9 @@ static int InodeNameComp(const void *x, const void *y) {
 		[NSException raise: @"a == NULL" format: @""];
 	if (b == NULL)
 		[NSException raise: @"a == NULL" format: @""];
+
+	printf("a->name=%s  ",a->name);
+	printf("b->name=%s\n",b->name);
 	if (a->name == NULL)
 		[NSException raise: @"a->name == NULL" format: @""];
 	if (b->name == NULL)
@@ -61,12 +49,13 @@ static int InodeNameComp(const void *x, const void *y) {
 
 -(struct inode_struct **) allocInodeList: (uint64_t) len {
 	uint64_t d = sizeof(struct inode_struct *) * len;
+	printf("allocInodeList = %i\n",len);
 	return (struct inode_struct **) [self allocData: &inode_list chunksize: d];
 }
 
--(struct node_struct **) allocNodeList: (uint64_t) len {
-	uint64_t d = sizeof(struct node_struct *) * len;
-	return (struct node_struct **) [self allocData: &node_list chunksize: d];
+-(uint64_t *) allocNodeList: (uint64_t) len {
+	uint64_t d = sizeof(uint64_t) * len;
+	return (uint64_t *) [self allocData: &node_list chunksize: d];
 }
 
 -(void) placeInDirectory: (struct inode_struct *) inode {
@@ -77,17 +66,21 @@ static int InodeNameComp(const void *x, const void *y) {
 
 	directory = [inode->path stringByDeletingLastPathComponent];
 
-	printf("placeInDirectory: '%s'\n",[directory UTF8String]);
+	printf("placeInDirectory: '%s' '%i'\n",[directory UTF8String],[directory length]);
 	parent = [paths findParentInodeByPath: directory];
-	if (!parent)
+	if (!parent) {
+		printf("!printf\n");
 		return;
+	}
 
+	if (parent == inode) {
+		return;
+	}
 	list = parent->list.inodes;
 	pos = parent->list.position;
 	parent->list.position++;
 	list[pos] = inode;
-	//only want to qsort when we call data
-	//qsort(list,parent->list.position,sizeof(inode),InodeNameComp);
+	printf("placeInDirectory 0x%08X - 0x%08X -  0x%08X\n",parent,pos, *list);
 }
 
 -(void *) addInode_symlink: (struct inode_struct *) inode {
@@ -137,7 +130,7 @@ static int InodeNameComp(const void *x, const void *y) {
 	}
 
 	list->length = inode->size / acfg.page_size + 1;
-	list->node = [self allocNodeList: list->length];
+	list->nodes = [self allocNodeList: list->length];
 
 	while (data_read < inode->size) {
 		databuffer = [file readDataOfLength: acfg.page_size];
@@ -157,11 +150,25 @@ static int InodeNameComp(const void *x, const void *y) {
 	struct entry_list *list;
 	NSString* file;
 	uint64_t count = 0;
+	NSString* path;
+
+	printf("\ninodes addInode_directory='%s'\n",[inode->path UTF8String]);
 
 	//NSArray *dir  = [[NSFileManager defaultManager] contentsOfDirectoryAtPath: inode->path error:nil];
-	em = [[NSFileManager defaultManager] enumeratorAtPath: inode->path];
+	if ([inode->path isEqualToString: @""]) {
+		path = inode->path;
+		path = [[NSFileManager defaultManager] currentDirectoryPath];
+		path = [[NSString alloc] initWithUTF8String: acfg.input];
+		printf("'%s'\n",[path UTF8String]);
+	} else {
+		path = inode->path;
+	}
+	em = [[NSFileManager defaultManager] enumeratorAtPath: path];
 	[em skipDescendents];
 	while ((file = [em nextObject])) {
+		[em skipDescendents];
+		printf("count addInode_directory='%s'\n",[file UTF8String]);
+		//return inode;
 		count++;
 	}
 
@@ -178,7 +185,7 @@ static int InodeNameComp(const void *x, const void *y) {
 	struct inode_struct *inode;
 	NSDictionary *attribs;
 
-	printf("inodes addInode='%s'\n",[path UTF8String]);
+	printf("\n1 inodes addInode='%s'\n",[path UTF8String]);
 
 	attribs = [[NSFileManager alloc] attributesOfItemAtPath: path error: nil];
 	name = [path lastPathComponent];
@@ -199,12 +206,19 @@ static int InodeNameComp(const void *x, const void *y) {
 		[self addInode_directory: inode];
 	} else if (filetype == NSFileTypeRegular) {
 		[self addInode_regularfile: inode];
+	} else {
+		if ([path isEqualToString: @""] != true) {
+			[NSException raise: @"Bad file" format: @"Failed to open file at path=%@ from %@",path];
+		}
+		[self addInode_directory: inode];
+		printf("fadsfa\n");
 	}
-	if (filetype != NSFileTypeDirectory) {
+	//if (filetype != NSFileTypeDirectory) {
 		[self placeInDirectory: inode];
-	}
+	//}
 
-	inode->path = NULL;
+	printf("\n2 inodes addInode=0x%08X\n",inode);
+	//ohh can't do that... inode->path = NULL;
 	return inode;
 }
 
@@ -216,8 +230,8 @@ static int InodeNameComp(const void *x, const void *y) {
 	return nameOffset;
 }
 
--(id) numEntriescblockOffset {
-	return numEntriescblockOffset;
+-(id) numEntries {
+	return numEntries;
 }
 
 -(id) modeIndex {
@@ -228,12 +242,96 @@ static int InodeNameComp(const void *x, const void *y) {
 	return arrayIndex;
 }
 
+-(uint64_t) processInode: (struct inode_struct *) inode j: (int) j {
+	struct entry_list *list;
+	uint64_t i;
+	uint64_t array_index;
+	char *s;
+
+	if (inode == NULL) {
+		[NSException raise: @"processInode:" format: @" inode == NULL j=%i",j];
+	}
+	if (inode->name == NULL) {
+		[NSException raise: @"processInode:" format: @" inode->name == NULL j=%i",j];
+	}
+	if (inode->name->data == NULL) {
+		[NSException raise: @"processInode:" format: @" inode->name->data == NULL j=%i",j];
+	}
+	s = malloc(1024);
+	memset(s,0,1024);
+
+	printf("processInode inode=0x%08x j=%i\n",inode,j);
+	printf("processInode inode->name=0x%08x j=%i\n",inode->name,j);
+	printf("processInode inode->name->data=0x%08x j=%i\n",inode->name->data,j);
+	memcpy(s,inode->name->data,inode->name->length);
+	printf("processInode= '%s' %i j=%i\n",s,inode->name->length,j);
+
+	j++;
+
+	[fileSizeIndex add: inode->size];
+	[nameOffset add: inode->name->position];
+	[numEntries add: inode->length];
+	[modeIndex add: inode->mode->position];
+
+	list = &inode->list;
+	if (list->inodes != NULL) {
+		printf("list->inodes=0x%08X list->length=%i\n",list->inodes,list->length);
+		printf("list->inodes[0.%i]='0x%08X'\n",0,list->inodes[0]);
+		printf("list->inodes[1.%i]='0x%08X'\n",1,list->inodes[1]);
+		printf("list->inodes[2.%i]='0x%08X'\n",2,list->inodes[2]);
+		printf("list->inodes[3.%i]='0x%08X'\n",3,list->inodes[3]);
+		//qsort(list->inodes,list->length,sizeof(*list->inodes),InodeNameComp);
+		for (i=0;i<list->length;i++) {
+			printf("list->inodes[%i]='0x%08X'\n",i,list->inodes[i]);
+			if (list->inodes[i] != 0) {
+				memset(s,0,1024);
+				memcpy(s,list->inodes[i]->name->data,list->inodes[i]->name->length);
+				printf("name[%i]='%s' length=%i\n",i,s,list->inodes[i]->name->length);
+			}
+			array_index = [self processInode: list->inodes[i] j: j];
+			if (i == 0)
+				[arrayIndex add: array_index];
+		}
+	} else if (list->nodes != NULL) {
+		[arrayIndex add: list->nodes[0]];
+	}
+
+	inode->position = position;
+	position++;
+	inode->processed = true;
+	return inode->position;
+}
+
 -(void *) data {
+	//qsort(list,parent->list.position,sizeof(inode),InodeNameComp);
+	struct inode_struct *inode_array;
+	struct inode_struct *inode;
+	struct entry_list *list;
+	uint64_t i = 0;
+
+	printf("data inodes.place=%i\n",inodes.place);
+	inode_array = (struct inode_struct *) inodes.data;
+	if (inode_array == NULL)
+		printf("inode_array == NULL\n");
+	printf("peace out1\n");
+	for(i = 0;i<inodes.place;i++) {
+		printf("peace out i='%i'\n",i);
+		inode = &inode_array[i];
+		printf("peace out2\n");
+		if (inode == NULL)
+			printf("inode == NULL at %i\n",i);
+		if (inode->processed)
+			continue;
+			printf("peace out3\n");
+		[self processInode: inode j: 0];
+	}
+	printf("peace out\n");
 	return NULL;
 }
 
 -(id) init {
 	uint64_t len;
+	struct inode_struct *inode;
 
 	if (!(self = [super init]))
 		return self;
@@ -244,17 +342,24 @@ static int InodeNameComp(const void *x, const void *y) {
 	[self configureDataStruct: &cdata length: acfg.page_size * acfg.max_nodes];
 	[self configureDataStruct: &symlink length: acfg.page_size];
 	[self configureDataStruct: &inode_list length: acfg.max_nodes * sizeof(struct inode_struct *)];
-	[self configureDataStruct: &node_list length: acfg.max_nodes * sizeof(struct node_struct *)];
+	[self configureDataStruct: &node_list length: acfg.max_nodes * sizeof(uint64_t)];
 	paths = [[Paths alloc] init];
-	strings = [[Strings alloc] init];
-	modes = [[Modes alloc] init];
 
 	fileSizeIndex = [[ByteTable alloc] init];
 	nameOffset = [[ByteTable alloc] init];
-	numEntriescblockOffset = [[ByteTable alloc] init];
+	numEntries = [[ByteTable alloc] init];
 	modeIndex = [[ByteTable alloc] init];
 	arrayIndex = [[ByteTable alloc] init];
 
+	[fileSizeIndex numberEntries: acfg.max_number_files dedup: false];
+	[nameOffset numberEntries: acfg.max_number_files dedup: false];
+	[numEntries numberEntries: acfg.max_number_files dedup: false];
+	[modeIndex numberEntries: acfg.max_number_files dedup: false];
+	[arrayIndex numberEntries: acfg.max_number_files dedup: false];
+
+	printf("\n\n\n");
+	[self addInode: @""];
+	printf("\n\n\n");
 	return self;
 }
 
@@ -278,8 +383,9 @@ static int PathsComp(const void* av, const void* bv)
 	NSString *apath = (NSString *)a->inode->path;
 	NSString *bpath = (NSString *)b->inode->path;
 	int retval;
+
 	NSComparisonResult res = [apath compare: bpath];
- 
+
 	switch (res) {
 		case NSOrderedAscending:
 			retval = 1;
@@ -313,15 +419,12 @@ static int PathsComp(const void* av, const void* bv)
 	int i=0;
 	int j=0;
 
-	printf("hash--\n");
 	apath = (NSString *)temp->inode->path;
 	str = (uint8_t *) [apath UTF8String];
 	len = [apath length];
 	strhash = (uint8_t *) &hash;
 
 	while(i<len) {
-		printf("++-hash[]%08llX\n",hash);
-
 		strhash[j] += str[i];
 		j++;
 		if (j>7)
@@ -330,14 +433,14 @@ static int PathsComp(const void* av, const void* bv)
 	}
 
 	hash = hash % hashlen;
-	printf("+++-hash[]%08llX\n",hash);
-
+	printf("hash %i '%s'\n",hash,str);
 	return hash;
 }
 
 -(void *) allocForAdd: (struct paths_struct *) temp {
 	struct paths_struct *new_value;
 
+	printf("allocForAdd\n");
 	new_value = [self allocPathStruct];
 	new_value->inode = temp->inode;
 	return new_value;
@@ -349,29 +452,29 @@ static int PathsComp(const void* av, const void* bv)
 	struct paths_struct *list;
 	uint64_t hash;
 
+	printf("addPath:'%s'\n",[inode->path UTF8String]);
 	memset(&temp,0,sizeof(temp));
 	temp.inode = inode;
-
-	if (!deduped) {
-		return [self allocForAdd: &temp];
-	}
 
 	hash = [self hash: &temp];
 
 	if (hashtable[hash] == NULL) {
 		new_value = [self allocForAdd: &temp];
 		hashtable[hash] = new_value;
+		printf("addPath -- empty hash entry\n");
 		return new_value;
 	}
 
 	list = hashtable[hash];
 	while(true) {
 		if (!PathsComp(list,&temp)) {
+			printf("addPath -- %s\n",list->inode->path);
 			return list;
 		}
 		if (list->next == NULL) {
 			new_value = [self allocForAdd: &temp];
 			list->next = new_value;
+			printf("addPath -- end of list\n");
 			return new_value;
 		}
 		list = list->next;
@@ -385,30 +488,33 @@ static int PathsComp(const void* av, const void* bv)
 	struct inode_struct *parent;
 	uint64_t hash;
 
+	printf("findParentInodeByPath='%s'\n",[path UTF8String]);
 	memset(&temp,0,sizeof(temp));
 	memset(&inode,0,sizeof(inode));
 	inode.path = path;
 	temp.inode = &inode;
 
 	hash = [self hash: &temp];
-	printf("-hash[]%08llX\n",hash);
 
-	if (hashtable[hash] == NULL)
+	if (hashtable[hash] == NULL) {
+		printf("NULL 1\n");
 		return NULL;
+	}
 
 	list = hashtable[hash];
 	while(true) {
 		if (!PathsComp(list,&temp)) {
 			parent = list->inode;
+			printf("aaa=0x%08llx\n",parent);
 			return parent;
 		}
 		if (list->next == NULL) {
+			printf("NULL 2\n");
 			return NULL;
 		}
 		list = list->next;
 	}
-
-
+	printf("bbb\n");
 }
 
 -(id) init {

@@ -38,6 +38,10 @@ int main(int argc, const char *argv[]) {
 
 	[builder sizeup];
 	printf("sizedup\n");
+	[builder setupObjs];
+	printf("setted up\n");
+	[builder setupRegions];
+
 	[builder walk];
 	printf("walked\n");
 	[builder build];

@@ -8,6 +8,7 @@
 	retval = &buffer[ds->used];
 	ds->place += 1;
 	ds->used += chunksize;
+	//printf("allocData place=%i used=%i\n",ds->place, ds->used);
 	if (ds->used > ds->total) {
 		[NSException raise: @"Overalloced" format: @"ds.used=%d while ds.total=%d",ds->used,ds->total];
 	}

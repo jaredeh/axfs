@@ -75,7 +75,6 @@ NSFileTypeUnknown;
 	NSString *path;
 	NSFileManager *fm;
 	NSDirectoryEnumerator *de;
-	Inodes *inodes;
 	//NSString *filetype;
 	//uint64_t size;
 	//char *name;
@@ -91,7 +90,6 @@ NSFileTypeUnknown;
 	if (!de)
 		return;
 
-	inodes = [[Inodes alloc] init];
 	while ((path = [de nextObject]))
 	{
 		NSDictionary *attribs;
@@ -99,7 +97,7 @@ NSFileTypeUnknown;
 		uint64_t ddsize;
 		attribs = [de fileAttributes];
 
-		[inodes addInode: path];
+		[aobj.inodes addInode: path];
 
 		//filetype = [attribs objectForKey:NSFileType];
 		name = (char *)[[path lastPathComponent] UTF8String];

@@ -13,6 +13,7 @@ struct mode_struct {
 	uint32_t gid;
 	uint32_t uid;
 	uint16_t mode;
+	uint64_t position;
 	struct mode_struct *next;
 };
 

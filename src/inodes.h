@@ -14,7 +14,7 @@ extern struct axfs_objects aobj;
 
 struct entry_list {
 	struct inode_struct **inodes;
-	struct node_struct **node;
+	uint64_t *nodes;
 	uint64_t length;
 	uint64_t position;
 };
@@ -30,6 +30,8 @@ struct inode_struct {
 	struct entry_list list; //inodes for dir, nodes for files
 	uint64_t length; /* for dir: # of children; for file: # of node */
 	void *data; //remove
+	bool processed;
+	uint64_t position;
 };
 
 struct paths_struct {
@@ -58,9 +60,10 @@ struct paths_struct {
 	Modes *modes;
 	uint64_t page_size;
 	uint64_t length;
+	uint64_t position;
 	ByteTable *fileSizeIndex;
 	ByteTable *nameOffset;
-	ByteTable *numEntriescblockOffset;
+	ByteTable *numEntries;
 	ByteTable *modeIndex;
 	ByteTable *arrayIndex;
 }
@@ -68,7 +71,7 @@ struct paths_struct {
 -(void *) addInode: (NSString *) path;
 -(id) fileSizeIndex;
 -(id) nameOffset;
--(id) numEntriescblockOffset;
+-(id) numEntries;
 -(id) modeIndex;
 -(id) arrayIndex;
 -(void *) data;
