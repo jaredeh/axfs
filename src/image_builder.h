@@ -16,6 +16,7 @@ extern struct axfs_objects aobj;
 
 struct data_segment {
 	void *data;
+	char *name;
 	uint64_t size;
 	uint64_t start;
 	uint64_t end;

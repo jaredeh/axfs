@@ -67,6 +67,7 @@ static int ModesComp(const void* av, const void* bv)
 	uint32_t uid;
 	uint16_t mode;
 
+	printf("  addMode\n");
 	memset(&temp,0,sizeof(temp));
 	gid = (uint32_t)[[attribs objectForKey:NSFileGroupOwnerAccountID] unsignedLongValue];
 	uid = (uint32_t)[[attribs objectForKey:NSFileOwnerAccountID] unsignedLongValue];
@@ -76,6 +77,7 @@ static int ModesComp(const void* av, const void* bv)
 	temp.mode = mode;
 
 	if (!deduped) {
+		printf("b0\n");
 		return [self allocForAdd: &temp];
 	}
 
@@ -84,17 +86,20 @@ static int ModesComp(const void* av, const void* bv)
 	if (hashtable[hash] == NULL) {
 		new_value = [self allocForAdd: &temp];
 		hashtable[hash] = new_value;
+		printf("b1\n");
 		return new_value;
 	}
 
 	list = hashtable[hash];
 	while(true) {
 		if ((list->gid == gid)&&(list->uid == uid)&&(list->mode == mode)){
+			printf("b2\n");
 			return list;
 		}
 		if (list->next == NULL) {
 			new_value = [self allocForAdd: &temp];
 			list->next = new_value;
+			printf("b3\n");
 			return new_value;
 		}
 		list = list->next;
@@ -158,6 +163,9 @@ static int ModesComp(const void* av, const void* bv)
 	modesTable = [[ByteTable alloc] init];
 	uids = [[ByteTable alloc] init];
 	gids = [[ByteTable alloc] init];
+	[modesTable numberEntries: acfg.max_number_files dedup: false];
+	[uids numberEntries: acfg.max_number_files dedup: true];
+	[gids numberEntries: acfg.max_number_files dedup: true];
 
 	return self;
 }

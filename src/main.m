@@ -41,7 +41,7 @@ int main(int argc, const char *argv[]) {
 	[builder setupObjs];
 	printf("setted up\n");
 	[builder setupRegions];
-
+	printf("etupRegions up\n");
 	[builder walk];
 	printf("walked\n");
 	[builder build];

@@ -56,8 +56,6 @@ struct paths_struct {
 	struct data_struct inode_list;
 	struct data_struct node_list;
 	Paths *paths;
-	Strings *strings;
-	Modes *modes;
 	uint64_t page_size;
 	uint64_t length;
 	uint64_t position;

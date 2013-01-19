@@ -11,19 +11,25 @@
 	uint64_t retval;
 	uint8_t type;
 
+	printf("Nodes addPage {\n");
+
 	if ([self pageIsXip]) {
+		printf("\tNodes addPage xip\n");
 		type = XIP;
 		retval = [xip addPage: page];
 	} else if (pg->clength < pg->length) {
+		printf("\tNodes addPage comp pg->clength=%i < pg->length=%i\n",pg->clength,pg->length);
 		type = Compressed;
 		retval = [compressed addPage: page];
 	} else {
+		printf("\tNodes addPage ba\n");
 		type = Byte_Aligned;
 		retval = [byte_aligned addPage: page];
 	}
 
 	//add to node type
 	//add to node_index
+	printf("} Nodes addPage end\n");
 	return retval;
 }
 

@@ -33,5 +33,6 @@ struct axfs_objects {
 	id dirwalker;
 	id superblock;
 	id regdesc;
+	id pages;
 	struct axfs_region_descriptors regions;
 };

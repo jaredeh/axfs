@@ -5,6 +5,7 @@
 
 -(bool) algorithm: (char *) name {
 	compress = lookup_compressor(name);
+	printf("Compressor algorithm: '%s'\n",name);
 	if(strcmp(compress->name, name) != 0)
 		return false;
 	compress->init(&stream, 4096, 0);
@@ -64,6 +65,8 @@
 	fwrite(cdata,*csize,1,fp);
 	fclose(fp);
 */
+	if (*csize == 0)
+		*csize = size;
 	if (error != 0)
 		[NSException raise: @"Compressor.m" format: @"error=%d",error];
 }

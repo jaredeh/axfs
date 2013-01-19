@@ -46,6 +46,7 @@ static int PagesComp(const void* av, const void* bv)
 
 -(void *) allocForAdd: (struct page_struct *) temp {
 	struct page_struct *new_value;
+	int k;
 
 	new_value = [self allocPageStruct];
 	new_value->length = temp->length;
@@ -53,7 +54,16 @@ static int PagesComp(const void* av, const void* bv)
 	memcpy(new_value->data, temp->data, new_value->length);
 	new_value->cdata = [self allocPageCdata];
 	[compressor cdata: new_value->cdata csize: &new_value->clength data: new_value->data size: new_value->length];
-
+	printf("data[");
+		for(k=0;k<new_value->length;k++) {
+			printf("%02x",new_value->data[k]);
+		}
+	printf("]\n");
+	printf("cdata[");
+		for(k=0;k<new_value->clength;k++) {
+			printf("%02x",new_value->cdata[k]);
+		}
+	printf("]\n");
 	memcpy(new_value->data, temp->data, temp->length);
 	new_value->length = temp->length;
 	return new_value;
