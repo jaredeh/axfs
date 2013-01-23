@@ -4,9 +4,6 @@
 
 @interface CompNodes: NodesObject {
 	CBlocks *cb;
-	ByteTable *cnodeOffset;
-	ByteTable *cnodeIndex;
-	ByteTable *cblockOffset;
 }
 -(void *) data;
 -(id) cnodeOffset;

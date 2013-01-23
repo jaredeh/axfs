@@ -32,10 +32,15 @@
 		if (unclength > acfg.block_size) {
 			[NSException raise: @"error compressing CBlock" format: @"unclength(%llu) > acfg.block_size(%llu)\n",(long long unsigned int)unclength,(long long unsigned int)acfg.block_size];
 		}
+		[cnodeOffset add: node->cboffset];
+		[cnodeIndex add: cblock->num];
+		cblock->cboffset = cblock->cdata - cblock->cboffset;
+		[cblockOffset add: cblock->cboffset];
 		node = node->next;
 	}
 	[compressor cdata: cbbuffer csize: &cblock->csize data: uncbuffer size: unclength];
 	cblock->cdata = [self allocCdata: cblock->csize];
+
 	memcpy(cblock->cdata,cbbuffer,cblock->csize);
 }
 
@@ -112,12 +117,25 @@
 	return place;
 }
 
+-(id) cnodeOffset {
+	return cnodeOffset;
+}
+
+-(id) cnodeIndex {
+	return cnodeIndex;
+}
+
+-(id) cblockOffset {
+	return cblockOffset;
+}
+
 -(void *) data {
 	uint8_t *dout = (uint8_t *) data.data;
 	struct cblock_struct *cb = partpages;
 	uint64_t num = 0;
 	while (cb != NULL) {
 		cb->num = num;
+		cb->cboffset = cdata.data;
 		num += 1;
 		[self compressCBlock: cb];
 		memcpy(dout,cb->cdata,cb->csize);
@@ -133,6 +151,7 @@
 		dout += cb->csize;
 		cb = cb->next;
 	}
+
 	return data.data;
 }
 
@@ -156,6 +175,12 @@
 	partpages = 0;//[self allocateCBlockStructs];
 	[self configureDataStruct: &cdata length: acfg.page_size*acfg.max_nodes];
 	[self configureDataStruct: &data length: acfg.page_size*acfg.max_nodes];
+	cnodeOffset = [[ByteTable alloc] init];
+	cnodeIndex = [[ByteTable alloc] init];
+	cblockOffset = [[ByteTable alloc] init];
+	[cnodeOffset numberEntries: acfg.max_nodes dedup: false];
+	[cnodeIndex numberEntries: acfg.max_nodes dedup: false];
+	[cblockOffset numberEntries: acfg.max_nodes dedup: false];
 
 	return self;
 }

@@ -27,8 +27,8 @@
 		retval = [byte_aligned addPage: page];
 	}
 
-	//add to node type
-	//add to node_index
+	[node_type add: type];
+	[node_index add: retval];
 	printf("} Nodes addPage end\n");
 	return retval;
 }
@@ -77,6 +77,11 @@
 	return csize;
 }
 
+-(void *) data {
+	[self size];
+	[self csize];
+}
+
 -(void) free {
 	[xip free];
 	[byte_aligned free];
@@ -95,8 +100,9 @@
 	compressed = [[CompNodes alloc] init];
 	node_type = [[ByteTable alloc] init];
 	node_index = [[ByteTable alloc] init];
-	//init bytetable for node_type
-	//init bytetable for node_index
+	[node_type numberEntries: acfg.max_nodes dedup: false];
+	[node_index numberEntries: acfg.max_nodes dedup: false];
+	current = 0;
 
 	return self;
 }

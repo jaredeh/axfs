@@ -4,10 +4,12 @@
 #import "nodes_object.h"
 #import "compressor.h"
 #import "btree_object.h"
+#import "bytetable.h"
 
 struct cblock_struct {
 	uint64_t length;
 	uint64_t offset;
+	uint64_t cboffset;
 	uint64_t csize;
 	uint64_t num;
 	struct cblock_struct *next;
@@ -27,6 +29,9 @@ struct cblock_struct {
 	void *cbbuffer;
 	void *uncbuffer;
 	Compressor * compressor;
+	ByteTable *cnodeOffset;
+	ByteTable *cnodeIndex;
+	ByteTable *cblockOffset;
 }
 
 -(struct cblock_struct *) allocateCBlockStructs;

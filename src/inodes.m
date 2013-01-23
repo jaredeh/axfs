@@ -141,8 +141,6 @@ static int InodeNameComp(const void *x, const void *y) {
 	}
 
 	[file closeFile];
-
-	//FIXME: actually copy data
 	return inode;
 }
 
@@ -153,7 +151,6 @@ static int InodeNameComp(const void *x, const void *y) {
 	uint64_t count = 0;
 	NSString* path;
 
-	//NSArray *dir  = [[NSFileManager defaultManager] contentsOfDirectoryAtPath: inode->path error:nil];
 	if ([inode->path isEqualToString: @""]) {
 		path = inode->path;
 		path = [[NSFileManager defaultManager] currentDirectoryPath];

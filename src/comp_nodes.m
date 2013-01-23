@@ -26,15 +26,15 @@
 }
 
 -(id) cnodeOffset {
-	return cnodeOffset;
+	return [cb cnodeOffset];
 }
 
 -(id) cnodeIndex {
-	return cnodeIndex;
+	return [cb cnodeIndex];
 }
 
 -(id) cblockOffset {
-	return cblockOffset;
+	return [cb cblockOffset];
 }
 
 -(id) init {
@@ -44,9 +44,6 @@
 	cb = [[CBlocks alloc] init];
 	nodes = malloc(sizeof(*nodes)*acfg.max_nodes);
 	memset(nodes,0,sizeof(*nodes)*acfg.max_nodes);
-	cnodeOffset = [[ByteTable alloc] init];
-	cnodeIndex = [[ByteTable alloc] init];
-	cblockOffset = [[ByteTable alloc] init];
 
 	return self;
 }

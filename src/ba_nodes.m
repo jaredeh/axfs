@@ -19,6 +19,7 @@
 		memcpy(bd, page->data, page->length);
 		size += page->length;
 		bd += page->length;
+		[banodeOffset add: bd-data];
 	}
 	return data;
 }
@@ -31,6 +32,7 @@
 	if (!(self = [super init]))
 		return self;
 	banodeOffset = [[ByteTable alloc] init];
+	[banodeOffset numberEntries: acfg.max_nodes dedup: false];
 	return self;
 }
 
