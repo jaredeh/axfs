@@ -97,6 +97,21 @@ int ByteTableComp(const void* av, const void* bv)
 	return (void *) new_value;
 }
 
+-(void *) index: (uint64_t) index datum: (uint64_t) datum {
+	struct bytetable_value *value;
+	struct bytetable_value *valueset;
+
+	valueset = (struct bytetable_value *) bytetable.data;
+	value = &valueset[index];
+	memset(value,0,sizeof(*value));
+	value->datum = datum;
+	value->index = index;
+	[self checkDepth: datum depth: &depth];
+	if (index >= length)
+		length = index + 1;
+	return (void *) value;
+}
+
 -(void *) add: (uint64_t) datum {
 	struct bytetable_value *list;
 	struct bytetable_value *new_value;

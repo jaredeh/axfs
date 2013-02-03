@@ -58,9 +58,13 @@
 }
 
 -(void) processRegion: (Region *) r {
+	printf("processRegion\n");
 	void *src = [r data];
+	printf("data\n");
 	size_t len = [r size];
+	printf("len\n");
 	memcpy(data_p, src, len);
+	printf("g\n");
 	data_p += len;
 }
 
@@ -71,27 +75,50 @@
 -(void *) data {
 	struct axfs_region_descriptors *r = &aobj.regions;
 
+	printf("[RegionDescriptors data] 0\n");
+	[self regionOffsets];
+	printf("[RegionDescriptors data] 1\n");
+
 	[self processRegion: r->strings];
+	printf("[RegionDescriptors data] 2\n");
 	[self processRegion: r->xip];
+	printf("[RegionDescriptors data] 3\n");
 	[self processRegion: r->byte_aligned];
+	printf("[RegionDescriptors data] 4\n");
 	[self processRegion: r->compressed];
+	printf("[RegionDescriptors data] 5\n");
 	[self processRegion: r->node_type];
+	printf("[RegionDescriptors data] 6\n");
 	[self processRegion: r->node_index];
+	printf("[RegionDescriptors data] 7\n");
 	[self processRegion: r->cnode_offset];
+	printf("[RegionDescriptors data] 8\n");
 	[self processRegion: r->cnode_index];
+	printf("[RegionDescriptors data] 9\n");
 	[self processRegion: r->banode_offset];
+	printf("[RegionDescriptors data] 10\n");
 	[self processRegion: r->cblock_offset];
+	printf("[RegionDescriptors data] 11\n");
 	[self processRegion: r->inode_file_size];
+	printf("[RegionDescriptors data] 12\n");
 	[self processRegion: r->inode_name_offset];
+	printf("[RegionDescriptors data] 13\n");
 	[self processRegion: r->inode_num_entries];
+	printf("[RegionDescriptors data] 14\n");
 	[self processRegion: r->inode_mode_index];
+	printf("[RegionDescriptors data] 15\n");
 	[self processRegion: r->inode_array_index];
+	printf("[RegionDescriptors data] 16\n");
 	[self processRegion: r->modes];
+	printf("[RegionDescriptors data] 17\n");
 	[self processRegion: r->uids];
+	printf("[RegionDescriptors data] 18\n");
 	[self processRegion: r->gids];
+	printf("[RegionDescriptors data] 19\n");
 
 	if ((data_p - (uint8_t *)data) > size)
 		[NSException raise: @"Too big " format: @"(data_p[%d] - data[%d]) > size[%d]",data_p,data,size];
+	printf("[RegionDescriptors data] 3\n");
 
 	return data;
 }

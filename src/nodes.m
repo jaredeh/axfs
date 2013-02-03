@@ -8,7 +8,7 @@
 
 -(uint64_t) addPage: (void *) page {
 	struct page_struct *pg = (struct page_struct *) page;
-	uint64_t retval;
+	uint64_t index;
 	uint8_t type;
 
 	printf("Nodes addPage {\n");
@@ -16,29 +16,25 @@
 	if ([self pageIsXip]) {
 		printf("\tNodes addPage xip\n");
 		type = XIP;
-		retval = [xip addPage: page];
+		index = [xip addPage: page];
 	} else if (pg->clength < pg->length) {
 		printf("\tNodes addPage comp pg->clength=%i < pg->length=%i\n",pg->clength,pg->length);
 		type = Compressed;
-		retval = [compressed addPage: page];
+		index = [compressed addPage: page];
 	} else {
 		printf("\tNodes addPage ba\n");
 		type = Byte_Aligned;
-		retval = [byte_aligned addPage: page];
+		index = [byte_aligned addPage: page];
 	}
 
+	[node_index add: index];
 	[node_type add: type];
-	[node_index add: retval];
 	printf("} Nodes addPage end\n");
-	return retval;
+	return [node_type length] - 1;
 }
 
 -(uint64_t) length {
-	uint64_t len;
-	len = [xip length];
-	len += [compressed length];
-	len += [byte_aligned length];
-	return len;
+	return [node_type length];
 }
 
 -(id) xip {

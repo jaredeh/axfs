@@ -32,16 +32,21 @@
 		if (unclength > acfg.block_size) {
 			[NSException raise: @"error compressing CBlock" format: @"unclength(%llu) > acfg.block_size(%llu)\n",(long long unsigned int)unclength,(long long unsigned int)acfg.block_size];
 		}
-		[cnodeOffset add: node->cboffset];
-		[cnodeIndex add: cblock->num];
-		cblock->cboffset = cblock->cdata - cblock->cboffset;
-		[cblockOffset add: cblock->cboffset];
 		node = node->next;
 	}
 	[compressor cdata: cbbuffer csize: &cblock->csize data: uncbuffer size: unclength];
 	cblock->cdata = [self allocCdata: cblock->csize];
 
 	memcpy(cblock->cdata,cbbuffer,cblock->csize);
+	cblock->cboffset = cblock->cdata - cblock->cboffset;
+
+	node = cblock->nodes;
+	while (node != NULL) {
+		[cnodeOffset add: node->cboffset];
+		[cnodeIndex add: cblock->num];
+		[cblockOffset add: cblock->cboffset];
+		node = node->next;
+	}
 }
 
 -(void) addNodeToCBlock: (struct axfs_node *) node cblock: (struct cblock_struct *) cb {
@@ -55,6 +60,7 @@
 	}
 	node->cboffset = cb->offset;
 	cb->offset += cb->length;
+	printf("addNodeToCBlock cb->offset=0x%08x cb->length=0x%08x node->cboffset=0x%08x\n",cb->offset,cb->length,node->cboffset);
 }
 
 -(void) addFullPageNode: (struct axfs_node *) node {
@@ -133,7 +139,9 @@
 	uint8_t *dout = (uint8_t *) data.data;
 	struct cblock_struct *cb = partpages;
 	uint64_t num = 0;
+	printf("data === {\n");
 	while (cb != NULL) {
+		printf("\n------------------------\npartpages num=%i\ncb=0x%08x\n------------------------\n",num,cb);
 		cb->num = num;
 		cb->cboffset = cdata.data;
 		num += 1;
@@ -144,6 +152,7 @@
 	}
 	cb = fullpages;
 	while (cb != NULL) {
+		printf("\n------------------------\nfullpages num=%i\ncb=0x%08x\n------------------------\n",num,cb);
 		cb->num = num;
 		num += 1;
 		[self compressCBlock: cb];
@@ -151,7 +160,7 @@
 		dout += cb->csize;
 		cb = cb->next;
 	}
-
+	printf("}\n");
 	return data.data;
 }
 

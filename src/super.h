@@ -8,8 +8,6 @@
 extern struct axfs_config acfg;
 extern struct axfs_objects aobj;
 
-#define AXFS_SUPER_SIZE 253
-
 @interface NSObject(SuperMethods)
 -(Region *) region;
 @end

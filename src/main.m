@@ -20,7 +20,7 @@ bool validate_args(int argc, const char *argv[]) {
 	do_getopts(argc,argv);
 	retval = do_opts_validator(&msg);
 	if(!retval)
-		printf("%s", msg);
+		printf("do_opts_validator failed %s", msg);
 	free(msg);
 	return retval;
 }
@@ -34,6 +34,9 @@ int main(int argc, const char *argv[]) {
 		return -1;
 	}
 
+	acfg.version_major = 2;
+	acfg.version_minor = 9;
+	acfg.version_sub = 1;
 	builder = [[ImageBuilder alloc] init];
 
 	[builder sizeup];

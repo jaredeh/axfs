@@ -24,6 +24,7 @@ struct bytetable_value {
 -(uint64_t) length;
 -(uint64_t) size;
 -(void *) add: (uint64_t) datum;
+-(void *) index: (uint64_t) index datum: (uint64_t) datum;
 -(void *) data;
 -(uint8_t) depth;
 -(void) free;

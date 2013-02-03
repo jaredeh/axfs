@@ -115,6 +115,7 @@ static int InodeNameComp(const void *x, const void *y) {
 	uint64_t data_read = 0;
 	NSUInteger d;
 	struct entry_list *list;
+	uint64_t i=0;
 
 	list = &inode->list;
 
@@ -137,7 +138,8 @@ static int InodeNameComp(const void *x, const void *y) {
 		printf("d = %llu data_read = %llu size = %llu \n", d, data_read,inode->size);
 		ddata = [databuffer bytes];
 		page = [aobj.pages addPage: ddata length: d];
-		[aobj.nodes addPage: page];
+		list->nodes[i] = [aobj.nodes addPage: page];
+		i++;
 	}
 
 	[file closeFile];
@@ -238,11 +240,14 @@ static int InodeNameComp(const void *x, const void *y) {
 	return arrayIndex;
 }
 
--(uint64_t) processInode: (struct inode_struct *) inode j: (int) j {
+-(uint64_t) processInode: (struct inode_struct *) inode index: (uint64_t) index next: (uint64_t *) next j: (int) j {
 	struct entry_list *list;
-	uint64_t i;
+	uint64_t i, k, l;
 	uint64_t array_index;
 	char *s;
+
+	s = malloc(1024);
+	memset(s,0,1024);
 
 	if (inode == NULL) {
 		[NSException raise: @"processInode:" format: @" inode == NULL j=%i",j];
@@ -253,55 +258,55 @@ static int InodeNameComp(const void *x, const void *y) {
 	if (inode->name->data == NULL) {
 		[NSException raise: @"processInode:" format: @" inode->name->data == NULL j=%i",j];
 	}
-	s = malloc(1024);
-	memset(s,0,1024);
 
-	printf("Inodes processInode inode=0x%08x j=%i\n",inode,j);
-	printf("Inodes processInode inode->name=0x%08x j=%i\n",inode->name,j);
-	printf("Inodes processInode inode->name->data=0x%08x j=%i\n",inode->name->data,j);
+	/*
+	for(k=0;k<j;k++) {
+		printf(" ");
+	}
+	printf("Inodes processInode inode=0x%08x index=%i j=%i\n",inode,*index,j);
+	*/
 	memcpy(s,inode->name->data,inode->name->length);
-	printf("Inodes processInode= '%s' %i j=%i\n",s,inode->name->length,j);
+	for(k=0;k<j;k++) {
+		printf("...|");
+	}
+	printf("Inodes processInode '%s' index=%i next=%i j=%i {\n",s,index,*next,j);
 
 	j++;
-
-	printf("Inodes a0\n");
+//NEED A BETTER WAY.  This won't mix subdir inodes into dir inode lists, bad.
 	[fileSizeIndex add: inode->size];
-	printf("Inodes a1\n");
 	[nameOffset add: inode->name->position];
-	printf("Inodes a2\n");
-	[numEntries add: inode->length];
-	printf("Inodes a3\n");
-	printf("Inodes modeIndex: inode->mode=0x%08x\n",inode->mode);
-	printf("Inodes modeIndex: inode->mode->position=0x%08x\n",inode->mode->position);
 	[modeIndex add: inode->mode->position];
-	printf("Inodes a4\n");
 	list = &inode->list;
-	printf("Inodes a5\n");
+	[numEntries add: list->length];
 	if (list->inodes != NULL) {
-		printf("6 Inodes list->inodes=0x%08X list->length=%i\n",list->inodes,list->length);
-		printf("7 Inodes list->inodes[0.%i]='0x%08X'\n",0,list->inodes[0]);
-		printf("8 Inodes list->inodes[1.%i]='0x%08X'\n",1,list->inodes[1]);
-		printf("9 Inodes list->inodes[2.%i]='0x%08X'\n",2,list->inodes[2]);
-		printf("10 Inodes list->inodes[3.%i]='0x%08X'\n",3,list->inodes[3]);
+		l = *next;
+		*next += list->length;
 		//qsort(list->inodes,list->length,sizeof(*list->inodes),InodeNameComp);
 		for (i=0;i<list->length;i++) {
-			printf("11 Inodes list->inodes[%i]='0x%08X'\n",i,list->inodes[i]);
-			if (list->inodes[i] != 0) {
-				memset(s,0,1024);
-				memcpy(s,list->inodes[i]->name->data,list->inodes[i]->name->length);
-				printf("12 Inodes name[%i]='%s' length=%i\n",i,s,list->inodes[i]->name->length);
+			array_index = [self processInode: list->inodes[i] index: l + i next: next j: j];
+			if (i == 0) {
+				for(k=0;k<j-1;k++) {
+					printf("...|");
+				}
+				printf("-inodes '%s' [arrayIndex index: %i datum: %i]; j=%i\n",s,index,array_index,j-1);
+				[arrayIndex index: index datum: array_index];
 			}
-			array_index = [self processInode: list->inodes[i] j: j];
-			if (i == 0)
-				[arrayIndex add: array_index];
 		}
-	} else if (list->nodes != NULL) {
-		[arrayIndex add: list->nodes[0]];
-	}
 
-	inode->position = position;
-	position++;
+
+	} else if (list->nodes != NULL) {
+		for(k=0;k<j-1;k++) {
+			printf("...|");
+		}
+		printf("  -htyb vfgnodes '%s' [arrayIndex index: %i datum: %i]; j=%i\n",s,index,list->nodes[0],j-1);
+		[arrayIndex index: index datum: list->nodes[0]];
+	}
+	inode->position = index;
 	inode->processed = true;
+	for(k=0;k<j-1;k++) {
+		printf("...|");
+	}
+	printf("} processInode\n");
 	return inode->position;
 }
 
@@ -311,6 +316,8 @@ static int InodeNameComp(const void *x, const void *y) {
 	struct inode_struct *inode;
 	struct entry_list *list;
 	uint64_t i = 0;
+	uint64_t j = 0;
+	uint64_t next = 1;
 
 	printf("Inodes data {\n");
 	inode_array = (struct inode_struct *) inodes.data;
@@ -318,7 +325,7 @@ static int InodeNameComp(const void *x, const void *y) {
 		inode = &inode_array[i];
 		if (inode->processed)
 			continue;
-		[self processInode: inode j: 0];
+		[self processInode: inode index: 0 next: &next j: j];
 	}
 	printf("} Inodes data\n\n");
 	return NULL;
@@ -331,12 +338,12 @@ static int InodeNameComp(const void *x, const void *y) {
 	if (!(self = [super init]))
 		return self;
 
-	len = sizeof(struct inode_struct) * (acfg.max_nodes + 1);
+	len = sizeof(struct inode_struct) * (acfg.max_number_files + 1);
 	[self configureDataStruct: &inodes length: len];
-	[self configureDataStruct: &data length: acfg.page_size * acfg.max_nodes];
-	[self configureDataStruct: &cdata length: acfg.page_size * acfg.max_nodes];
+	[self configureDataStruct: &data length: acfg.page_size * acfg.max_nodes];  //what?
+	[self configureDataStruct: &cdata length: acfg.page_size * acfg.max_nodes];  //what?
 	[self configureDataStruct: &symlink length: acfg.page_size];
-	[self configureDataStruct: &inode_list length: acfg.max_nodes * sizeof(struct inode_struct *)];
+	[self configureDataStruct: &inode_list length: len];
 	[self configureDataStruct: &node_list length: acfg.max_nodes * sizeof(uint64_t)];
 	paths = [[Paths alloc] init];
 

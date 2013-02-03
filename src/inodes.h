@@ -28,7 +28,7 @@ struct inode_struct {
 	struct inode_struct *next;
 	struct inode_struct *prev;
 	struct entry_list list; //inodes for dir, nodes for files
-	uint64_t length; /* for dir: # of children; for file: # of node */
+	//uint64_t length; /* for dir: # of children; for file: # of node */
 	void *data; //remove
 	bool processed;
 	uint64_t position;

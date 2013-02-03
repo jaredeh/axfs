@@ -178,16 +178,24 @@
 	uint64_t offset = 0;
 	printf("ImageBuilder build {\n");
 
+	printf("--a------------------------\n");
 	[aobj.xip data];
+	printf("--b------------------------\n");
 	[aobj.strings data];
+	printf("--c------------------------\n");
 	[aobj.byte_aligned data];
+	printf("--d------------------------\n");
 	[aobj.compressed data];
+	printf("--e------------------------\n");
 	[aobj.inodes data];
+	printf("--f------------------------\n");
 	[aobj.modes data];
+	printf("--g------------------------\n");
 
 	data_segments[0].start = 0;
 	data_segments[0].size = [sb size];
 	data_segments[0].end = [sb size];
+	printf("\n\n\n\n[sb size]=%i\n\n\n\n",[sb size]);
 	data_segments[0].name = "superblock";
 	[self buildPart: rd name: "region descriptors"];
 	[self buildPart: [aobj.nodes nodeType] name: "nodeType"];
@@ -214,6 +222,8 @@
 	acfg.real_imagesize = data_segments[current_segment-1].end;
 
 	data_segments[0].data = [sb data];
+	//[self buildPart: rd name: "region descriptors"];
+	data_segments[1].data = [rd data];
 	[self hashImage];
 	data_segments[0].data = [sb data];
 

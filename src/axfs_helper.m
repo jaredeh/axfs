@@ -46,18 +46,38 @@
 }
 
 -(uint8_t *) bigEndianize: (uint64_t) number ptr: (void *) vptr bytes: (int) j {
-	int i;
+	int i, l;
 	uint8_t *ptr = vptr;
 	for(i=0; i<j; i++) {
-		ptr[(j-1)-i] = [self outputByte: number byte: i];
+		l = [self outputByte: number byte: i];
+		ptr[(j-1)-i] = l;
 	}
 	//i++;
 	ptr += i;
 	return ptr;
 }
 
+-(uint8_t *) bigEndianizea: (uint64_t) number ptr: (void *) vptr bytes: (int) j {
+	int i, l;
+	uint8_t *ptr = vptr;
+	uint8_t *v = vptr;
+	for(i=0; i<j; i++) {
+		l = [self outputByte: number byte: i];
+		printf("l=%i i=%i j=%i\n",l,i,j);
+		ptr[(j-1)-i] = l;
+	}
+	//i++;
+	ptr += i;
+	printf("%02x %02x %02x %02x %02x %02x %02x %02x \n",v[7],v[6],v[5],v[4],v[3],v[2],v[1],v[0]);
+	return ptr;
+}
+
 -(uint8_t *) bigEndian64: (uint64_t) number ptr: (void *) ptr {
 	return [self bigEndianize: number ptr: ptr bytes: 8];
+}
+
+-(uint8_t *) bigEndian64a: (uint64_t) number ptr: (void *) ptr {
+	return [self bigEndianizea: number ptr: ptr bytes: 8];
 }
 
 -(uint8_t *) bigEndian32: (uint32_t) number ptr: (void *) ptr {

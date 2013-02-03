@@ -67,7 +67,7 @@ enum axfs_compression_types {
 };
 
 /* on media struct describing a data region */
-struct axfs_region_desc_onmedia {
+struct __attribute__((__packed__)) axfs_region_desc_onmedia {
 	u64 fsoffset;
 	u64 size;
 	u64 compressed_size;
@@ -86,7 +86,7 @@ struct axfs_fill_super_info {
 #endif
 
 /* on media format for the super block */
-struct axfs_super_onmedia {
+struct __attribute__((__packed__)) axfs_super_onmedia {
 	__be32 magic;		/* 0x48A0E4CD - random number */
 	u8 signature[16];	/* "Advanced XIP FS" */
 	u8 digest[40];		/* sha1 digest for checking data integrity */

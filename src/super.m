@@ -6,7 +6,7 @@
 	if (!(self = [super init]))
 		return self;
 
-	data = malloc(AXFS_SUPER_SIZE);
+	data = malloc([self size]);
 	data_p = data;
 	sb = (struct axfs_super_onmedia *) data;
 
@@ -29,13 +29,13 @@
 
 /* Identifies type of compression used on FS */
 -(void) do_compression_type {
-
+	sb->compression_type = 0xAA;
 }
 
 /* UNIX time_t of filesystem build time */
 -(void) do_timestamp {
-	uint32_t ts =0;
-	[self bigEndian32: ts ptr: &sb->timestamp];
+	uint64_t ts = 0x1122334455667788;
+	[self bigEndian64: ts ptr: &sb->timestamp];
 }
 
 -(void) do_page_shift {
@@ -43,6 +43,7 @@
 
 	page_shift = log2(acfg.page_size);
 	sb->page_shift = (uint8_t) page_shift;
+	printf("\n=======================\n======== do_page_shift page_shift=%i acfg.page_size=%i sb->page_shift=%i\n=======================\n",page_shift, acfg.page_size,sb->page_shift);
 }
 
 -(uint64_t) size {
@@ -56,9 +57,15 @@
 
 	memcpy(sb->signature, AXFS_SIGNATURE, strlen(AXFS_SIGNATURE));
 
-	[self bigEndian64: acfg.block_size ptr: &sb->cblock_size];
+	[self bigEndian32: acfg.block_size ptr: &sb->cblock_size];
+	printf("-------------\n------acfg.block_size=%i\n---------------\n",acfg.block_size);
+	printf("-------------\n------sb->cblock_size=0x%016llx\n---------------\n",sb->cblock_size);
 	[self bigEndian64: acfg.real_number_files ptr: &sb->files];
+	printf("-------------\n------acfg.real_number_files=%i\n---------------\n",acfg.real_number_files);
+	printf("-------------\n------sb->files=0x%016llx\n---------------\n",sb->files);
 	[self bigEndian64: acfg.real_imagesize ptr: &sb->size];
+	printf("-------------\n------acfg.real_imagesize=%i\n---------------\n",acfg.real_imagesize);
+	printf("-------------\n------sb->size=0x%016llx\n---------------\n",sb->size);
 	[self bigEndian64: acfg.real_number_nodes ptr: &sb->blocks];
 	[self bigEndian64: acfg.mmap_size ptr: &sb->mmap_size];
 

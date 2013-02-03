@@ -427,6 +427,45 @@ static void Bytetable_simpledata(CuTest *tc)
 	[bt release];
 }
 
+static void Bytetable_index(CuTest *tc)
+{
+	uint8_t *output;
+	uint64_t size;
+
+	ByteTable *bt;
+
+	acfg.max_nodes = 100;
+	acfg.block_size = 16*1024;
+	acfg.page_size = 4096;
+	acfg.compression = "gzip";
+	acfg.max_text_size = 10000;
+	acfg.max_number_files = 10000;
+	bt = [[ByteTable alloc] init];
+
+	printf("Running %s\n", __FUNCTION__);
+
+	[bt numberEntries: 4096 dedup: true];
+	
+	[bt index: 1 datum: 0x0];
+	[bt index: 0 datum: 0x123456];
+	[bt index: 2 datum: 0x789ABC];
+
+	output = [bt data];
+	size = [bt size];
+	CuAssertIntEquals(tc, 9, size);
+	CuAssertHexEquals(tc, 0x12, output[0]);
+	CuAssertHexEquals(tc, 0x34, output[1]);
+	CuAssertHexEquals(tc, 0x56, output[2]);
+	CuAssertHexEquals(tc, 0x00, output[3]);
+	CuAssertHexEquals(tc, 0x00, output[4]);
+	CuAssertHexEquals(tc, 0x00, output[5]);
+	CuAssertHexEquals(tc, 0x78, output[6]);
+	CuAssertHexEquals(tc, 0x9A, output[7]);
+	CuAssertHexEquals(tc, 0xBC, output[8]);
+	[bt free];
+	[bt release];
+}
+
 static void Bytetable_cdata(CuTest *tc)
 {
 	ByteTable *bt;
@@ -471,6 +510,7 @@ static CuSuite* GetSuite(void){
 	SUITE_ADD_TEST(suite, Bytetable_add_allsize);
 	SUITE_ADD_TEST(suite, Bytetable_depdup);
 	SUITE_ADD_TEST(suite, Bytetable_simpledata);
+	SUITE_ADD_TEST(suite, Bytetable_index);
 	SUITE_ADD_TEST(suite, Bytetable_cdata);
 	return suite;
 }
