@@ -56,12 +56,14 @@ static int PagesComp(const void* av, const void* bv)
 	[compressor cdata: new_value->cdata csize: &new_value->clength data: new_value->data size: new_value->length];
 	printf("data[");
 		for(k=0;k<new_value->length;k++) {
-			printf("%02x",new_value->data[k]);
+			uint8_t *q = new_value->data;
+			printf("%02x",q[k]);
 		}
 	printf("]\n");
 	printf("cdata[");
 		for(k=0;k<new_value->clength;k++) {
-			printf("%02x",new_value->cdata[k]);
+			uint8_t *q = new_value->cdata;
+			printf("%02x",q[k]);
 		}
 	printf("]\n");
 	memcpy(new_value->data, temp->data, temp->length);
