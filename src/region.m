@@ -27,12 +27,17 @@
 	uint64_t offset;
 	uint8_t table_byte_depth;
 
-
+	printf("d1 o %x\n",o);
 	lsize = (uint64_t)[o size];
+	printf("d2\n");
 	csize = [o csize];
+	printf("d3\n");
 	max_index = [o length];
+	printf("d4\n");
 	offset = [o fsoffset];
+	printf("d5\n");
 	table_byte_depth = [o depth];
+	printf("d6\n");
 
 	data_p = [self bigEndian64: offset ptr: data_p];
 	data_p = [self bigEndian64: lsize ptr: data_p];

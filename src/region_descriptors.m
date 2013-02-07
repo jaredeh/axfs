@@ -58,7 +58,7 @@
 }
 
 -(void) processRegion: (Region *) r {
-	printf("processRegion\n");
+	printf("processRegion r %x\n",r);
 	void *src = [r data];
 	printf("data\n");
 	size_t len = [r size];

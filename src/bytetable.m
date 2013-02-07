@@ -81,6 +81,12 @@ int ByteTableComp(const void* av, const void* bv)
 }
 
 -(uint64_t) size {
+	printf("size\n");
+	printf("size\n");
+	printf("size\n");
+	printf("size\n");
+	printf("size\n");
+
 	size = length * depth;
 	return size;
 }
@@ -149,6 +155,7 @@ int ByteTableComp(const void* av, const void* bv)
 	struct bytetable_value *value;
 	uint8_t *buffer;
 
+	printf("data\n");
 	if (data != NULL) {
 		return data;
 	}
@@ -156,9 +163,9 @@ int ByteTableComp(const void* av, const void* bv)
 	[self size];
 	data = malloc(size);
 	buffer = data;
-	//printf("dbuffer=0x%08lx\n",(long unsigned int)data);
+	printf("dbuffer=0x%08lx\n",(long unsigned int)data);
 	for(i=0; i<length; i++) {
-		//printf("buffer=0x%08lx\n",(long unsigned int)buffer);
+		printf("buffer=0x%08lx\n",(long unsigned int)buffer);
 		value = &((struct bytetable_value *)bytetable.data)[i];
 		buffer = [self outputDatum: value->datum depth: depth buffer: buffer];
 	}
