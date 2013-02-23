@@ -23,6 +23,7 @@
 #include "../../../../../src/region_descriptors.m"
 #include "../../../../../src/super.m"
 #include "../../../../../src/axfs_helper.m"
+#include "../../../../../src/pages.m"
 
 struct axfs_config acfg;
 struct axfs_objects aobj;

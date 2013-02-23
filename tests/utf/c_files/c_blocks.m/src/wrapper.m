@@ -2,6 +2,7 @@
 #import "c_blocks.m"
 #import "compressible_object.m"
 #import "btree_object.m"
+#import "bytetable.m"
 #import "compressor.m"
 #import "region.m"
 

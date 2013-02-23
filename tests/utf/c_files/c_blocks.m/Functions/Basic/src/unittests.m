@@ -7,6 +7,7 @@
 #include "compressible_object.m"
 #include "btree_object.m"
 #include "region.m"
+#include "bytetable.m"
 
 struct axfs_config acfg;
 
