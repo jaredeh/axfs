@@ -19,6 +19,7 @@
 #include "comp_nodes.m"
 #include "nodes_object.m"
 #include "super.m"
+#include "pages.m"
 #include "region_descriptors.m"
 
 
