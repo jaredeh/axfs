@@ -12,6 +12,8 @@ if (a == "link")
   FileUtils.ln_s("file1","link1")
   Dir.chdir(pwd)
 elsif (a == "node")
+  FileUtils.mkdir_p("./tovtf")
+  `mknod ./tovtf/node1 c 5 7`
 elsif (a == "file")
   FileUtils.mkdir_p("./tovtf")
   f = File.new("./tovtf/file1", "w+")

@@ -22,6 +22,7 @@ static void Inodes_createdestroy(CuTest *tc)
 	Inodes *inodes;
 	int output;
 	printf("Running %s\n", __FUNCTION__);
+	acfg.input = "foo";
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
@@ -43,6 +44,7 @@ static void Inodes_link(CuTest *tc)
 	struct inode_struct *inode;
 
 	printf("Running %s\n", __FUNCTION__);
+	acfg.input = "foo";
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
@@ -59,7 +61,6 @@ static void Inodes_link(CuTest *tc)
 	inode = (struct inode_struct *) [inodes addInode: path];
 
 	CuAssertIntEquals(tc, 5, inode->size);
-	CuAssertIntEquals(tc, 0, (int)inode->path);
 
 	[inodes free];
 	[inodes release];
@@ -69,8 +70,10 @@ static void Inodes_link(CuTest *tc)
 static void Inodes_devnode(CuTest *tc)
 {
 	Inodes *inodes;
-	int output;
+	struct inode_struct *inode;
+
 	printf("Running %s\n", __FUNCTION__);
+	acfg.input = "foo";
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
@@ -78,12 +81,20 @@ static void Inodes_devnode(CuTest *tc)
 	acfg.max_text_size = 10000;
 	acfg.max_number_files = 100000;
 
+	system("ruby src/unittests.rb clean");
+	system("ruby src/unittests.rb node");
 	inodes = [[Inodes alloc] init];
+
+	NSString *path = @"./tovtf/node1";
+
+	inode = (struct inode_struct *) [inodes addInode: path];
+
+	CuAssertIntEquals(tc, 5, major(inode->size));
+	CuAssertIntEquals(tc, 7, minor(inode->size));
+
 	[inodes free];
 	[inodes release];
-
-	output = 0;
-	CuAssertIntEquals(tc, 0, output);
+	system("ruby src/unittests.rb clean");
 }
 
 static void Inodes_file(CuTest *tc)
@@ -92,6 +103,7 @@ static void Inodes_file(CuTest *tc)
 	struct inode_struct *inode;
 
 	printf("Running %s\n", __FUNCTION__);
+	acfg.input = "foo";
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
@@ -108,7 +120,6 @@ static void Inodes_file(CuTest *tc)
 	inode = (struct inode_struct *) [inodes addInode: path];
 
 	CuAssertIntEquals(tc, 4, inode->size);
-	CuAssertIntEquals(tc, 0, (int)inode->path);
 
 	[inodes free];
 	[inodes release];
@@ -121,6 +132,7 @@ static void Inodes_file_onepage(CuTest *tc)
 	struct inode_struct *inode;
 
 	printf("Running %s\n", __FUNCTION__);
+	acfg.input = "foo";
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
@@ -137,7 +149,6 @@ static void Inodes_file_onepage(CuTest *tc)
 	inode = (struct inode_struct *) [inodes addInode: path];
 
 	CuAssertIntEquals(tc, 4, inode->size);
-	CuAssertIntEquals(tc, 0, (int)inode->path);
 
 	[inodes free];
 	[inodes release];
@@ -150,6 +161,7 @@ static void Inodes_file_threepage(CuTest *tc)
 	struct inode_struct *inode;
 
 	printf("Running %s\n", __FUNCTION__);
+	acfg.input = "foo";
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
@@ -166,7 +178,6 @@ static void Inodes_file_threepage(CuTest *tc)
 	inode = (struct inode_struct *) [inodes addInode: path];
 
 	CuAssertIntEquals(tc, 10243, inode->size);
-	CuAssertIntEquals(tc, 0, (int)inode->path);
 
 	[inodes free];
 	[inodes release];
