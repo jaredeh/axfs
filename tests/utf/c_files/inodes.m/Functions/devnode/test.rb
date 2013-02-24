@@ -1,0 +1,1 @@
+exec "fakeroot ./test_special"

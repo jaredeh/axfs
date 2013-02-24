@@ -67,36 +67,6 @@ static void Inodes_link(CuTest *tc)
 	system("ruby src/unittests.rb clean");
 }
 
-static void Inodes_devnode(CuTest *tc)
-{
-	Inodes *inodes;
-	struct inode_struct *inode;
-
-	printf("Running %s\n", __FUNCTION__);
-	acfg.input = "foo";
-	acfg.max_nodes = 100;
-	acfg.block_size = 16*1024;
-	acfg.page_size = 4096;
-	acfg.compression = "lzo";
-	acfg.max_text_size = 10000;
-	acfg.max_number_files = 100000;
-
-	system("ruby src/unittests.rb clean");
-	system("ruby src/unittests.rb node");
-	inodes = [[Inodes alloc] init];
-
-	NSString *path = @"./tovtf/node1";
-
-	inode = (struct inode_struct *) [inodes addInode: path];
-
-	CuAssertIntEquals(tc, 5, major(inode->size));
-	CuAssertIntEquals(tc, 7, minor(inode->size));
-
-	[inodes free];
-	[inodes release];
-	system("ruby src/unittests.rb clean");
-}
-
 static void Inodes_file(CuTest *tc)
 {
 	Inodes *inodes;
@@ -203,7 +173,6 @@ static CuSuite* GetSuite(void){
 	CuSuite* suite = CuSuiteNew();
 
 	SUITE_ADD_TEST(suite, Inodes_createdestroy);
-	SUITE_ADD_TEST(suite, Inodes_devnode);
 	SUITE_ADD_TEST(suite, Inodes_link);
 	SUITE_ADD_TEST(suite, Inodes_file);
 	SUITE_ADD_TEST(suite, Inodes_file_onepage);
