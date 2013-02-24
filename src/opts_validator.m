@@ -32,7 +32,6 @@
 	char buffer[256];
 	memset(buffer,0,256);
 
-	printf("validate_properfiles:\n");
 	if ([self safe_strlen: acfg.input] < 1) {
 		sprintf(buffer,"--input: has zero length\n");
 	} else if (![self is_directory: acfg.input]) {
@@ -74,7 +73,6 @@
 -(bool) validate_compression: (char **) msg {
 	Compressor *comp;
 
-	printf("validate_compression:\n");
 	if (acfg.compression == NULL) {
 		acfg.compression = AXFS_DEFAULT__COMPRESSION;
 	}
@@ -99,7 +97,6 @@
 
 -(bool) validate_numbers: (char **) msg {
 
-	printf("validate_numbers:\n");
 	if ((acfg.page_size == 0) && (acfg.page_size_str != NULL)) {
 		sprintf(*msg,"--page_size %s: is not correct\n",acfg.page_size_str);
 	} else if ((acfg.xip_size == 0) && (acfg.xip_size_str != NULL)) {
@@ -111,12 +108,9 @@
 	if (acfg.page_size == 0)
 		acfg.page_size = AXFS_DEFAULT__PAGE_SIZE;
 
-	printf("validate_numbers: 1 %i\n",acfg.block_size);
 	if (acfg.block_size == 0)
 		acfg.block_size = AXFS_DEFAULT__BLOCK_SIZE;
-	printf("validate_numbers: 2 %i\n",acfg.block_size);
-	printf("validate_numbers: 3 %i\n",AXFS_DEFAULT__BLOCK_SIZE);
-	[self print_config];
+	//[self print_config];
 
 	if (strlen(*msg) != 0)
 		return false;
@@ -151,7 +145,7 @@
 	char buffer[256];
 	memset(buffer,0,256);
 
-	[self print_config];
+	//[self print_config];
 	if (![self validate_properfiles: msg]) {
 	} else if (![self validate_compression: msg]) {
 	} else if (![self validate_numbers: msg]) {

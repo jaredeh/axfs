@@ -5,7 +5,7 @@
 
 -(bool) algorithm: (char *) name {
 	compress = lookup_compressor(name);
-	printf("Compressor algorithm: '%s'\n",name);
+	//printf("Compressor algorithm: '%s'\n",name);
 	if(strcmp(compress->name, name) != 0)
 		return false;
 	compress->init(&stream, 4096, 0);
