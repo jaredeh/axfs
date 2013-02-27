@@ -39,7 +39,8 @@ ADDITIONAL_INCLUDE_DIRS = $(INC)
 ADDITIONAL_LIB_DIRS = $(LIBDIRS)
 ADDITIONAL_TOOL_LIBS = $(LIBS)
 
-mv obj/$(TOOL_NAME) ../
+all::
+	mv obj/$(TOOL_NAME) ../
 
 else
 
