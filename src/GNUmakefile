@@ -39,6 +39,8 @@ ADDITIONAL_INCLUDE_DIRS = $(INC)
 ADDITIONAL_LIB_DIRS = $(LIBDIRS)
 ADDITIONAL_TOOL_LIBS = $(LIBS)
 
+mv obj/$(TOOL_NAME) ../
+
 else
 
 OBJ = $(subst .m,.o,$(mkfs.axfs_OBJC_FILES))
@@ -48,13 +50,15 @@ OBJ = $(subst .m,.o,$(mkfs.axfs_OBJC_FILES))
 
 all: $(OBJ)
 	$(CC) $(CFLAGS) -o $(TOOL_NAME) $(OBJ) $(LIBDIRS) $(LIBS) -framework Foundation
+	mv $(TOOL_NAME) ../
 
 endif
 
 clean::
 	rm -f *.o
 	rm -f *~
-	rm -f mkfs.axfs
+	rm -f ../mkfs.axfs
+	rm -rf obj
 
 clobber: clean
 

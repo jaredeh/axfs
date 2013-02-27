@@ -11,7 +11,7 @@ RDTuple = namedtuple('RegionDescriptor', regiondesc_attrs)
 
 class RegionDescriptor:
 
-    def get_region_descriptor(self,map,offset):
+    def setup(self,map,offset):
         if offset+34 > map.size():
             return "Trying to access past the end of the map: map.size='" + \
                    str(map.size()) + "' offset+34='" + str(offset+34) + "'"
@@ -22,7 +22,7 @@ class RegionDescriptor:
         return RDTuple._make(struct.unpack(format,map[offset:offset+34]))
 
     def __init__(self,map,offset):
-        self.data = self.get_region_descriptor(map,offset)
+        self.data = self.setup(map,offset)
         self.myattrs = regiondesc_attrs.split(" ")
 
     def __getattr__(self,method_name):

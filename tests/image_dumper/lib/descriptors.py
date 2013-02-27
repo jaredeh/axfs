@@ -4,14 +4,14 @@ from collections import namedtuple
 from lib.super import *
 from lib.region_descriptor import *
 
-ImageTuple = namedtuple('ImageData', 'sb strings xip byte_aligned compressed\
+DescriptorsTuple = namedtuple('DescriptorsData', 'strings xip byte_aligned compressed\
                         node_type node_index cnode_offset cnode_index\
                         banode_offset cblock_offset inode_file_size\
                         inode_name_offset inode_num_entries inode_mode_index\
                         inode_array_index modes uids gids')
 
-class Image:
-    def setup_image(self,map):
+class Descriptors:
+    def setup(self,map):
         sb = SuperBlock(map)
         strings = RegionDescriptor(map,sb.strings)
         xip = RegionDescriptor(map,sb.xip)
@@ -31,7 +31,7 @@ class Image:
         modes = RegionDescriptor(map,sb.modes)
         uids = RegionDescriptor(map,sb.uids)
         gids = RegionDescriptor(map,sb.gids)
-        return ImageTuple._make([sb, strings, xip, byte_aligned, compressed,
+        return DescriptorsTuple._make([strings, xip, byte_aligned, compressed,
                                 node_type, node_index, cnode_offset, cnode_index,
                                 banode_offset, cblock_offset, inode_file_size,
                                 inode_name_offset, inode_num_entries,
@@ -39,7 +39,7 @@ class Image:
                                 gids])
 
     def __init__(self,map):
-        self.data = self.setup_image(map)
+        self.data = self.setup(map)
 
     def __getattr__(self,method_name):
         return getattr(self.data,method_name)

@@ -14,7 +14,6 @@
 @interface Region: NSObject {
 	uint64_t size;
 	void *data;
-	uint8_t *data_p;
 	uint64_t fsoffset;
 	uint8_t incore;
 	id o;

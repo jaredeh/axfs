@@ -26,6 +26,7 @@
 	uint64_t max_index;
 	uint64_t offset;
 	uint8_t table_byte_depth;
+	uint8_t *data_p;
 
 	printf("d1 o %x\n",o);
 	lsize = (uint64_t)[o size];
@@ -39,6 +40,8 @@
 	table_byte_depth = [o depth];
 	printf("d6\n");
 
+	data_p = data;
+	printf("data_p-data=%i AXFS_REGION_SIZE=%i data=%x data_p=%x\n",(int)data-(int)data_p,AXFS_REGION_SIZE,data,data_p);
 	data_p = [self bigEndian64: offset ptr: data_p];
 	data_p = [self bigEndian64: lsize ptr: data_p];
 	data_p = [self bigEndian64: csize ptr: data_p];
@@ -72,7 +75,6 @@
 	fsoffset = 0;
 	data = malloc(AXFS_REGION_SIZE);
 	memset(data,0,AXFS_REGION_SIZE);
-	data_p = data;
 
 	return self;
 }

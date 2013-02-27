@@ -20,7 +20,6 @@
 
 	size = sizeof(struct axfs_region_desc_onmedia) * 18;
 	data = malloc(size);
-	data_p = data;
 	return self;
 }
 
@@ -62,9 +61,9 @@
 	void *src = [r data];
 	printf("data\n");
 	size_t len = [r size];
-	printf("len\n");
+	printf("len = %i\n",len);
 	memcpy(data_p, src, len);
-	printf("g\n");
+	printf("data_p = 0x%08x\n",data_p);
 	data_p += len;
 }
 
@@ -75,6 +74,7 @@
 -(void *) data {
 	struct axfs_region_descriptors *r = &aobj.regions;
 
+	data_p = data;
 	printf("[RegionDescriptors data] 0\n");
 	[self regionOffsets];
 	printf("[RegionDescriptors data] 1\n");
@@ -117,7 +117,7 @@
 	printf("[RegionDescriptors data] 19\n");
 
 	if ((data_p - (uint8_t *)data) > size)
-		[NSException raise: @"Too big " format: @"(data_p[%d] - data[%d]) > size[%d]",data_p,data,size];
+		[NSException raise: @"Too big " format: @"(data_p[%d] - data[%d]=%d) > size[%d]",data_p,data,(int)data_p-(int)data,size];
 	printf("[RegionDescriptors data] 3\n");
 
 	return data;

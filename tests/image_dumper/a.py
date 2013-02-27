@@ -1,20 +1,10 @@
-import mmap
-import struct
-from collections import namedtuple
+from lib.axfsimage import *
 
-from lib.super import *
-from lib.helpers import *
-from lib.region_descriptor import *
-from lib.image import *
-
-f = open("../../foo.bin", "r+")
-map = mmap.mmap(f.fileno(), 0)
-
-image = Image(map)
+image = AxfsImage("../../foo.bin")
 
 image.sb.printme()
 
+print "<------------------------------->"
+image.descriptors.strings.printme()
+print "<------------------------------->"
 image.strings.printme()
-
-
-map.close()
