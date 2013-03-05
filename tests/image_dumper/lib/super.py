@@ -16,16 +16,16 @@ SuperBlockTuple = namedtuple('SuperBlock', superblock_attrs)
 
 class SuperBlock:
 
-    def get_superblock(self,map):
-        if 253 > map.size:
+    def get_superblock(self,mymap):
+        if 253 > mymap.size:
             print "Trying to access past the end of the map: map.size='" + \
-                  str(map.size()) + "'"
+                  str(mymap.size()) + "'"
             raise Exception
         format = '!I16s40sIQQQQQQQQQQQQQQQQQQQQQQBBBBQB'
-        return SuperBlockTuple._make(struct.unpack(format, map[:253]))
+        return SuperBlockTuple._make(struct.unpack(format, mymap[:253]))
 
-    def __init__(self,map):
-        self.data = self.get_superblock(map)
+    def __init__(self,mymap):
+        self.data = self.get_superblock(mymap)
         self.myattrs = superblock_attrs.split(" ")
 
     def __getattr__(self,method_name):

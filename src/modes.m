@@ -58,24 +58,25 @@ static int ModesComp(const void* av, const void* bv)
 	return new_mode;
 }
 
--(void *) addMode: (NSDictionary *) attribs {
+-(void *) addMode: (struct stat *) sb {
 	struct mode_struct temp;
 	struct mode_struct *new_value;
 	struct mode_struct *list;
 	uint64_t hash;
 	uint32_t gid;
 	uint32_t uid;
-	uint16_t mode;
+	uint32_t mode;
 
-	printf("  addMode\n");
 	memset(&temp,0,sizeof(temp));
-	gid = (uint32_t)[[attribs objectForKey:NSFileGroupOwnerAccountID] unsignedLongValue];
-	uid = (uint32_t)[[attribs objectForKey:NSFileOwnerAccountID] unsignedLongValue];
-	mode = (uint16_t)[[attribs objectForKey:NSFilePosixPermissions] shortValue];
+	gid = (uint32_t)sb->st_gid;
+	uid = (uint32_t)sb->st_uid;
+	mode = (uint32_t)sb->st_mode;
 	temp.gid = gid;
 	temp.uid = uid;
 	temp.mode = mode;
-
+	printf("  addMode 0x%08x 0x%08x 0x%08x\n",mode,gid,uid);
+	printf("  addMode 0x%08x 0x%08x 0x%08x\n",sb->st_mode,sb->st_gid,sb->st_uid);
+	printf("  addMode isdir %i\n",S_ISDIR(mode));
 	if (!deduped) {
 		printf("b0\n");
 		return [self allocForAdd: &temp];
@@ -164,8 +165,8 @@ static int ModesComp(const void* av, const void* bv)
 	uids = [[ByteTable alloc] init];
 	gids = [[ByteTable alloc] init];
 	[modesTable numberEntries: acfg.max_number_files dedup: false];
-	[uids numberEntries: acfg.max_number_files dedup: true];
-	[gids numberEntries: acfg.max_number_files dedup: true];
+	[uids numberEntries: acfg.max_number_files dedup: false];
+	[gids numberEntries: acfg.max_number_files dedup: false];
 
 	return self;
 }

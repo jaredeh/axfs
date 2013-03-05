@@ -179,9 +179,12 @@ static int InodeNameComp(const void *x, const void *y) {
 	NSString *name;
 	struct inode_struct *inode;
 	NSDictionary *attribs;
+	struct stat sb;
+	const char *str;
 
 	printf("\n1 inodes addInode='%s'\n",[path UTF8String]);
-
+	str = [path UTF8String];
+	stat(str, &sb);
 	attribs = [[NSFileManager alloc] attributesOfItemAtPath: path error: nil];
 	name = [path lastPathComponent];
 	inode = [self allocInodeStruct];
@@ -190,7 +193,7 @@ static int InodeNameComp(const void *x, const void *y) {
 	printf(" a-inodes addInode '%s' '%i' 0x%08x\n",(void *)[name UTF8String], [name length],inode->name);
 	inode->name = [aobj.strings addString: (void *)[name UTF8String] length: [name length]];
 	printf(" b-inodes addInode '%s' '%i' 0x%08x\n",(void *)[name UTF8String], [name length],inode->name);
-	inode->mode = [aobj.modes addMode: attribs];
+	inode->mode = [aobj.modes addMode: &sb];
 	printf(" c-inodes addInode 0x%08x\n",aobj.modes);
 	//redundant files
 	filetype = [attribs objectForKey:NSFileType];

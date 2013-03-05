@@ -7,15 +7,15 @@ from lib.helpers import *
 
 class Region:
 
-    def setup(self,map):
-        if self.fsoffset+self.compressed_size > map.size():
-            return "Trying to access past the end of the map: map.size='" + \
-                   str(map.size()) + "' fsoffset+compressed_size='" + str(self.fsoffset+self.compressed_size) + "'"
-        return map[self.fsoffset:self.fsoffset+self.compressed_size]
+    def setup(self,mymap):
+        if self.fsoffset+self.compressed_size > mymap.size():
+            return "Trying to access past the end of the map: mymap.size='" + \
+                   str(mymap.size()) + "' fsoffset+compressed_size='" + str(self.fsoffset+self.compressed_size) + "'"
+        return mymap[self.fsoffset:self.fsoffset+self.compressed_size]
 
-    def __init__(self,map,regiondesc):
+    def __init__(self,mymap,regiondesc):
         self.regiondesc = regiondesc
-        self.data = self.setup(map)
+        self.data = self.setup(mymap)
 
     def __getattr__(self,method_name):
         return getattr(self.regiondesc,method_name)
@@ -35,5 +35,3 @@ class Region:
                 j=0
         print h
         print s
-
-

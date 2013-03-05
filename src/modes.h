@@ -3,6 +3,7 @@
 #import "axfs_helper.h"
 #import "axfs_objects.h"
 #import "bytetable.h"
+#include <sys/stat.h>
 
 extern struct axfs_config acfg;
 extern struct axfs_objects aobj;
@@ -12,7 +13,7 @@ extern struct axfs_objects aobj;
 struct mode_struct {
 	uint32_t gid;
 	uint32_t uid;
-	uint16_t mode;
+	uint32_t mode;
 	uint64_t position;
 	struct mode_struct *next;
 };
@@ -23,7 +24,7 @@ struct mode_struct {
 	ByteTable *uids;
 	ByteTable *gids;
 }
--(void *) addMode: (NSDictionary *) attribs;
+-(void *) addMode: (struct stat *) sb;
 -(uint64_t) length;
 -(id) modesTable;
 -(id) uids;

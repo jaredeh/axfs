@@ -5,7 +5,7 @@ from lib.super import *
 from lib.descriptors import *
 from lib.region import *
 from lib.helpers import *
-
+from lib.bytetable import *
 
 ImageTuple = namedtuple('ImageData', 'sb descriptors strings xip byte_aligned\
                         compressed node_type node_index cnode_offset\
@@ -14,27 +14,27 @@ ImageTuple = namedtuple('ImageData', 'sb descriptors strings xip byte_aligned\
                         inode_mode_index inode_array_index modes uids gids')
 
 class AxfsImage:
-    def setup(self,map):
-        sb = SuperBlock(map)
-        descriptors = Descriptors(map)
-        strings = Region(map,descriptors.strings)
-        xip = Region(map,descriptors.xip)
-        byte_aligned = Region(map,descriptors.byte_aligned)
-        compressed = Region(map,descriptors.compressed)
-        node_type = Region(map,descriptors.node_type)
-        node_index = Region(map,descriptors.node_index)
-        cnode_offset = Region(map,descriptors.cnode_offset)
-        cnode_index = Region(map,descriptors.cnode_index)
-        banode_offset = Region(map,descriptors.banode_offset)
-        cblock_offset = Region(map,descriptors.cblock_offset)
-        inode_file_size = Region(map,descriptors.inode_file_size)
-        inode_name_offset = Region(map,descriptors.inode_name_offset)
-        inode_num_entries = Region(map,descriptors.inode_num_entries)
-        inode_mode_index = Region(map,descriptors.inode_mode_index)
-        inode_array_index = Region(map,descriptors.inode_array_index)
-        modes = Region(map,descriptors.modes)
-        uids = Region(map,descriptors.uids)
-        gids = Region(map,descriptors.gids)
+    def setup(self,mymap):
+        sb = SuperBlock(mymap)
+        descriptors = Descriptors(mymap)
+        strings = Region(mymap,descriptors.strings)
+        xip = Region(mymap,descriptors.xip)
+        byte_aligned = Region(mymap,descriptors.byte_aligned)
+        compressed = Region(mymap,descriptors.compressed)
+        node_type = ByteTable(mymap,descriptors.node_type)
+        node_index = ByteTable(mymap,descriptors.node_index)
+        cnode_offset = ByteTable(mymap,descriptors.cnode_offset)
+        cnode_index = ByteTable(mymap,descriptors.cnode_index)
+        banode_offset = ByteTable(mymap,descriptors.banode_offset)
+        cblock_offset = ByteTable(mymap,descriptors.cblock_offset)
+        inode_file_size = ByteTable(mymap,descriptors.inode_file_size)
+        inode_name_offset = ByteTable(mymap,descriptors.inode_name_offset)
+        inode_num_entries = ByteTable(mymap,descriptors.inode_num_entries)
+        inode_mode_index = ByteTable(mymap,descriptors.inode_mode_index)
+        inode_array_index = ByteTable(mymap,descriptors.inode_array_index)
+        modes = ByteTable(mymap,descriptors.modes)
+        uids = ByteTable(mymap,descriptors.uids)
+        gids = ByteTable(mymap,descriptors.gids)
         return ImageTuple._make([sb, descriptors, strings, xip, byte_aligned, compressed,
                                 node_type, node_index, cnode_offset, cnode_index,
                                 banode_offset, cblock_offset, inode_file_size,
