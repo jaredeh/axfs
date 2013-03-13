@@ -20,7 +20,7 @@ print "<-------compressed------------------------>"
 image.compressed.printme()
 print "<-------node_type------------------------>"
 print image.node_type[1]
-print image.node_type.printdata()
+image.node_type.printdata()
 print "<-------mode------------------------>"
 print image.modes.printdata()
 print "<-------inode_mode_index------------------------>"
@@ -37,11 +37,27 @@ print "<-------descriptors-gids----------------->"
 image.descriptors.gids.printme()
 print "<-------gids------------------------>"
 image.gids.printdata()
+print "<-------cnode_offset------------------------>"
+image.cnode_offset.printdata()
+print "<-------cnode_index------------------------>"
+image.cnode_index.printdata()
+print "<-------cblock_offset------------------------>"
+image.cblock_offset.printdata()
 
-import stat
-print stat.S_ISDIR(0x7fff)
-print stat.S_ISDIR(0x41ed)
-print stat.S_ISDIR(0x81a4)
+print "<-------descriptors-inode_array_index-------->"
+image.descriptors.inode_array_index.printme()
+print "<-------inode_array_index------------------------>"
+image.inode_array_index.printdata()
 
+print "<-------descriptors-banode_offset-------->"
+image.descriptors.banode_offset.printme()
+print "<-------banode_offset------------------------>"
+image.banode_offset.printdata()
+print "<-------descriptors-inode_name_offset-------->"
+image.descriptors.inode_name_offset.printme()
+print "<-------inode_name_offset-------->"
+image.inode_name_offset.printdata()
+print "<-------strings------------------------>"
+image.strings.printme()
 
 inodes = Inodes(image,"out")

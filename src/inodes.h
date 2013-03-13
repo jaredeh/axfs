@@ -59,6 +59,7 @@ struct paths_struct {
 	uint64_t page_size;
 	uint64_t length;
 	uint64_t position;
+	void **nameOrder;
 	ByteTable *fileSizeIndex;
 	ByteTable *nameOffset;
 	ByteTable *numEntries;

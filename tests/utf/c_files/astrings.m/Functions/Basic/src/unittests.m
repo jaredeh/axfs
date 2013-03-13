@@ -13,97 +13,6 @@
 
 struct axfs_config acfg;
 
-static void StringsComp_less(CuTest *tc){
-	int output;
-	struct string_struct a;
-	struct string_struct b;
-
-	printf("Running %s\n", __FUNCTION__);
-
-	a.data = "AAAAAA";
-	a.length = 5;
-	b.data = "BBBBBB";
-	b.length = 6;
-	output = StringsComp((void *)&a.data,(void *)&b.data);
-	CuAssertIntEquals(tc, -1, output);
-
-	a.data = "AAAAAA";
-	a.length = 6;
-	b.data = "BBBBBB";
-	b.length = 6;
-	output = StringsComp((void *)&a.data,(void *)&b.data);
-	CuAssertIntEquals(tc, -1, output);
-
-	a.data = "AAAAAA";
-	a.length = 2;
-	b.data = "BBBBBB";
-	b.length = 2;
-	output = StringsComp((void *)&a.data,(void *)&b.data);
-	CuAssertIntEquals(tc, -1, output);
-}
-
-static void StringsComp_greater(CuTest *tc){
-	int output;
-	struct string_struct a;
-	struct string_struct b;
-
-	printf("Running %s\n", __FUNCTION__);
-
-	a.data = "AAAAAA";
-	a.length = 6;
-	b.data = "BBBBBB";
-	b.length = 5;
-	output = StringsComp((void *)&a.data,(void *)&b.data);
-	CuAssertIntEquals(tc, 1, output);
-
-	a.data = "BBBBBB";
-	a.length = 6;
-	b.data = "AAAAAA";
-	b.length = 6;
-	output = StringsComp((void *)&a.data,(void *)&b.data);
-	CuAssertIntEquals(tc, 1, output);
-
-	a.data = "BBBBBB";
-	a.length = 2;
-	b.data = "AAAAAA";
-	b.length = 2;
-	output = StringsComp((void *)&a.data,(void *)&b.data);
-	CuAssertIntEquals(tc, 1, output);
-}
-
-static void StringsComp_equal(CuTest *tc){
-	int output;
-	struct string_struct a;
-	struct string_struct b;
-	acfg.max_text_size = 10000;
-	acfg.max_number_files = 10000;
-	printf("Running %s\n", __FUNCTION__);
-
-	a.data = malloc(4096);
-	b.data = malloc(4096);
-
-	a.data = "AAAAAA";
-	a.length = 5;
-	b.data = "AAAAAA";
-	b.length = 5;
-	output = StringsComp((void *)&a.data,(void *)&b.data);
-	CuAssertIntEquals(tc, 0, output);
-
-	a.data = "AAAAAA";
-	a.length = 6;
-	b.data = "AAAAAA";
-	b.length = 6;
-	output = StringsComp((void *)&a.data,(void *)&b.data);
-	CuAssertIntEquals(tc, 0, output);
-
-	a.data = "AAAAAA";
-	a.length = 2;
-	b.data = "AAAAAA";
-	b.length = 2;
-	output = StringsComp((void *)&a.data,(void *)&b.data);
-	CuAssertIntEquals(tc, 0, output);
-}
-
 static void Strings_createdestroy(CuTest *tc){
 	int output;
 	Strings *str = [[Strings alloc] init];
@@ -216,7 +125,7 @@ static void Strings_duplicates(CuTest *tc){
 	CuAssertPtrNotNull(tc, output[2]);
 	CuAssertPtrNotNull(tc, output[3]);
 	CuAssertPtrNotNull(tc, output[4]);
-	CuAssertTrue(tc, (output[1] == output[2]));
+	CuAssertTrue(tc, (output[1] != output[2]));
 	CuAssertTrue(tc, (output[0] != output[4]));
 
 	[str free];
@@ -285,6 +194,7 @@ static void Strings_data(CuTest *tc){
 	char *data;
 	uint64_t length;
 	int explen = 0;
+	void **no;
 	acfg.max_text_size = 1000000;
 	acfg.max_number_files = 10000;
 
@@ -296,30 +206,34 @@ static void Strings_data(CuTest *tc){
 	printf("Running %s\n", __FUNCTION__);
 
 	Strings *str = [[Strings alloc] init];
+	no = malloc(5*sizeof(void*));
+	memset(no,0,5*sizeof(void*));
+	[str nameOrder: no];
 	expected = malloc(2000);
 
 	length = 5;
 	data = "hello";
-	[str addString: data length: length];
+	no[0] = [str addString: data length: length];
 	memcpy(&expected[explen],data,length);
 	explen += length;
 
+
 	length = 5;
 	data = "jared";
-	[str addString: data length: length];
+	no[1] = [str addString: data length: length];
 	memcpy(&expected[explen],data,length);
 	explen += length;
 
 	length = 13;
 	data = "jared hulbert";
-	[str addString: data length: length];
+	no[2] = [str addString: data length: length];
 	memcpy(&expected[explen],data,length);
 	explen += length;
 
 	length = 1000;
 	data = malloc(2000);
 	memset(data,'a',length);
-	[str addString: data length: length];
+	no[3] = [str addString: data length: length];
 	memcpy(&expected[explen],data,length);
 	explen += length;
 	free(data);
@@ -337,6 +251,7 @@ static void Strings_cdata(CuTest *tc){
 	char *data;
 	uint64_t length;
 	int explen = 0;
+	void **no;
 
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
@@ -348,30 +263,33 @@ static void Strings_cdata(CuTest *tc){
 	printf("Running %s\n", __FUNCTION__);
 
 	Strings *str = [[Strings alloc] init];
+	no = malloc(5*sizeof(void*));
+	memset(no,0,5*sizeof(void*));
+	[str nameOrder: no];
 	expected = malloc(2000);
     
 	length = 5;
 	data = "hello";
-	[str addString: data length: length];
+	no[0] = [str addString: data length: length];
 	memcpy(&expected[explen],data,length);
 	explen += length;
     
 	length = 5;
 	data = "jared";
-	[str addString: data length: length];
+	no[1] = [str addString: data length: length];
 	memcpy(&expected[explen],data,length);
 	explen += length;
     
 	length = 13;
 	data = "jared hulbert";
-	[str addString: data length: length];
+	no[2] = [str addString: data length: length];
 	memcpy(&expected[explen],data,length);
 	explen += length;
     
 	length = 1000;
 	data = malloc(2000);
 	memset(data,'a',length);
-	[str addString: data length: length];
+	no[3] = [str addString: data length: length];
 	memcpy(&expected[explen],data,length);
 	explen += length;
 	free(data);
@@ -389,9 +307,6 @@ static void Strings_cdata(CuTest *tc){
 static CuSuite* GetSuite(void){
 	CuSuite* suite = CuSuiteNew();
 
-	SUITE_ADD_TEST(suite, StringsComp_less);
-	SUITE_ADD_TEST(suite, StringsComp_greater);
-	SUITE_ADD_TEST(suite, StringsComp_equal);
 	SUITE_ADD_TEST(suite, Strings_createdestroy);
 	SUITE_ADD_TEST(suite, Strings_simplesort);
 	SUITE_ADD_TEST(suite, Strings_duplicates);

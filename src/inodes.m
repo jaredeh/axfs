@@ -276,11 +276,11 @@ static int InodeNameComp(const void *x, const void *y) {
 
 	j++;
 //NEED A BETTER WAY.  This won't mix subdir inodes into dir inode lists, bad.
-	[fileSizeIndex add: inode->size];
-	[nameOffset add: inode->name->position];
-	[modeIndex add: inode->mode->position];
+	[fileSizeIndex index: index datum: inode->size];
+	nameOrder[index] = inode->name;
+	[modeIndex index: index datum: inode->mode->position];
 	list = &inode->list;
-	[numEntries add: list->length];
+	[numEntries index: index datum: list->length];
 	if (list->inodes != NULL) {
 		l = *next;
 		*next += list->length;
@@ -301,7 +301,7 @@ static int InodeNameComp(const void *x, const void *y) {
 		for(k=0;k<j-1;k++) {
 			printf("...|");
 		}
-		printf("  -htyb vfgnodes '%s' [arrayIndex index: %i datum: %i]; j=%i\n",s,index,list->nodes[0],j-1);
+		printf("  -nodes '%s' [arrayIndex index: %i datum: %i]; j=%i\n",s,index,list->nodes[0],j-1);
 		[arrayIndex index: index datum: list->nodes[0]];
 	}
 	inode->position = index;
@@ -351,7 +351,7 @@ static int InodeNameComp(const void *x, const void *y) {
 	paths = [[Paths alloc] init];
 
 	fileSizeIndex = [[ByteTable alloc] init];
-	nameOffset = [[ByteTable alloc] init];
+	nameOffset = [aobj.strings nameOffset];
 	numEntries = [[ByteTable alloc] init];
 	modeIndex = [[ByteTable alloc] init];
 	arrayIndex = [[ByteTable alloc] init];
@@ -361,6 +361,10 @@ static int InodeNameComp(const void *x, const void *y) {
 	[numEntries numberEntries: acfg.max_number_files dedup: false];
 	[modeIndex numberEntries: acfg.max_number_files dedup: false];
 	[arrayIndex numberEntries: acfg.max_number_files dedup: false];
+
+	nameOrder = malloc(sizeof(void*) * (acfg.max_number_files+1));
+	memset(nameOrder,0,sizeof(void*) * (acfg.max_number_files+1));
+	[aobj.strings nameOrder: nameOrder];
 
 	printf("\n\n\n");
 	[self addInode: @""];

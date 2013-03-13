@@ -18,8 +18,8 @@
 		page = pages[i];
 		memcpy(bd, page->data, page->length);
 		size += page->length;
-		bd += page->length;
 		[banodeOffset add: bd-data];
+		bd += page->length;
 	}
 	return data;
 }

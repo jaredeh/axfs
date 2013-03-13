@@ -1,21 +1,6 @@
 #import "astrings.h"
 
 
-static int StringsComp(const void* av, const void* bv)
-{
-	struct string_struct * a = (struct string_struct *)av;
-	struct string_struct * b = (struct string_struct *)bv;
-	void *adata = (void *)a->data;
-	void *bdata = (void *)b->data;
-
-	if( a->length > b->length )
-		return 1;
-	if( a->length < b->length )
-		return -1;
-
-	return memcmp(adata,bdata,a->length);
-}
-
 @implementation Strings
 
 -(struct string_struct *) allocStringStruct {
@@ -30,17 +15,12 @@ static int StringsComp(const void* av, const void* bv)
 	return (void *) [self allocData: &data_obj chunksize: len];
 }
 
--(uint64_t) hash: (struct string_struct *) temp {
-	uint64_t hash = 0;
-	uint8_t *str;
-	int i;
-	str = (uint8_t *) temp->data;
-
-	for (i=0;i<temp->length;i++){
-		hash += str[i];
-	}
-
-	return hash % hashlen;
+-(void) memcpyOutData: (struct string_struct *) str {
+	void *dst;
+	void *src;
+	dst = (void *) [self allocData: &out_obj chunksize: str->length];
+	src = str->data;
+	memcpy(dst,src,str->length);
 }
 
 -(void *) allocForAdd: (struct string_struct *) temp {
@@ -66,34 +46,27 @@ static int StringsComp(const void* av, const void* bv)
 	temp.data = data_ptr;
 	temp.length = len;
 
-	if (!deduped) {
-		return [self allocForAdd: &temp];
-	}
+	return [self allocForAdd: &temp];
+}
 
-	hash = [self hash: &temp];
+-(id) nameOffset {
+	return nameOffset;
+}
 
-	if (hashtable[hash] == NULL) {
-		new_value = [self allocForAdd: &temp];
-		hashtable[hash] = new_value;
-		return new_value;
-	}
-
-	list = hashtable[hash];
-	while(true) {
-		if (!StringsComp(list,&temp)) {
-			return list;
-		}
-		if (list->next == NULL) {
-			new_value = [self allocForAdd: &temp];
-			list->next = new_value;
-			return new_value;
-		}
-		list = list->next;
-	}
+-(void) nameOrder: (void **) no {
+	nameOrder = no;
 }
 
 -(void *) data {
-	data = data_obj.data;
+	void **order = nameOrder;
+	struct string_struct *str;
+	while(*order != NULL) {
+		str = (struct string_struct *)*order;
+		order++;
+		[nameOffset add: out_obj.used];
+		[self memcpyOutData: str];
+	}
+	data = out_obj.data;
 	return data;
 }
 
@@ -107,15 +80,15 @@ static int StringsComp(const void* av, const void* bv)
 }
 
 -(id) init {
-	hashlen = AXFS_STRINGS_HASHTABLE_SIZE;
 	if (!(self = [super init]))
 		return self;
 
 	uint64_t len = sizeof(struct string_struct) * (acfg.max_number_files + 1);
 	[self configureDataStruct: &strings length: len];
 	[self configureDataStruct: &data_obj length: acfg.max_text_size + 1];
-	deduped = true;
- 
+	[self configureDataStruct: &out_obj length: acfg.max_text_size + 1];
+	nameOrder = 0;
+
 	return self;
 }
 
@@ -123,6 +96,7 @@ static int StringsComp(const void* av, const void* bv)
 	[super free];
 	free(strings.data);
 	free(data_obj.data);
+	free(out_obj.data);
 }
 
 @end
