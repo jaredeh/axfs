@@ -57,7 +57,7 @@
 	padding_size = actual_offset - input_offset;
 
 	printf("\tactual_offset=%d - input_offset=%d\n",(int)actual_offset ,(int)input_offset);
-	if (padding_size >= 0) {
+	if (padding_size > 0) {
 		printf("\tpadding_size=%i\n",padding_size);
 		ds = &data_segments[current_segment];
 		current_segment++;

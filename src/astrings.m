@@ -88,6 +88,7 @@
 	[self configureDataStruct: &data_obj length: acfg.max_text_size + 1];
 	[self configureDataStruct: &out_obj length: acfg.max_text_size + 1];
 	nameOrder = 0;
+	nameOffset = [[ByteTable alloc] init];
 
 	return self;
 }
