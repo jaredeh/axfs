@@ -56,7 +56,7 @@
 	padding_size = actual_offset - input_offset;
 
 	printf("\tactual_offset=%d - input_offset=%d\n",(int)actual_offset ,(int)input_offset);
-	if (padding_size != 0) {
+	if (padding_size >= 0) {
 		printf("\tpadding_size=%i\n",padding_size);
 		ds = &data_segments[current_segment];
 		current_segment++;
@@ -65,6 +65,8 @@
 		ds->size = padding_size;
 		ds->end = ds->start + ds->size;
 		memset(ds->data,0,padding_size);
+	} else if (padding_size < 0) {
+		[NSException raise: @"padding_size can't be < 0"  format: @"padding_size = %d",padding_size];
 	}
 	ds = &data_segments[current_segment];
 	current_segment++;
