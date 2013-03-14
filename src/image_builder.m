@@ -51,6 +51,7 @@
 
 	input_offset = data_segments[current_segment-1].end;
 
+	NSLog(@"buildPart obj=%@",obj);
 	[obj fsoffset: input_offset];
 	actual_offset = [obj fsoffset];
 	padding_size = actual_offset - input_offset;
