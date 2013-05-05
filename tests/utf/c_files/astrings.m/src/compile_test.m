@@ -9,6 +9,7 @@
 #include "../../../../../src/compressible_object.m"
 #include "../../../../../src/btree_object.m"
 #include "../../../../../src/region.m"
+#include "../../../../../src/bytetable.m"
 
 struct axfs_config acfg;
 
