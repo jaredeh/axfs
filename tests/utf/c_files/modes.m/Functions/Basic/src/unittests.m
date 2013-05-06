@@ -15,15 +15,12 @@
 struct axfs_config acfg;
 struct axfs_objects aobj;
 
-NSDictionary *makeattribs(uint32_t igid, uint32_t iuid, uint16_t imode)
+struct stat *makeattribs(struct stat *sb, uint32_t igid, uint32_t iuid, uint16_t imode)
 {
-	NSNumber *ngid = [NSNumber numberWithUnsignedLong: (unsigned long) igid];
-	NSNumber *nuid = [NSNumber numberWithUnsignedLong: (unsigned long) iuid];
-	NSNumber *nmode = [NSNumber numberWithShort: (short) imode];
-	NSDictionary *attribs;
-
-	attribs = [NSDictionary dictionaryWithObjectsAndKeys: ngid, NSFileGroupOwnerAccountID, nuid, NSFileOwnerAccountID, nmode, NSFilePosixPermissions, nil];
-	return attribs;
+	sb->st_gid = igid;
+	sb->st_uid = iuid;
+	sb->st_mode = imode;
+	return sb;
 }
 
 static void Modes_createdestroy(CuTest *tc)
@@ -50,7 +47,8 @@ static void Modes_one_node(CuTest *tc)
 	Modes *modes;
 	int length;
 	struct mode_struct *mode;
-	NSDictionary *attr;
+	struct stat *attr;
+	struct stat sb;
 	printf("Running %s\n", __FUNCTION__);
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
@@ -61,14 +59,13 @@ static void Modes_one_node(CuTest *tc)
 	modes = [[Modes alloc] init];
 	length = [modes length];
 	CuAssertIntEquals(tc, 0, length);
-	attr = makeattribs(2, 5, 44);
+	attr = makeattribs(&sb, 2, 5, 44);
 	mode = [modes addMode: attr];
 	length = [modes length];
 	CuAssertIntEquals(tc, 1, length);
 	CuAssertIntEquals(tc, 2, mode->gid);
 	CuAssertIntEquals(tc, 5, mode->uid);
 	CuAssertIntEquals(tc, 44, mode->mode);
-
 
 	[modes free];
 	[modes release];
@@ -79,7 +76,8 @@ static void Modes_two_node(CuTest *tc)
 	Modes *modes;
 	int length;
 	struct mode_struct *mode;
-	NSDictionary *attr;
+	struct stat *attr;
+	struct stat sb;
 	printf("Running %s\n", __FUNCTION__);
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
@@ -90,14 +88,14 @@ static void Modes_two_node(CuTest *tc)
 	modes = [[Modes alloc] init];
 	length = [modes length];
 	CuAssertIntEquals(tc, 0, length);
-	attr = makeattribs(2, 5, 44);
+	attr = makeattribs(&sb, 2, 5, 44);
 	mode = [modes addMode: attr];
 	length = [modes length];
 	CuAssertIntEquals(tc, 1, length);
 	CuAssertIntEquals(tc, 2, mode->gid);
 	CuAssertIntEquals(tc, 5, mode->uid);
 	CuAssertIntEquals(tc, 44, mode->mode);
-	attr = makeattribs(11, 33, 55);
+	attr = makeattribs(&sb, 11, 33, 55);
 	mode = [modes addMode: attr];
 	length = [modes length];
 	CuAssertIntEquals(tc, 2, length);
@@ -116,7 +114,8 @@ static void Modes_dup_nodes(CuTest *tc)
 	struct mode_struct *mode;
 	struct mode_struct *modea;
 	struct mode_struct *modeb;
-	NSDictionary *attr;
+	struct stat *attr;
+	struct stat sb;
 	printf("Running %s\n", __FUNCTION__);
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
@@ -127,21 +126,21 @@ static void Modes_dup_nodes(CuTest *tc)
 	modes = [[Modes alloc] init];
 	length = [modes length];
 	CuAssertIntEquals(tc, 0, length);
-	attr = makeattribs(2, 5, 44);
+	attr = makeattribs(&sb, 2, 5, 44);
 	mode = [modes addMode: attr];
 	length = [modes length];
 	CuAssertIntEquals(tc, 1, length);
 	CuAssertIntEquals(tc, 2, mode->gid);
 	CuAssertIntEquals(tc, 5, mode->uid);
 	CuAssertIntEquals(tc, 44, mode->mode);
-	attr = makeattribs(11, 33, 55);
+	attr = makeattribs(&sb, 11, 33, 55);
 	modea = [modes addMode: attr];
 	length = [modes length];
 	CuAssertIntEquals(tc, 2, length);
 	CuAssertIntEquals(tc, 11, modea->gid);
 	CuAssertIntEquals(tc, 33, modea->uid);
 	CuAssertIntEquals(tc, 55, modea->mode);
-	attr = makeattribs(11, 33, 55);
+	attr = makeattribs(&sb, 11, 33, 55);
 	modeb = [modes addMode: attr];
 	length = [modes length];
 	CuAssertIntEquals(tc, 2, length);
@@ -149,14 +148,14 @@ static void Modes_dup_nodes(CuTest *tc)
 	CuAssertIntEquals(tc, 33, modeb->uid);
 	CuAssertIntEquals(tc, 55, modeb->mode);
 	CuAssertPtrEquals(tc,modea,modeb);
-	attr = makeattribs(2, 5, 44);
+	attr = makeattribs(&sb, 2, 5, 44);
 	mode = [modes addMode: attr];
 	length = [modes length];
 	CuAssertIntEquals(tc, 2, length);
 	CuAssertIntEquals(tc, 2, mode->gid);
 	CuAssertIntEquals(tc, 5, mode->uid);
 	CuAssertIntEquals(tc, 44, mode->mode);
-	attr = makeattribs(2, 5, 41);
+	attr = makeattribs(&sb, 2, 5, 41);
 	mode = [modes addMode: attr];
 	length = [modes length];
 	CuAssertIntEquals(tc, 3, length);

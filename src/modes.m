@@ -74,11 +74,7 @@ static int ModesComp(const void* av, const void* bv)
 	temp.gid = gid;
 	temp.uid = uid;
 	temp.mode = mode;
-	printf("  addMode 0x%08x 0x%08x 0x%08x\n",mode,gid,uid);
-	printf("  addMode 0x%08x 0x%08x 0x%08x\n",sb->st_mode,sb->st_gid,sb->st_uid);
-	printf("  addMode isdir %i\n",S_ISDIR(mode));
 	if (!deduped) {
-		printf("b0\n");
 		return [self allocForAdd: &temp];
 	}
 
@@ -87,20 +83,17 @@ static int ModesComp(const void* av, const void* bv)
 	if (hashtable[hash] == NULL) {
 		new_value = [self allocForAdd: &temp];
 		hashtable[hash] = new_value;
-		printf("b1\n");
 		return new_value;
 	}
 
 	list = hashtable[hash];
 	while(true) {
 		if ((list->gid == gid)&&(list->uid == uid)&&(list->mode == mode)){
-			printf("b2\n");
 			return list;
 		}
 		if (list->next == NULL) {
 			new_value = [self allocForAdd: &temp];
 			list->next = new_value;
-			printf("b3\n");
 			return new_value;
 		}
 		list = list->next;

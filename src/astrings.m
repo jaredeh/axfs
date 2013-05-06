@@ -89,7 +89,7 @@
 	[self configureDataStruct: &out_obj length: acfg.max_text_size + 1];
 	nameOrder = 0;
 	nameOffset = [[ByteTable alloc] init];
-
+	[nameOffset numberEntries: acfg.max_number_files dedup: false];
 	return self;
 }
 

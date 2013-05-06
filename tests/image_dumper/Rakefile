@@ -1,0 +1,11 @@
+task :all do
+  sh "python test.py"
+end
+
+task :clean do
+  rm_rf "foo.bin"
+end
+
+task :clobber => :clean
+
+task :default => :all

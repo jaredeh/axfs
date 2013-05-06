@@ -5,4 +5,5 @@ compile_test
 build/
 test
 runtest
-compile_test.d
+*.d
+c_files/inodes.m/Functions/devnode/test_special
