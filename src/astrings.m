@@ -60,10 +60,16 @@
 -(void *) data {
 	void **order = nameOrder;
 	struct string_struct *str;
+	if (data)
+		return data;
+	
 	while(*order != NULL) {
 		str = (struct string_struct *)*order;
 		order++;
+		printf("astrings 1\n");
+		printf("astrings 2 - 0x%08x\n",str);
 		[nameOffset add: out_obj.used];
+		printf("astrings 3\n");
 		[self memcpyOutData: str];
 	}
 	data = out_obj.data;
@@ -89,7 +95,7 @@
 	[self configureDataStruct: &out_obj length: acfg.max_text_size + 1];
 	nameOrder = 0;
 	nameOffset = [[ByteTable alloc] init];
-	[nameOffset numberEntries: acfg.max_number_files dedup: false];
+	[nameOffset numberEntries: acfg.max_number_files + 1 dedup: false];
 	return self;
 }
 

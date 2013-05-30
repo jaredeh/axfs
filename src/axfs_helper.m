@@ -1,6 +1,34 @@
 #import "axfs_helper.h"
+#include <dirent.h>
 
 @implementation NSObject (axfs)
+
+
+-(uint64_t) countFiles: (char *) path {
+	uint64_t file_count = 0;
+	DIR * dirp;
+	struct dirent * entry;
+
+	dirp = opendir(path);
+
+	if (!dirp) {
+		[NSException raise: @"Bad dir" format: @"Failed to open dir at path=%@",path];
+	}
+	while ((entry = readdir(dirp)) != NULL) {
+		if (strcmp(entry->d_name,".") == 0) {
+					printf("entry='%s' . \n",entry->d_name);
+		} else if (strcmp(entry->d_name,"..") == 0) {
+					printf("entry='%s' .. \n",entry->d_name);
+		} else {
+					printf("entry='%s'\n",entry->d_name);
+			file_count++;
+		}
+	}
+
+	closedir(dirp);
+	printf("file_count=%i\n",file_count);
+	return file_count;
+}
 
 -(uint64_t) alignNumber: (uint64_t) number bytes: (uint64_t) d {
 	uint64_t q;

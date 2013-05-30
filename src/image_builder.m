@@ -208,7 +208,9 @@
 	[self buildPart: [aobj.byte_aligned banodeOffset] name: "banodeOffset"];
 	[self buildPart: [aobj.compressed cblockOffset] name: "cblockOffset"];
 	[self buildPart: [aobj.inodes fileSizeIndex] name: "fileSizeIndex"];
+	printf("nameOffset===\n");
 	[self buildPart: [aobj.inodes nameOffset] name: "nameOffset"];
+	printf("===nameOffset\n");
 	[self buildPart: [aobj.inodes numEntries] name: "numEntries"];
 	[self buildPart: [aobj.inodes modeIndex] name: "modeIndex"];
 	[self buildPart: [aobj.inodes arrayIndex] name: "arrayIndex"];

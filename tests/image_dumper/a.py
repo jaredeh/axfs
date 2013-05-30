@@ -8,8 +8,8 @@ image.sb.printme()
 
 print "<-------descriptors-strings-------------->"
 image.descriptors.strings.printme()
-print "<-------descriptors-inode_mode_index-------->"
-image.descriptors.inode_mode_index.printme()
+print "<-------descriptors-inode_name_index-------->"
+image.descriptors.inode_name_index.printme()
 print "<-------strings------------------------>"
 image.strings.printme()
 print "<-------xip------------------------>"

@@ -4,8 +4,13 @@ from lib.region import *
 class ByteTable:
 
     def setup(self,mymap):
-        if self.regiondesc.size > self.regiondesc.compressed_size:
-            self.data = zlib.decompress(self.region.data)
+        print ":-"
+        print self.regiondesc.size
+        print "-"
+        print self.regiondesc.compressed_size
+        print "-;\n"
+        if self.regiondesc.size > self.regiondesc.compressed_size and self.regiondesc.size > 1:
+            self.data = zlib.decompress(self.region.data,-15)
         else:
             self.data = self.region.data
 

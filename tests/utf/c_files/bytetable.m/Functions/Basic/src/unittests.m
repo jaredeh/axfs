@@ -490,7 +490,7 @@ static void Bytetable_cdata(CuTest *tc)
 	}
 	[bt data];
 
-//	printf("csize = %i  size = %i\n",(int)[bt csize],(int)[bt size]);
+	printf("csize = %i  size = %i\n",(int)[bt csize],(int)[bt size]);
 	CuAssertTrue(tc,[bt csize] <= [bt size]);
 	CuAssertTrue(tc,[bt csize] > 0);
 

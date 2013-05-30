@@ -8,6 +8,7 @@ extern struct axfs_config acfg;
 
 struct string_struct {
 	void *data;
+	uint8_t pad;
 	uint64_t length;
 	uint64_t position;
 	struct string_struct *next;

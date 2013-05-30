@@ -1,3 +1,13 @@
+task :build do
+  inc = " -I../../libs/squashfs_compressor -I/usr/include/python2.7"
+  cflags = " -O2 -fPIC "
+  lib = "../../libs/squashfs_compressor/libsquashfs_compressor.a"
+  sh "swig -python ccompresser.i"
+  sh "gcc #{cflags} #{inc} -c ccompresser.c" 
+  sh "gcc #{cflags} #{inc} -c ccompresser_wrap.c"
+  sh "gcc -shared ccompresser.o ccompresser_wrap.o #{lib} -o _ccompresser.so"
+end
+
 task :all do
   sh "python test.py"
 end

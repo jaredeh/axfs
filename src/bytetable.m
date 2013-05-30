@@ -81,12 +81,6 @@ int ByteTableComp(const void* av, const void* bv)
 }
 
 -(uint64_t) size {
-	printf("size\n");
-	printf("size\n");
-	printf("size\n");
-	printf("size\n");
-	printf("size\n");
-
 	size = length * depth;
 	return size;
 }

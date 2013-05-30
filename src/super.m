@@ -43,7 +43,6 @@
 
 	page_shift = log2(acfg.page_size);
 	sb->page_shift = (uint8_t) page_shift;
-	printf("\n=======================\n======== do_page_shift page_shift=%i acfg.page_size=%i sb->page_shift=%i\n=======================\n",page_shift, acfg.page_size,sb->page_shift);
 }
 
 -(uint64_t) size {
@@ -80,7 +79,9 @@
 	[self processRegion: r->banode_offset ptr: &sb->banode_offset];
 	[self processRegion: r->cblock_offset ptr: &sb->cblock_offset];
 	[self processRegion: r->inode_file_size ptr: &sb->inode_file_size];
+	printf("start inode_name_offset\n");
 	[self processRegion: r->inode_name_offset ptr: &sb->inode_name_offset];
+	printf("end inode_name_offset\n");
 	[self processRegion: r->inode_num_entries ptr: &sb->inode_num_entries];
 	[self processRegion: r->inode_mode_index ptr: &sb->inode_mode_index];
 	[self processRegion: r->inode_array_index ptr: &sb->inode_array_index];

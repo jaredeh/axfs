@@ -75,6 +75,8 @@ static int InodeNameComp(const void *x, const void *y) {
 	}
 	list = parent->list.inodes;
 	pos = parent->list.position;
+	if (parent->list.length <= pos)
+		[NSException raise: @"list not long enough" format: @"list.length=%i pos=%i",parent->list.length,pos];
 	parent->list.position++;
 	list[pos] = inode;
 }
@@ -152,20 +154,32 @@ static int InodeNameComp(const void *x, const void *y) {
 	NSString* file;
 	uint64_t count = 0;
 	NSString* path;
+	NSString *eachPath;
 
 	if ([inode->path isEqualToString: @""]) {
 		path = inode->path;
+		printf("path1='%s'\n",[path UTF8String]);
 		path = [[NSFileManager defaultManager] currentDirectoryPath];
+		printf("path2='%s'\n",[path UTF8String]);
 		path = [[NSString alloc] initWithUTF8String: acfg.input];
+		printf("path3='%s'\n",[path UTF8String]);
+
 	} else {
 		path = inode->path;
+		printf("path4='%s'\n",[path UTF8String]);
 	}
-	em = [[NSFileManager defaultManager] enumeratorAtPath: path];
-	[em skipDescendents];
-	while ((file = [em nextObject])) {
-		[em skipDescendents];
-		count++;
-	}
+	//em = [[NSFileManager defaultManager] enumeratorAtPath: path];
+	//[em skipDescendents];
+	//for(eachPath in em) NSLog(@"FILE: %@", eachPath);
+	//while ((file = [em nextObject])) {
+	//	NSLog(@"FILE2: %@", file);
+	//	[em skipDescendents];
+	//	count++;
+	//}
+	//NSArray *directoryContent  = [[NSFileManager defaultManager] contentsOfDirectoryAtPath: path error:nil];
+	//count = [directoryContent  count];
+	count = [self countFiles: [path UTF8String]];
+	printf("count=%i\n",count);
 
 	list = &inode->list;
 	list->length = count;
@@ -277,11 +291,13 @@ static int InodeNameComp(const void *x, const void *y) {
 	j++;
 //NEED A BETTER WAY.  This won't mix subdir inodes into dir inode lists, bad.
 	[fileSizeIndex index: index datum: inode->size];
+	printf("nameOrder[%i] = 0x%08x\n",index,inode->name);
 	nameOrder[index] = inode->name;
 	[modeIndex index: index datum: inode->mode->position];
 	list = &inode->list;
 	[numEntries index: index datum: list->length];
 	if (list->inodes != NULL) {
+		printf("list->inodes->length=%i\n",list->length);
 		l = *next;
 		*next += list->length;
 		//qsort(list->inodes,list->length,sizeof(*list->inodes),InodeNameComp);
@@ -325,10 +341,11 @@ static int InodeNameComp(const void *x, const void *y) {
 	printf("Inodes data {\n");
 	inode_array = (struct inode_struct *) inodes.data;
 	for(i = 0;i<inodes.place;i++) {
+		printf("for i=%i\n",i);
 		inode = &inode_array[i];
 		if (inode->processed)
 			continue;
-		[self processInode: inode index: 0 next: &next j: j];
+		[self processInode: inode index: i next: &next j: j];
 	}
 	printf("} Inodes data\n\n");
 	return NULL;
@@ -362,8 +379,8 @@ static int InodeNameComp(const void *x, const void *y) {
 	[modeIndex numberEntries: acfg.max_number_files dedup: false];
 	[arrayIndex numberEntries: acfg.max_number_files dedup: false];
 
-	nameOrder = malloc(sizeof(void*) * (acfg.max_number_files+1));
-	memset(nameOrder,0,sizeof(void*) * (acfg.max_number_files+1));
+	nameOrder = malloc(sizeof(void*) * (acfg.max_number_files+2));
+	memset(nameOrder,0,sizeof(void*) * (acfg.max_number_files+2));
 	[aobj.strings nameOrder: nameOrder];
 
 	printf("\n\n\n");
