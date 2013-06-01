@@ -113,10 +113,10 @@ NSFileTypeUnknown;
 }
 
 -(void) printstats {
-	printf("filedata_size = %llu\n", filedata_size);
-	printf("filename_size = %llu\n", filename_size);
-	printf("number_of_files= %llu\n", number_of_files);
-	printf("number_of_nodes= %llu\n", number_of_nodes);
+	printf("filedata_size = %llu\n", (long long unsigned int)filedata_size);
+	printf("filename_size = %llu\n", (long long unsigned int)filename_size);
+	printf("number_of_files= %llu\n", (long long unsigned int)number_of_files);
+	printf("number_of_nodes= %llu\n", (long long unsigned int)number_of_nodes);
 }
 
 -(id) init {

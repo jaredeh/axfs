@@ -11,25 +11,25 @@
 	uint64_t index;
 	uint8_t type;
 
-	printf("Nodes addPage {\n");
+//	printf("Nodes addPage {\n");
 
 	if ([self pageIsXip]) {
-		printf("\tNodes addPage xip\n");
+//		printf("\tNodes addPage xip\n");
 		type = XIP;
 		index = [xip addPage: page];
 	} else if (pg->clength < pg->length) {
-		printf("\tNodes addPage comp pg->clength=%i < pg->length=%i\n",pg->clength,pg->length);
+//		printf("\tNodes addPage comp pg->clength=%i < pg->length=%i\n",pg->clength,pg->length);
 		type = Compressed;
 		index = [compressed addPage: page];
 	} else {
-		printf("\tNodes addPage ba\n");
+//		printf("\tNodes addPage ba\n");
 		type = Byte_Aligned;
 		index = [byte_aligned addPage: page];
 	}
 
 	[node_index add: index];
 	[node_type add: type];
-	printf("} Nodes addPage end\n");
+//	printf("} Nodes addPage end\n");
 	return [node_type length] - 1;
 }
 
@@ -76,6 +76,7 @@
 -(void *) data {
 	[self size];
 	[self csize];
+	return 0;
 }
 
 -(void) free {

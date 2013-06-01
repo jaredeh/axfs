@@ -30,6 +30,8 @@ struct data_segment {
 	struct data_segment data_segments[AXFS_MAX_DATASSEGMENTS];
 	int current_segment;
 }
+-(void) setupObjs;
+-(void) setupRegions;
 -(void) build;
 -(void) sizeup;
 -(void) walk;

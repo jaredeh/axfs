@@ -38,9 +38,6 @@
 
 -(void *) addString: (void *) data_ptr length: (uint64_t) len {
 	struct string_struct temp;
-	struct string_struct *new_value;
-	struct string_struct *list;
-	uint64_t hash;
 
 	memset(&temp,0,sizeof(temp));
 	temp.data = data_ptr;
@@ -62,14 +59,11 @@
 	struct string_struct *str;
 	if (data)
 		return data;
-	
+
 	while(*order != NULL) {
 		str = (struct string_struct *)*order;
 		order++;
-		printf("astrings 1\n");
-		printf("astrings 2 - 0x%08x\n",str);
 		[nameOffset add: out_obj.used];
-		printf("astrings 3\n");
 		[self memcpyOutData: str];
 	}
 	data = out_obj.data;

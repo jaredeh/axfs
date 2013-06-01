@@ -1,8 +1,9 @@
 #import "inodes.h"
 #include <sys/stat.h>
-
+#include <dirent.h>
 
 //use path
+/*
 static int InodeNameComp(const void *x, const void *y) {
 	int min;
 	int retval;
@@ -14,8 +15,8 @@ static int InodeNameComp(const void *x, const void *y) {
 	if (b == NULL)
 		[NSException raise: @"a == NULL" format: @""];
 
-	printf("a->name=%s  ",a->name);
-	printf("b->name=%s\n",b->name);
+//	printf("a->name=%s  ",a->name);
+//	printf("b->name=%s\n",b->name);
 	if (a->name == NULL)
 		[NSException raise: @"a->name == NULL" format: @""];
 	if (b->name == NULL)
@@ -39,8 +40,30 @@ static int InodeNameComp(const void *x, const void *y) {
 
 	return -1;
 }
-
+*/
 @implementation Inodes
+
+-(uint64_t) countFiles: (char *) path {
+	uint64_t file_count = 0;
+	DIR * dirp;
+	struct dirent * entry;
+
+	dirp = opendir(path);
+
+	if (!dirp) {
+		[NSException raise: @"Bad dir" format: @"Failed to open dir at path=%@",path];
+	}
+	while ((entry = readdir(dirp)) != NULL) {
+		if (strcmp(entry->d_name,".") == 0) {
+		} else if (strcmp(entry->d_name,"..") == 0) {
+		} else {
+			file_count++;
+		}
+	}
+
+	closedir(dirp);
+	return file_count;
+}
 
 -(struct inode_struct *) allocInodeStruct {
 	uint64_t d = sizeof(struct inode_struct);
@@ -134,13 +157,14 @@ static int InodeNameComp(const void *x, const void *y) {
 	while (data_read < inode->size) {
 		void *page;
 		void *ddata;
+		Pages *pages = aobj.pages;
+		Nodes *nodes = aobj.nodes;
 		databuffer = [file readDataOfLength: acfg.page_size];
 		d = [databuffer length];
 		data_read += d;
-		printf("d = %llu data_read = %llu size = %llu \n", d, data_read,inode->size);
-		ddata = [databuffer bytes];
-		page = [aobj.pages addPage: ddata length: d];
-		list->nodes[i] = [aobj.nodes addPage: page];
+		ddata = (void *)[databuffer bytes];
+		page = [pages addPage: ddata length: d];
+		list->nodes[i] = [nodes addPage: page];
 		i++;
 	}
 
@@ -149,40 +173,17 @@ static int InodeNameComp(const void *x, const void *y) {
 }
 
 -(void *) addInode_directory: (struct inode_struct *) inode {
-	NSDirectoryEnumerator *em;
 	struct entry_list *list;
-	NSString* file;
-	uint64_t count = 0;
 	NSString* path;
-	NSString *eachPath;
 
 	if ([inode->path isEqualToString: @""]) {
-		path = inode->path;
-		printf("path1='%s'\n",[path UTF8String]);
-		path = [[NSFileManager defaultManager] currentDirectoryPath];
-		printf("path2='%s'\n",[path UTF8String]);
 		path = [[NSString alloc] initWithUTF8String: acfg.input];
-		printf("path3='%s'\n",[path UTF8String]);
-
 	} else {
 		path = inode->path;
-		printf("path4='%s'\n",[path UTF8String]);
 	}
-	//em = [[NSFileManager defaultManager] enumeratorAtPath: path];
-	//[em skipDescendents];
-	//for(eachPath in em) NSLog(@"FILE: %@", eachPath);
-	//while ((file = [em nextObject])) {
-	//	NSLog(@"FILE2: %@", file);
-	//	[em skipDescendents];
-	//	count++;
-	//}
-	//NSArray *directoryContent  = [[NSFileManager defaultManager] contentsOfDirectoryAtPath: path error:nil];
-	//count = [directoryContent  count];
-	count = [self countFiles: [path UTF8String]];
-	printf("count=%i\n",count);
 
 	list = &inode->list;
-	list->length = count;
+	list->length = [self countFiles: (char *)[path UTF8String]];
 	list->inodes = [self allocInodeList: list->length];
 	[paths addPath: inode];
 	return inode;
@@ -196,19 +197,15 @@ static int InodeNameComp(const void *x, const void *y) {
 	struct stat sb;
 	const char *str;
 
-	printf("\n1 inodes addInode='%s'\n",[path UTF8String]);
 	str = [path UTF8String];
 	stat(str, &sb);
-	attribs = [[NSFileManager alloc] attributesOfItemAtPath: path error: nil];
+	attribs = [[NSFileManager alloc] attributesOfItemAtPath: path error: (struct NSError **)nil];
 	name = [path lastPathComponent];
 	inode = [self allocInodeStruct];
 	inode->size = (uint64_t)[[attribs objectForKey:NSFileSize] unsignedLongLongValue];
 	inode->path = path;
-	printf(" a-inodes addInode '%s' '%i' 0x%08x\n",(void *)[name UTF8String], [name length],inode->name);
 	inode->name = [aobj.strings addString: (void *)[name UTF8String] length: [name length]];
-	printf(" b-inodes addInode '%s' '%i' 0x%08x\n",(void *)[name UTF8String], [name length],inode->name);
 	inode->mode = [aobj.modes addMode: &sb];
-	printf(" c-inodes addInode 0x%08x\n",aobj.modes);
 	//redundant files
 	filetype = [attribs objectForKey:NSFileType];
 	if (filetype == NSFileTypeSymbolicLink) {
@@ -226,14 +223,11 @@ static int InodeNameComp(const void *x, const void *y) {
 			[NSException raise: @"Bad file" format: @"Failed to open file at path=%@ from %@",path];
 		}
 		[self addInode_directory: inode];
-		printf("fadsfa\n");
 	}
-	//if (filetype != NSFileTypeDirectory) {
-		[self placeInDirectory: inode];
-	//}
+	[self placeInDirectory: inode];
 
-	printf("\n2 inodes addInode=0x%08X\n",inode);
-	//ohh can't do that... inode->path = NULL;
+	//ohh can't do that... 
+	//inode->path = NULL;
 	return inode;
 }
 
@@ -259,7 +253,8 @@ static int InodeNameComp(const void *x, const void *y) {
 
 -(uint64_t) processInode: (struct inode_struct *) inode index: (uint64_t) index next: (uint64_t *) next j: (int) j {
 	struct entry_list *list;
-	uint64_t i, k, l;
+	uint64_t i, l;
+	uint64_t k;
 	uint64_t array_index;
 	char *s;
 
@@ -283,41 +278,47 @@ static int InodeNameComp(const void *x, const void *y) {
 	printf("Inodes processInode inode=0x%08x index=%i j=%i\n",inode,*index,j);
 	*/
 	memcpy(s,inode->name->data,inode->name->length);
+/*
 	for(k=0;k<j;k++) {
 		printf("...|");
 	}
 	printf("Inodes processInode '%s' index=%i next=%i j=%i {\n",s,index,*next,j);
+*/
 
 	j++;
 //NEED A BETTER WAY.  This won't mix subdir inodes into dir inode lists, bad.
 	[fileSizeIndex index: index datum: inode->size];
-	printf("nameOrder[%i] = 0x%08x\n",index,inode->name);
+//	printf("nameOrder[%i] = 0x%08x\n",index,inode->name);
 	nameOrder[index] = inode->name;
 	[modeIndex index: index datum: inode->mode->position];
 	list = &inode->list;
 	[numEntries index: index datum: list->length];
 	if (list->inodes != NULL) {
-		printf("list->inodes->length=%i\n",list->length);
+//		printf("list->inodes->length=%i\n",list->length);
 		l = *next;
 		*next += list->length;
 		//qsort(list->inodes,list->length,sizeof(*list->inodes),InodeNameComp);
 		for (i=0;i<list->length;i++) {
 			array_index = [self processInode: list->inodes[i] index: l + i next: next j: j];
 			if (i == 0) {
+/*
 				for(k=0;k<j-1;k++) {
 					printf("...|");
 				}
 				printf("-inodes '%s' [arrayIndex index: %i datum: %i]; j=%i\n",s,index,array_index,j-1);
+*/
 				[arrayIndex index: index datum: array_index];
 			}
 		}
 
 
 	} else if (list->nodes != NULL) {
+/*
 		for(k=0;k<j-1;k++) {
 			printf("...|");
 		}
 		printf("  -nodes '%s' [arrayIndex index: %i datum: %i]; j=%i\n",s,index,list->nodes[0],j-1);
+*/
 		[arrayIndex index: index datum: list->nodes[0]];
 	}
 	inode->position = index;
@@ -325,7 +326,7 @@ static int InodeNameComp(const void *x, const void *y) {
 	for(k=0;k<j-1;k++) {
 		printf("...|");
 	}
-	printf("} processInode\n");
+//	printf("} processInode\n");
 	return inode->position;
 }
 
@@ -333,27 +334,25 @@ static int InodeNameComp(const void *x, const void *y) {
 	//qsort(list,parent->list.position,sizeof(inode),InodeNameComp);
 	struct inode_struct *inode_array;
 	struct inode_struct *inode;
-	struct entry_list *list;
 	uint64_t i = 0;
 	uint64_t j = 0;
 	uint64_t next = 1;
 
-	printf("Inodes data {\n");
+//	printf("Inodes data {\n");
 	inode_array = (struct inode_struct *) inodes.data;
 	for(i = 0;i<inodes.place;i++) {
-		printf("for i=%i\n",i);
+//		printf("for i=%i\n",i);
 		inode = &inode_array[i];
 		if (inode->processed)
 			continue;
 		[self processInode: inode index: i next: &next j: j];
 	}
-	printf("} Inodes data\n\n");
+//	printf("} Inodes data\n\n");
 	return NULL;
 }
 
 -(id) init {
 	uint64_t len;
-	struct inode_struct *inode;
 
 	if (!(self = [super init]))
 		return self;

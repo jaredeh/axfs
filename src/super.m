@@ -57,14 +57,14 @@
 	memcpy(sb->signature, AXFS_SIGNATURE, strlen(AXFS_SIGNATURE));
 
 	[self bigEndian32: acfg.block_size ptr: &sb->cblock_size];
-	printf("-------------\n------acfg.block_size=%i\n---------------\n",acfg.block_size);
-	printf("-------------\n------sb->cblock_size=0x%016llx\n---------------\n",sb->cblock_size);
+//	printf("-------------\n------acfg.block_size=%i\n---------------\n",acfg.block_size);
+//	printf("-------------\n------sb->cblock_size=0x%016llx\n---------------\n",sb->cblock_size);
 	[self bigEndian64: acfg.real_number_files ptr: &sb->files];
-	printf("-------------\n------acfg.real_number_files=%i\n---------------\n",acfg.real_number_files);
-	printf("-------------\n------sb->files=0x%016llx\n---------------\n",sb->files);
+//	printf("-------------\n------acfg.real_number_files=%i\n---------------\n",acfg.real_number_files);
+//	printf("-------------\n------sb->files=0x%016llx\n---------------\n",sb->files);
 	[self bigEndian64: acfg.real_imagesize ptr: &sb->size];
-	printf("-------------\n------acfg.real_imagesize=%i\n---------------\n",acfg.real_imagesize);
-	printf("-------------\n------sb->size=0x%016llx\n---------------\n",sb->size);
+//	printf("-------------\n------acfg.real_imagesize=%i\n---------------\n",acfg.real_imagesize);
+//	printf("-------------\n------sb->size=0x%016llx\n---------------\n",sb->size);
 	[self bigEndian64: acfg.real_number_nodes ptr: &sb->blocks];
 	[self bigEndian64: acfg.mmap_size ptr: &sb->mmap_size];
 
@@ -79,9 +79,7 @@
 	[self processRegion: r->banode_offset ptr: &sb->banode_offset];
 	[self processRegion: r->cblock_offset ptr: &sb->cblock_offset];
 	[self processRegion: r->inode_file_size ptr: &sb->inode_file_size];
-	printf("start inode_name_offset\n");
 	[self processRegion: r->inode_name_offset ptr: &sb->inode_name_offset];
-	printf("end inode_name_offset\n");
 	[self processRegion: r->inode_num_entries ptr: &sb->inode_num_entries];
 	[self processRegion: r->inode_mode_index ptr: &sb->inode_mode_index];
 	[self processRegion: r->inode_array_index ptr: &sb->inode_array_index];

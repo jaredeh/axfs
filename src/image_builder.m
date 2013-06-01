@@ -3,7 +3,7 @@
 @implementation ImageBuilder
 
 -(void) setupObjs {
-	printf("ImageBuilder setupObjs {\n");
+	//printf("ImageBuilder setupObjs {\n");
 	aobj.strings = [[Strings alloc] init];
 	aobj.nodes = [[Nodes alloc] init];
 	aobj.xip = [aobj.nodes xip];
@@ -16,12 +16,12 @@
 	aobj.pages = [[Pages alloc] init];
 	sb = aobj.superblock;
 	rd = aobj.regdesc;
-	printf("} ImageBuilder setupObjs\n\n");
+	//printf("} ImageBuilder setupObjs\n\n");
 }
 
 -(void) setupRegions {
 	struct axfs_region_descriptors *r = &aobj.regions;
-	printf("ImageBuilder setupRegions {\n");
+	//printf("ImageBuilder setupRegions {\n");
 	r->strings = [aobj.strings region];
 	r->xip = [aobj.xip region];
 	r->byte_aligned = [aobj.byte_aligned region];
@@ -40,7 +40,7 @@
 	r->modes = [[aobj.modes modesTable] region];
 	r->uids = [[aobj.modes uids] region];
 	r->gids = [[aobj.modes gids] region];
-	printf("} ImageBuilder setupRegions\n\n");
+	//printf("} ImageBuilder setupRegions\n\n");
 }
 
 -(void) buildPart: (id) obj name: (char *) name {
@@ -51,14 +51,14 @@
 
 	input_offset = data_segments[current_segment-1].end;
 
-	NSLog(@"buildPart obj=%@",obj);
+	//NSLog(@"buildPart obj=%@",obj);
 	[obj fsoffset: input_offset];
 	actual_offset = [obj fsoffset];
 	padding_size = actual_offset - input_offset;
 
-	printf("\tactual_offset=%d - input_offset=%d\n",(int)actual_offset ,(int)input_offset);
+	//printf("\tactual_offset=%d - input_offset=%d\n",(int)actual_offset ,(int)input_offset);
 	if (padding_size > 0) {
-		printf("\tpadding_size=%i\n",padding_size);
+		//printf("\tpadding_size=%i\n",padding_size);
 		ds = &data_segments[current_segment];
 		current_segment++;
 		ds->data = malloc(padding_size);
@@ -76,7 +76,7 @@
 	ds->size = [obj size];
 	ds->end = ds->start + ds->size;
 	ds->name = name;
-	printf("\tname='%s' ds[start=%d size=%d end=%d data=0x%08x]\n",name,(int)ds->start,(int)ds->size,(int)ds->end, ds->data);
+	//printf("\tname='%s' ds[start=%d size=%d end=%d data=0x%08x]\n",name,(int)ds->start,(int)ds->size,(int)ds->end, ds->data);
 	//printf("\tdata[%s]\n",ds->data+1);
 }
 
@@ -111,7 +111,7 @@
 	uint64_t data_written = 0;
 	int i = 0;
 
-	printf("ImageBuilder writeFile {\n");
+	//printf("ImageBuilder writeFile {\n");
 	if (filename == NULL) {
 		[NSException raise: @"Bad file" format: @"-- filename is NULL"];
 	}
@@ -131,7 +131,7 @@
 		uint64_t bytes_to_write;
 		uint8_t *d_ptr;
 		int j = i;
-		int k;
+//		int k;
 
 		i++;
 
@@ -146,7 +146,6 @@
 
 		//not there yet, so let's look at the next one
 		if (*offset >= data_segments[j].end) {
-			printf("wImageBuilder writeFile\n");
 			continue;
 		}
 
@@ -164,41 +163,36 @@
 
 		buffer = [NSMutableData dataWithBytes: d_ptr length: bytes_to_write];
 		data_written += bytes_to_write;
+/*
 		printf("\t3 ImageBuilder writeFile name='%s' j=%i data_written=%i bytes_to_write=%i\n",data_segments[j].name,j,data_written,bytes_to_write);
 		printf("[");
 		for(k=0;k<bytes_to_write;k++) {
 			printf("%02x",d_ptr[k]);
 		}
 		printf("]\n");
+*/
 		[file writeData: buffer];
 	}
 	[file closeFile];
 	*offset += data_written;
-	printf("} ImageBuilder writeFile\n\n");
+//	printf("} ImageBuilder writeFile\n\n");
 }
 
 -(void) build {
 	uint64_t offset = 0;
-	printf("ImageBuilder build {\n");
+//	printf("ImageBuilder build {\n");
 
-	printf("--a------------------------\n");
 	[aobj.xip data];
-	printf("--b------------------------\n");
 	[aobj.strings data];
-	printf("--c------------------------\n");
 	[aobj.byte_aligned data];
-	printf("--d------------------------\n");
 	[aobj.compressed data];
-	printf("--e------------------------\n");
 	[aobj.inodes data];
-	printf("--f------------------------\n");
 	[aobj.modes data];
-	printf("--g------------------------\n");
 
 	data_segments[0].start = 0;
 	data_segments[0].size = [sb size];
 	data_segments[0].end = [sb size];
-	printf("\n\n\n\n[sb size]=%i\n\n\n\n",[sb size]);
+//	printf("\n\n\n\n[sb size]=%i\n\n\n\n",[sb size]);
 	data_segments[0].name = "superblock";
 	[self buildPart: rd name: "region descriptors"];
 	[self buildPart: [aobj.nodes nodeType] name: "nodeType"];
@@ -208,9 +202,7 @@
 	[self buildPart: [aobj.byte_aligned banodeOffset] name: "banodeOffset"];
 	[self buildPart: [aobj.compressed cblockOffset] name: "cblockOffset"];
 	[self buildPart: [aobj.inodes fileSizeIndex] name: "fileSizeIndex"];
-	printf("nameOffset===\n");
 	[self buildPart: [aobj.inodes nameOffset] name: "nameOffset"];
-	printf("===nameOffset\n");
 	[self buildPart: [aobj.inodes numEntries] name: "numEntries"];
 	[self buildPart: [aobj.inodes modeIndex] name: "modeIndex"];
 	[self buildPart: [aobj.inodes arrayIndex] name: "arrayIndex"];
@@ -218,9 +210,7 @@
 	[self buildPart: [aobj.modes uids] name: "uids"];
 	[self buildPart: [aobj.modes gids] name: "gids"];
 	[self buildPart: aobj.xip name: "xip"];
-	printf("strings {\n");
 	[self buildPart: aobj.strings name: "strings"];
-	printf("} strings\n\n");
 	[self buildPart: aobj.byte_aligned name: "bytealigned"];
 	[self buildPart: aobj.compressed name: "compressed"];
 
@@ -244,23 +234,23 @@
 
 	if (offset != acfg.real_imagesize)
 		[NSException raise: @"Write incomplete" format: @"offset != acfg.real_imagesize %d != %d",offset,acfg.real_imagesize];
-	printf("} ImageBuilder build\n\n");
+//	printf("} ImageBuilder build\n\n");
 }
 
 -(void) sizeup {
-	printf("ImageBuilder sizeup {\n");
+//	printf("ImageBuilder sizeup {\n");
 	aobj.dirwalker = [[DirWalker alloc] init];
 	dw = aobj.dirwalker;
 	[dw size_up_dir];
 	[dw printstats];
-	printf("} ImageBuilder sizeup\n\n");
+//	printf("} ImageBuilder sizeup\n\n");
 }
 
 -(void) walk {
-	printf("ImageBuilder walk {\n");
+//	printf("ImageBuilder walk {\n");
 	[dw walk];
 	[dw printstats];
-	printf("} ImageBuilder walk\n\n");
+//	printf("} ImageBuilder walk\n\n");
 }
 
 -(id) init {

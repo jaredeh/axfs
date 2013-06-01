@@ -41,6 +41,9 @@ struct cblock_struct {
 -(void) addFullPageNode: (struct axfs_node *) node;
 -(void) addPartPageNode: (struct axfs_node *) node;
 -(void) addNode: (struct axfs_node *) node;
+-(id) cnodeOffset;
+-(id) cnodeIndex;
+-(id) cblockOffset;
 -(uint64_t) size;
 -(uint64_t) length;
 -(void *) data;

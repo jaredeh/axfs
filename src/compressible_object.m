@@ -32,12 +32,14 @@
 }
 
 -(id) init {
-	if (self = [super init]) {
-		data = NULL;
-		size = 0;
-		cdata = NULL;
-		csize = 0;
-	}
+	if (!(self = [super init]))
+		return self;
+
+	data = NULL;
+	size = 0;
+	cdata = NULL;
+	csize = 0;
+
 	return self;
 }
 

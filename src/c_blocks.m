@@ -38,7 +38,7 @@
 	cblock->cdata = [self allocCdata: cblock->csize];
 
 	memcpy(cblock->cdata,cbbuffer,cblock->csize);
-	cblock->cboffset = cblock->cdata - cblock->cboffset;
+	cblock->cboffset = (uint64_t)cblock->cdata - cblock->cboffset;
 
 	node = cblock->nodes;
 	while (node != NULL) {
@@ -60,7 +60,7 @@
 	}
 	node->cboffset = cb->offset;
 	cb->offset += cb->length;
-	printf("addNodeToCBlock cb->offset=0x%08x cb->length=0x%08x node->cboffset=0x%08x\n",cb->offset,cb->length,node->cboffset);
+//	printf("addNodeToCBlock cb->offset=0x%08x cb->length=0x%08x node->cboffset=0x%08x\n",cb->offset,cb->length,node->cboffset);
 }
 
 -(void) addFullPageNode: (struct axfs_node *) node {
@@ -139,11 +139,11 @@
 	uint8_t *dout = (uint8_t *) data.data;
 	struct cblock_struct *cb = partpages;
 	uint64_t num = 0;
-	printf("data === {\n");
+//	printf("data === {\n");
 	while (cb != NULL) {
-		printf("\n------------------------\npartpages num=%i\ncb=0x%08x\n------------------------\n",num,cb);
+//		printf("\n------------------------\npartpages num=%i\ncb=0x%08x\n------------------------\n",num,cb);
 		cb->num = num;
-		cb->cboffset = cdata.data;
+		cb->cboffset = (uint64_t)cdata.data;
 		num += 1;
 		[self compressCBlock: cb];
 		memcpy(dout,cb->cdata,cb->csize);
@@ -152,7 +152,7 @@
 	}
 	cb = fullpages;
 	while (cb != NULL) {
-		printf("\n------------------------\nfullpages num=%i\ncb=0x%08x\n------------------------\n",num,cb);
+//		printf("\n------------------------\nfullpages num=%i\ncb=0x%08x\n------------------------\n",num,cb);
 		cb->num = num;
 		num += 1;
 		[self compressCBlock: cb];
@@ -160,7 +160,7 @@
 		dout += cb->csize;
 		cb = cb->next;
 	}
-	printf("}\n");
+//	printf("}\n");
 	return data.data;
 }
 

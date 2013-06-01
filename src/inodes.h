@@ -3,6 +3,8 @@
 #import "btree_object.h"
 #import "paths.h"
 #import "modes.h"
+#import "pages.h"
+#import "nodes.h"
 #import "astrings.h"
 #include <unistd.h>
 
