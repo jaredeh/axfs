@@ -3,7 +3,7 @@ rootdir = Dir.pwd
 task :configure do
   cd rootdir
   sh "make -C #{rootdir}/squashfs_compressor configure"
-  sh "cd #{rootdir}/yaml; ./configure"
+  sh "cd #{rootdir}/yaml; autoconf; ./configure"
 end
 
 task :check_if_should_rebuild do

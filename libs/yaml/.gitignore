@@ -2,9 +2,11 @@ Makefile
 config.h
 config.log
 config.status
+configure
 include/Makefile
 libtool
 libyamlaxfs.a
+autom4te.cache/
 src/.deps/
 src/.libs/
 src/Makefile
