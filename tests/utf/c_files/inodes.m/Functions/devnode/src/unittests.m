@@ -30,6 +30,11 @@ static void Inodes_createdestroy(CuTest *tc)
 	acfg.max_text_size = 10000;
 	acfg.max_number_files = 100000;
 
+	if(system("ruby src/unittests.rb clean"))
+		return -1;
+	if(system("ruby src/unittests.rb createdestroy"))
+		return -1;
+
 	inodes = [[Inodes alloc] init];
 	[inodes free];
 	[inodes release];
@@ -52,8 +57,12 @@ static void Inodes_devnode(CuTest *tc)
 	acfg.max_text_size = 10000;
 	acfg.max_number_files = 100000;
 
-	system("ruby src/unittests.rb clean");
-	system("ruby src/unittests.rb node");
+
+	if(system("ruby src/unittests.rb clean"))
+		return -1;
+	if(system("ruby src/unittests.rb node"))
+		return -1;
+
 	inodes = [[Inodes alloc] init];
 
 	NSString *path = @"./tovtf/node1";

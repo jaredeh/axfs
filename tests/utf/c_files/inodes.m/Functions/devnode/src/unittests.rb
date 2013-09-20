@@ -19,6 +19,8 @@ elsif (a == "file")
   f = File.new("./tovtf/file1", "w+")
   f.puts("foo")
   f.close
+elsif (a == "createdestroy")
+  FileUtils.mkdir_p("./tovtf")  
 elsif (a == "filethreepages")
   FileUtils.mkdir_p("./tovtf")
   f = File.new("./tovtf/file1", "w+")
