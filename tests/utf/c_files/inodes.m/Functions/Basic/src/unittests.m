@@ -22,7 +22,7 @@ static void Inodes_createdestroy(CuTest *tc)
 	Inodes *inodes;
 	int output;
 	printf("Running %s\n", __FUNCTION__);
-	acfg.input = "foo";
+	acfg.input = "./tovtf";
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
@@ -49,7 +49,7 @@ static void Inodes_link(CuTest *tc)
 	struct inode_struct *inode;
 
 	printf("Running %s\n", __FUNCTION__);
-	acfg.input = "foo";
+	acfg.input = "./tovtf";
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
@@ -80,7 +80,7 @@ static void Inodes_file(CuTest *tc)
 	struct inode_struct *inode;
 
 	printf("Running %s\n", __FUNCTION__);
-	acfg.input = "foo";
+	acfg.input = "./tovtf";
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
@@ -109,7 +109,7 @@ static void Inodes_file_onepage(CuTest *tc)
 	struct inode_struct *inode;
 
 	printf("Running %s\n", __FUNCTION__);
-	acfg.input = "foo";
+	acfg.input = "./tovtf";
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
@@ -138,7 +138,7 @@ static void Inodes_file_threepage(CuTest *tc)
 	struct inode_struct *inode;
 
 	printf("Running %s\n", __FUNCTION__);
-	acfg.input = "foo";
+	acfg.input = "./tovtf";
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;

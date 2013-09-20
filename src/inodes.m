@@ -48,6 +48,7 @@ static int InodeNameComp(const void *x, const void *y) {
 	DIR * dirp;
 	struct dirent * entry;
 
+    printf("path='%s'\n",path);
 	dirp = opendir(path);
 
 	if (!dirp) {
