@@ -12,7 +12,7 @@ struct axfs_objects aobj;
 
 static void Super_createdestroy(CuTest *tc){
 	int output;
-	Super *sb = [[Super alloc] init];
+	AxfsSuper *sb = [[AxfsSuper alloc] init];
 	
 	printf("Running %s\n", __FUNCTION__);
 
@@ -25,7 +25,7 @@ static void Super_createdestroy(CuTest *tc){
 
 static void Super_do_magic(CuTest *tc){
 	uint8_t *d;
-	Super *sb = [[Super alloc] init];
+	AxfsSuper *sb = [[AxfsSuper alloc] init];
 	
 	printf("Running %s\n", __FUNCTION__);
 
@@ -41,7 +41,7 @@ static void Super_do_magic(CuTest *tc){
 
 static void Super_do_signature(CuTest *tc){
 	uint8_t *d;
-	Super *sb = [[Super alloc] init];
+	AxfsSuper *sb = [[AxfsSuper alloc] init];
 	
 	printf("Running %s\n", __FUNCTION__);
 
