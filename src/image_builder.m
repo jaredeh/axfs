@@ -11,7 +11,7 @@
 	aobj.compressed = [aobj.nodes compressed];
 	aobj.modes = [[Modes alloc] init];
 	aobj.inodes = [[Inodes alloc] init];
-	aobj.superblock = [[Super alloc] init];
+	aobj.superblock = [[AxfsSuper alloc] init];
 	aobj.regdesc = [[RegionDescriptors alloc] init];
 	aobj.pages = [[Pages alloc] init];
 	sb = aobj.superblock;

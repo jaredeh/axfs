@@ -25,7 +25,7 @@ struct data_segment {
 
 @interface ImageBuilder: NSObject {
 	DirWalker *dw;
-	Super *sb;
+	AxfsSuper *sb;
 	RegionDescriptors *rd;
 	struct data_segment data_segments[AXFS_MAX_DATASSEGMENTS];
 	int current_segment;

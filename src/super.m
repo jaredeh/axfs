@@ -1,6 +1,6 @@
 #import "super.h"
 
-@implementation Super
+@implementation AxfsSuper
 
 -(id) init {
 	if (!(self = [super init]))

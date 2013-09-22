@@ -12,7 +12,7 @@ extern struct axfs_objects aobj;
 -(Region *) region;
 @end
 
-@interface Super: NSObject {
+@interface AxfsSuper: NSObject {
 	void *data;
 	uint8_t *data_p;
 	struct axfs_super_onmedia *sb;
