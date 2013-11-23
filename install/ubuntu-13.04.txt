@@ -1,0 +1,10 @@
+apt-get install gobjc
+
+
+
+gem
+apt-get install ruby1.9.1-dev
+apt-get install libffi-dev
+gem install open4
+gem install ffi
+
