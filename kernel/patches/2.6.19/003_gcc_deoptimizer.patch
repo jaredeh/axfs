@@ -1,0 +1,40 @@
+diff -r cb19b2544078 Makefile
+--- a/Makefile	Thu Nov 06 09:10:42 2008 -0800
++++ b/Makefile	Thu Nov 06 10:05:03 2008 -0800
+@@ -483,19 +483,26 @@ endif # $(dot-config)
+ # Defaults vmlinux but it is usually overridden in the arch makefile
+ all: vmlinux
+ 
+-ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+-CFLAGS		+= -Os
+-else
+-CFLAGS		+= -O2
+-endif
++#ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
++#CFLAGS		+= -O0
++#else
++CFLAGS		+= -O1
++CFLAGS		+= -funroll-loops
++CFLAGS		+= -fno-defer-pop
++CFLAGS		+= -fno-thread-jumps
++CFLAGS		+= -fno-branch-probabilities 
++CFLAGS		+= -fno-cprop-registers
++CFLAGS		+= -fno-guess-branch-probability
++CFLAGS		+= -fno-omit-frame-pointer
++#endif
+ 
+ include $(srctree)/arch/$(ARCH)/Makefile
+ 
+-ifdef CONFIG_FRAME_POINTER
+-CFLAGS		+= -fno-omit-frame-pointer $(call cc-option,-fno-optimize-sibling-calls,)
+-else
+-CFLAGS		+= -fomit-frame-pointer
+-endif
++#ifdef CONFIG_FRAME_POINTER
++#CFLAGS		+= -fno-omit-frame-pointer $(call cc-option,-fno-optimize-sibling-calls,)
++#else
++#CFLAGS		+= -fomit-frame-pointer
++#endif
+ 
+ ifdef CONFIG_UNWIND_INFO
+ CFLAGS		+= -fasynchronous-unwind-tables

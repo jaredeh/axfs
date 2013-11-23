@@ -1,0 +1,71 @@
+diff -r 4c33b7c5f7c2 include/linux/mm.h
+--- a/include/linux/mm.h	Fri Aug 29 17:05:55 2008 -0700
++++ b/include/linux/mm.h	Fri Aug 29 22:11:34 2008 -0700
+@@ -141,6 +141,7 @@ struct vm_area_struct {
+ #define VM_DONTEXPAND	0x00040000	/* Cannot expand with mremap() */
+ #define VM_RESERVED	0x00080000	/* Don't unmap it from swap_out */
+ #define VM_ACCOUNT	0x00100000	/* Is a VM accounted object */
++#define VM_XIP		0x00200000	/* Execute In Place from ROM/flash */
+ #define VM_HUGETLB	0x00400000	/* Huge TLB Page VM */
+ #define VM_NONLINEAR	0x00800000	/* Is non-linear (remap_file_pages) */
+ 
+diff -r 4c33b7c5f7c2 mm/memory.c
+--- a/mm/memory.c	Fri Aug 29 17:05:55 2008 -0700
++++ b/mm/memory.c	Fri Aug 29 22:11:34 2008 -0700
+@@ -761,7 +761,8 @@ int get_user_pages(struct task_struct *t
+ 			continue;
+ 		}
+ 
+-		if (!vma || (vma->vm_flags & VM_IO)
++		if (!vma || ((vma->vm_flags & VM_IO)
++				&& !(vma->vm_flags & VM_XIP))
+ 				|| !(flags & vma->vm_flags))
+ 			return i ? : -EFAULT;
+ 
+@@ -1060,6 +1061,46 @@ static int do_wp_page(struct mm_struct *
+ 	pte_t entry;
+ 
+ 	if (unlikely(!pfn_valid(pfn))) {
++		if ((vma->vm_flags & VM_XIP) && pte_present(pte) && 
++		    pte_read(pte)) {
++			/*
++			 * Handle COW of XIP memory.
++			 * Note that the source memory actually isn't a ram
++			 * page so no struct page is associated to the source
++			 * pte.
++			 */
++			char *dst;
++			int ret;
++
++			spin_unlock(&mm->page_table_lock);
++			new_page = alloc_page(GFP_HIGHUSER);
++			if (!new_page)
++				return VM_FAULT_OOM;
++			
++			/* copy XIP data to memory */
++
++			dst = kmap_atomic(new_page, KM_USER0);
++			ret = copy_from_user(dst, (void*)address, PAGE_SIZE);
++			kunmap_atomic(dst, KM_USER0);
++
++			/* make sure pte didn't change while we dropped the
++			   lock */
++			spin_lock(&mm->page_table_lock);
++			if (!ret && pte_same(*page_table, pte)) {
++				++mm->rss;
++				break_cow(vma, new_page, address, page_table);
++				lru_cache_add(new_page);
++				page_add_file_rmap(new_page);
++				spin_unlock(&mm->page_table_lock);
++				return VM_FAULT_MINOR;	/* Minor fault */
++			}
++
++			/* pte changed: back off */
++			spin_unlock(&mm->page_table_lock);
++			page_cache_release(new_page);
++			return ret ? VM_FAULT_OOM : VM_FAULT_MINOR;
++		}
++
+ 		/*
+ 		 * This should really halt the system so it can be debugged or
+ 		 * at least the kernel stops what it's doing before it corrupts

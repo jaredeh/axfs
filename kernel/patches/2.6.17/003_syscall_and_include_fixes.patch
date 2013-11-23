@@ -1,0 +1,99 @@
+diff -r 861232bba0f5 -r 791dbd656995 arch/um/os-Linux/process.c
+--- a/arch/um/os-Linux/process.c	Tue Oct 28 14:31:54 2008 -0700
++++ b/arch/um/os-Linux/process.c	Tue Oct 28 15:33:44 2008 -0700
+@@ -7,11 +7,10 @@
+ #include <stdio.h>
+ #include <errno.h>
+ #include <signal.h>
+-#include <setjmp.h>
+-#include <linux/unistd.h>
+ #include <sys/mman.h>
+ #include <sys/wait.h>
+ #include <sys/mman.h>
++#include <sys/syscall.h>
+ #include "ptrace_user.h"
+ #include "os.h"
+ #include "user.h"
+@@ -141,11 +140,9 @@ void os_usr1_process(int pid)
+  * syscalls, and also breaks with clone(), which does not unshare the TLS.
+  */
+ 
+-inline _syscall0(pid_t, getpid)
+-
+ int os_getpid(void)
+ {
+-	return(getpid());
++  return(syscall(__NR_getpid));
+ }
+ 
+ int os_getpgrp(void)
+diff -r 861232bba0f5 -r 791dbd656995 arch/um/os-Linux/skas/process.c
+--- a/arch/um/os-Linux/skas/process.c	Tue Oct 28 14:31:54 2008 -0700
++++ b/arch/um/os-Linux/skas/process.c	Tue Oct 28 15:33:44 2008 -0700
+@@ -8,15 +8,15 @@
+ #include <unistd.h>
+ #include <errno.h>
+ #include <signal.h>
+-#include <setjmp.h>
+ #include <sched.h>
+ #include "ptrace_user.h"
+ #include <sys/wait.h>
+ #include <sys/mman.h>
+ #include <sys/user.h>
+ #include <sys/time.h>
+-#include <asm/unistd.h>
++#include <sys/syscall.h>
+ #include <asm/types.h>
++#include <asm/page.h>
+ #include "user.h"
+ #include "sysdep/ptrace.h"
+ #include "user_util.h"
+diff -r 861232bba0f5 -r 791dbd656995 arch/um/os-Linux/sys-i386/tls.c
+--- a/arch/um/os-Linux/sys-i386/tls.c	Tue Oct 28 14:31:54 2008 -0700
++++ b/arch/um/os-Linux/sys-i386/tls.c	Tue Oct 28 15:33:44 2008 -0700
+@@ -1,9 +1,11 @@
+ #include <errno.h>
+ #include <linux/unistd.h>
++
++#include <sys/syscall.h>
++#include <unistd.h>
++
+ #include "sysdep/tls.h"
+ #include "user_util.h"
+-
+-static _syscall1(int, get_thread_area, user_desc_t *, u_info);
+ 
+ /* Checks whether host supports TLS, and sets *tls_min according to the value
+  * valid on the host.
+@@ -17,7 +19,7 @@ void check_host_supports_tls(int *suppor
+ 		user_desc_t info;
+ 		info.entry_number = val[i];
+ 
+-		if (get_thread_area(&info) == 0) {
++		if (syscall(__NR_get_thread_area, &info) == 0) {
+ 			*tls_min = val[i];
+ 			*supports_tls = 1;
+ 			return;
+diff -r 861232bba0f5 -r 791dbd656995 arch/um/os-Linux/tls.c
+--- a/arch/um/os-Linux/tls.c	Tue Oct 28 14:31:54 2008 -0700
++++ b/arch/um/os-Linux/tls.c	Tue Oct 28 15:33:44 2008 -0700
+@@ -55,8 +55,8 @@ int do_set_thread_area_tt(user_desc_t *i
+ {
+ 	int ret;
+ 
+-	ret = set_thread_area(info);
+-	if (ret < 0) {
++	ret = syscall(__NR_set_thread_area, info);
++  if (ret < 0) {
+ 		ret = -errno;
+ 	}
+ 	return ret;
+@@ -66,7 +66,7 @@ int do_get_thread_area_tt(user_desc_t *i
+ {
+ 	int ret;
+ 
+-	ret = get_thread_area(info);
++  ret = syscall(__NR_get_thread_area, info);
+ 	if (ret < 0) {
+ 		ret = -errno;
+ 	}

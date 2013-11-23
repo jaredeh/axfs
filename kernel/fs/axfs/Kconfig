@@ -1,0 +1,20 @@
+config AXFS
+	tristate "Advanced XIP File System (AXFS) support (EXPERIMENTAL)"
+	select FS_XIP
+	select ZLIB_INFLATE
+	default n
+	help
+	  The Advanced XIP File System or (AXFS) is a highly compressed
+	  readonly filesystem like cramfs or squashfs.  It also can be
+	  configured to store individual pages of files compressed or
+	  uncompressed as XIP pages.  This allows for faster boot up and
+	  application launch time with a smaller memory footprint.
+
+config AXFS_PROFILING
+	bool "Profiling extensions for AXFS (EXPERIMENTAL)"
+	depends on AXFS
+	default n
+	help
+	  Profiling tooling used to identify what pages in the filesystem
+	  image are actually accessed and how much.
+

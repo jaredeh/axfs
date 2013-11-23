@@ -1,0 +1,150 @@
+diff -r 9d24fe777dda -r bb63a13ade20 arch/um/include/sysdep-i386/stub.h
+--- a/arch/um/include/sysdep-i386/stub.h	Wed Jan 16 13:25:50 2008 -0800
++++ b/arch/um/include/sysdep-i386/stub.h	Wed Jan 16 14:30:50 2008 -0800
+@@ -9,7 +9,6 @@
+ #include <sys/mman.h>
+ #include <asm/ptrace.h>
+ #include <asm/unistd.h>
+-#include <asm/page.h>
+ #include "stub-data.h"
+ #include "kern_constants.h"
+ #include "uml-config.h"
+diff -r 9d24fe777dda -r bb63a13ade20 arch/um/kernel/skas/clone.c
+--- a/arch/um/kernel/skas/clone.c	Wed Jan 16 13:25:50 2008 -0800
++++ b/arch/um/kernel/skas/clone.c	Wed Jan 16 14:30:50 2008 -0800
+@@ -3,7 +3,6 @@
+ #include <sys/mman.h>
+ #include <sys/time.h>
+ #include <asm/unistd.h>
+-#include <asm/page.h>
+ #include "ptrace_user.h"
+ #include "skas.h"
+ #include "stub-data.h"
+diff -r 9d24fe777dda -r bb63a13ade20 arch/um/os-Linux/aio.c
+--- a/arch/um/os-Linux/aio.c	Wed Jan 16 13:25:50 2008 -0800
++++ b/arch/um/os-Linux/aio.c	Wed Jan 16 14:30:50 2008 -0800
+@@ -76,8 +76,7 @@ static int do_aio(aio_context_t ctx, enu
+ 				.aio_nbytes	= len,
+ 				.aio_offset	= offset,
+ 				.aio_reserved1	= 0,
+-				.aio_reserved2	= 0,
+-				.aio_reserved3	= 0 });
++				.aio_reserved2	= 0 });
+ 
+ 	switch(type){
+ 	case AIO_READ:
+diff -r 9d24fe777dda -r bb63a13ade20 arch/um/os-Linux/main.c
+--- a/arch/um/os-Linux/main.c	Wed Jan 16 13:25:50 2008 -0800
++++ b/arch/um/os-Linux/main.c	Wed Jan 16 14:30:50 2008 -0800
+@@ -12,7 +12,6 @@
+ #include <sys/resource.h>
+ #include <sys/mman.h>
+ #include <sys/user.h>
+-#include <asm/page.h>
+ #include "kern_util.h"
+ #include "as-layout.h"
+ #include "mem_user.h"
+diff -r 9d24fe777dda -r bb63a13ade20 arch/um/os-Linux/skas/mem.c
+--- a/arch/um/os-Linux/skas/mem.c	Wed Jan 16 13:25:50 2008 -0800
++++ b/arch/um/os-Linux/skas/mem.c	Wed Jan 16 14:30:50 2008 -0800
+@@ -9,7 +9,6 @@
+ #include <unistd.h>
+ #include <sys/mman.h>
+ #include <sys/wait.h>
+-#include <asm/page.h>
+ #include <asm/unistd.h>
+ #include "mem_user.h"
+ #include "mem.h"
+@@ -127,6 +126,8 @@ static inline long do_syscall_stub(struc
+ 	return ret;
+ }
+ 
++#define PAGE_MASK   (~(UM_KERN_PAGE_SIZE-1))
++#define PAGE_SHIFT  12
+ long run_syscall_stub(struct mm_id * mm_idp, int syscall,
+ 		      unsigned long *args, long expected, void **addr,
+ 		      int done)
+diff -r 9d24fe777dda -r bb63a13ade20 arch/um/os-Linux/start_up.c
+--- a/arch/um/os-Linux/start_up.c	Wed Jan 16 13:25:50 2008 -0800
++++ b/arch/um/os-Linux/start_up.c	Wed Jan 16 14:30:50 2008 -0800
+@@ -19,7 +19,6 @@
+ #include <sys/mman.h>
+ #include <sys/resource.h>
+ #include <asm/unistd.h>
+-#include <asm/page.h>
+ #include <sys/types.h>
+ #include "kern_util.h"
+ #include "user.h"
+diff -r 9d24fe777dda -r bb63a13ade20 arch/um/sys-i386/ptrace_user.c
+--- a/arch/um/sys-i386/ptrace_user.c	Wed Jan 16 13:25:50 2008 -0800
++++ b/arch/um/sys-i386/ptrace_user.c	Wed Jan 16 14:30:50 2008 -0800
+@@ -7,9 +7,8 @@
+ #include <stddef.h>
+ #include <errno.h>
+ #include <unistd.h>
++#include <sys/user.h>
+ #include "ptrace_user.h"
+-/* Grr, asm/user.h includes asm/ptrace.h, so has to follow ptrace_user.h */
+-#include <asm/user.h>
+ #include "kern_util.h"
+ #include "sysdep/thread.h"
+ #include "user.h"
+diff -r 9d24fe777dda -r bb63a13ade20 arch/um/sys-i386/user-offsets.c
+--- a/arch/um/sys-i386/user-offsets.c	Wed Jan 16 13:25:50 2008 -0800
++++ b/arch/um/sys-i386/user-offsets.c	Wed Jan 16 14:30:50 2008 -0800
+@@ -4,7 +4,7 @@
+ #include <sys/poll.h>
+ #include <sys/mman.h>
+ #include <asm/ptrace.h>
+-#include <asm/user.h>
++#include <sys/user.h>
+ 
+ #define DEFINE(sym, val) \
+ 	asm volatile("\n->" #sym " %0 " #val : : "i" (val))
+@@ -14,6 +14,34 @@
+ 
+ #define OFFSET(sym, str, mem) \
+ 	DEFINE(sym, offsetof(struct str, mem));
++
++/* These are gone from userspace; not sure where to pull them from */
++struct user_i387_struct {
++	long	cwd;
++	long	swd;
++	long	twd;
++	long	fip;
++	long	fcs;
++	long	foo;
++	long	fos;
++	long	st_space[20];	/* 8*10 bytes for each FP-reg = 80 bytes */
++};
++
++struct user_fxsr_struct {
++	unsigned short	cwd;
++	unsigned short	swd;
++	unsigned short	twd;
++	unsigned short	fop;
++	long	fip;
++	long	fcs;
++	long	foo;
++	long	fos;
++	long	mxcsr;
++	long	reserved;
++	long	st_space[32];	/* 8*16 bytes for each FP-reg = 128 bytes */
++	long	xmm_space[32];	/* 8*16 bytes for each XMM-reg = 128 bytes */
++	long	padding[56];
++};
+ 
+ void foo(void)
+ {
+diff -r 9d24fe777dda -r bb63a13ade20 arch/um/sys-x86_64/user-offsets.c
+--- a/arch/um/sys-x86_64/user-offsets.c	Wed Jan 16 13:25:50 2008 -0800
++++ b/arch/um/sys-x86_64/user-offsets.c	Wed Jan 16 14:30:50 2008 -0800
+@@ -13,7 +13,7 @@
+  */
+ typedef __u64 u64;
+ typedef __u32 u32;
+-#include <asm/user.h>
++#include <sys/user.h>
+ 
+ #define DEFINE(sym, val) \
+         asm volatile("\n->" #sym " %0 " #val : : "i" (val))

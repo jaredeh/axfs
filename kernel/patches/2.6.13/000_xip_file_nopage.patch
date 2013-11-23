@@ -1,0 +1,33 @@
+diff -r fcd8fa96250c include/linux/fs.h
+--- a/include/linux/fs.h	Fri Aug 29 17:05:21 2008 -0700
++++ b/include/linux/fs.h	Fri Aug 29 17:09:07 2008 -0700
+@@ -1534,6 +1534,9 @@ extern ssize_t xip_file_sendfile(struct 
+ extern ssize_t xip_file_sendfile(struct file *in_file, loff_t *ppos,
+ 				 size_t count, read_actor_t actor,
+ 				 void *target);
++struct page *xip_file_nopage(struct vm_area_struct * area,
++			     unsigned long address,
++			     int *type);
+ extern int xip_file_mmap(struct file * file, struct vm_area_struct * vma);
+ extern ssize_t xip_file_write(struct file *filp, const char __user *buf,
+ 			      size_t len, loff_t *ppos);
+diff -r fcd8fa96250c mm/filemap_xip.c
+--- a/mm/filemap_xip.c	Fri Aug 29 17:05:21 2008 -0700
++++ b/mm/filemap_xip.c	Fri Aug 29 17:09:07 2008 -0700
+@@ -205,7 +205,7 @@ __xip_unmap (struct address_space * mapp
+  *
+  * This function is derived from filemap_nopage, but used for execute in place
+  */
+-static struct page *
++struct page *
+ xip_file_nopage(struct vm_area_struct * area,
+ 		   unsigned long address,
+ 		   int *type)
+@@ -251,6 +251,7 @@ xip_file_nopage(struct vm_area_struct * 
+ 
+ 	return page;
+ }
++EXPORT_SYMBOL_GPL(xip_file_nopage);
+ 
+ static struct vm_operations_struct xip_file_vm_ops = {
+ 	.nopage         = xip_file_nopage,

@@ -1,0 +1,43 @@
+diff -r 791dbd656995 arch/um/os-Linux/sys-i386/registers.c
+--- a/arch/um/os-Linux/sys-i386/registers.c	Tue Oct 28 15:33:44 2008 -0700
++++ b/arch/um/os-Linux/sys-i386/registers.c	Tue Oct 28 15:45:37 2008 -0700
+@@ -130,6 +130,12 @@ void get_safe_registers(unsigned long *r
+ 		       HOST_FP_SIZE * sizeof(unsigned long));
+ }
+ 
++#ifndef JB_PC
++#define JB_PC 5
++#define JB_SP 4
++#define JB_BP 3
++#endif
++
+ void get_thread_regs(union uml_pt_regs *uml_regs, void *buffer)
+ {
+ 	struct __jmp_buf_tag *jmpbuf = buffer;
+diff -r 791dbd656995 arch/um/os-Linux/sys-x86_64/registers.c
+--- a/arch/um/os-Linux/sys-x86_64/registers.c	Tue Oct 28 15:33:44 2008 -0700
++++ b/arch/um/os-Linux/sys-x86_64/registers.c	Tue Oct 28 15:45:37 2008 -0700
+@@ -78,6 +78,12 @@ void get_safe_registers(unsigned long *r
+ 		       HOST_FP_SIZE * sizeof(unsigned long));
+ }
+ 
++#ifndef JB_PC
++#define JB_PC 7
++#define JB_RSP 6
++#define JB_RBP 1
++#endif
++
+ void get_thread_regs(union uml_pt_regs *uml_regs, void *buffer)
+ {
+ 	struct __jmp_buf_tag *jmpbuf = buffer;
+diff -r 791dbd656995 arch/um/sys-i386/user-offsets.c
+--- a/arch/um/sys-i386/user-offsets.c	Tue Oct 28 15:33:44 2008 -0700
++++ b/arch/um/sys-i386/user-offsets.c	Tue Oct 28 15:45:44 2008 -0700
+@@ -1,6 +1,6 @@
+ #include <stdio.h>
++#include <signal.h>
+ #include <stddef.h>
+-#include <signal.h>
+ #include <asm/ptrace.h>
+ #include <asm/user.h>
+ #include <linux/stddef.h>

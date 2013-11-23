@@ -1,0 +1,20 @@
+diff -r f33c97f0d42a arch/um/include/kern_util.h
+--- a/arch/um/include/kern_util.h	Wed Oct 01 11:14:58 2008 -0700
++++ b/arch/um/include/kern_util.h	Wed Oct 01 11:19:15 2008 -0700
+@@ -6,7 +6,6 @@
+ #ifndef __KERN_UTIL_H__
+ #define __KERN_UTIL_H__
+ 
+-#include "linux/threads.h"
+ #include "sysdep/ptrace.h"
+ #include "sysdep/faultinfo.h"
+ 
+diff -r f33c97f0d42a arch/um/sys-i386/user-offsets.c
+--- a/arch/um/sys-i386/user-offsets.c	Wed Oct 01 11:14:58 2008 -0700
++++ b/arch/um/sys-i386/user-offsets.c	Wed Oct 01 11:18:53 2008 -0700
+@@ -1,4 +1,5 @@
+ #include <stdio.h>
++#include <stddef.h>
+ #include <signal.h>
+ #include <asm/ptrace.h>
+ #include <asm/user.h>

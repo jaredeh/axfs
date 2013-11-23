@@ -1,0 +1,2 @@
+dep_tristate 'AXFS - Advanced XIP file system (EXPERIMENTAL)' CONFIG_AXFS $CONFIG_EXPERIMENTAL
+dep_mbool    '   AXFS Profiling (EXPERIMENTAL)' CONFIG_AXFS_PROFILING $CONFIG_AXFS

@@ -1,0 +1,149 @@
+diff -r c8179362f737 include/linux/mm.h
+--- a/include/linux/mm.h	Thu Nov 06 02:27:31 2008 -0800
++++ b/include/linux/mm.h	Thu Nov 06 02:35:28 2008 -0800
+@@ -166,6 +166,7 @@ extern unsigned int kobjsize(const void 
+ #define VM_NONLINEAR	0x00800000	/* Is non-linear (remap_file_pages) */
+ #define VM_MAPPED_COPY	0x01000000	/* T if mapped copy of data (nommu mmap) */
+ #define VM_INSERTPAGE	0x02000000	/* The vma has had "vm_insert_page()" done on it */
++#define VM_MIXEDMAP	0x10000000	/* Can contain "struct page" and pure PFN pages */
+ 
+ #ifndef VM_STACK_DEFAULT_FLAGS		/* arch can override this */
+ #define VM_STACK_DEFAULT_FLAGS VM_DATA_DEFAULT_FLAGS
+@@ -1005,6 +1006,10 @@ int remap_pfn_range(struct vm_area_struc
+ int remap_pfn_range(struct vm_area_struct *, unsigned long addr,
+ 			unsigned long pfn, unsigned long size, pgprot_t);
+ int vm_insert_page(struct vm_area_struct *, unsigned long addr, struct page *);
++int vm_insert_pfn(struct vm_area_struct *vma, unsigned long addr,
++			unsigned long pfn);
++int vm_insert_mixed(struct vm_area_struct *vma, unsigned long addr,
++			unsigned long pfn);
+ 
+ struct page *follow_page(struct vm_area_struct *, unsigned long address,
+ 			unsigned int foll_flags);
+diff -r c8179362f737 mm/memory.c
+--- a/mm/memory.c	Thu Nov 06 02:27:31 2008 -0800
++++ b/mm/memory.c	Thu Nov 06 02:35:28 2008 -0800
+@@ -388,12 +388,18 @@ struct page *vm_normal_page(struct vm_ar
+ {
+ 	unsigned long pfn = pte_pfn(pte);
+ 
+-	if (vma->vm_flags & VM_PFNMAP) {
+-		unsigned long off = (addr - vma->vm_start) >> PAGE_SHIFT;
+-		if (pfn == vma->vm_pgoff + off)
+-			return NULL;
+-		if (!is_cow_mapping(vma->vm_flags))
+-			return NULL;
++	if (unlikely(vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP))) {
++		if (vma->vm_flags & VM_MIXEDMAP) {
++			if (!pfn_valid(pfn))
++				return NULL;
++			goto out;
++		} else {
++			unsigned long off = (addr-vma->vm_start) >> PAGE_SHIFT;
++			if (pfn == vma->vm_pgoff + off)
++				return NULL;
++			if (!is_cow_mapping(vma->vm_flags))
++				return NULL;
++		}
+ 	}
+ 
+ 	/*
+@@ -416,6 +422,7 @@ struct page *vm_normal_page(struct vm_ar
+ 	 * The PAGE_ZERO() pages and various VDSO mappings can
+ 	 * cause them to exist.
+ 	 */
++out:
+ 	return pfn_to_page(pfn);
+ }
+ 
+@@ -1243,6 +1250,90 @@ int vm_insert_page(struct vm_area_struct
+ 	return insert_page(vma->vm_mm, addr, page, vma->vm_page_prot);
+ }
+ EXPORT_SYMBOL(vm_insert_page);
++
++static int insert_pfn(struct vm_area_struct *vma, unsigned long addr,
++			unsigned long pfn, pgprot_t prot)
++{
++	struct mm_struct *mm = vma->vm_mm;
++	int retval;
++	pte_t *pte, entry;
++	spinlock_t *ptl;
++
++	retval = -ENOMEM;
++	pte = get_locked_pte(mm, addr, &ptl);
++	if (!pte)
++		goto out;
++	retval = -EBUSY;
++	if (!pte_none(*pte))
++		goto out_unlock;
++
++	/* Ok, finally just insert the thing.. */
++	entry = pfn_pte(pfn, vma->vm_page_prot);
++	set_pte_at(mm, addr, pte, entry);
++	update_mmu_cache(vma, addr, entry);
++
++	retval = 0;
++out_unlock:
++	pte_unmap_unlock(pte, ptl);
++
++out:
++	return retval;
++}
++
++/**
++ * vm_insert_pfn - insert single pfn into user vma
++ * @vma: user vma to map to
++ * @addr: target user address of this page
++ * @pfn: source kernel pfn
++ *
++ * Similar to vm_inert_page, this allows drivers to insert individual pages
++ * they've allocated into a user vma. Same comments apply.
++ *
++ * This function should only be called from a vm_ops->fault handler, and
++ * in that case the handler should return NULL.
++ */
++int vm_insert_pfn(struct vm_area_struct *vma, unsigned long addr,
++		unsigned long pfn)
++{
++	BUG_ON(!(vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)));
++	BUG_ON((vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) ==
++						(VM_PFNMAP|VM_MIXEDMAP));
++	BUG_ON((vma->vm_flags & VM_PFNMAP) && is_cow_mapping(vma->vm_flags));
++
++	if (addr < vma->vm_start || addr >= vma->vm_end)
++		return -EFAULT;
++
++	return insert_pfn(vma, addr, pfn, vma->vm_page_prot);
++}
++EXPORT_SYMBOL(vm_insert_pfn);
++
++
++int vm_insert_mixed(struct vm_area_struct *vma, unsigned long addr,
++			unsigned long pfn)
++{
++	struct mm_struct *mm = vma->vm_mm;
++
++	BUG_ON(!(vma->vm_flags & VM_MIXEDMAP));
++
++	if (addr < vma->vm_start || addr >= vma->vm_end)
++		return -EFAULT;
++
++	/*
++	 * If we don't have pte special, then we have to use the pfn_valid()
++	 * based VM_MIXEDMAP scheme (see vm_normal_page), and thus we *must*
++	 * refcount the page if pfn_valid is true (hence insert_page rather
++	 * than insert_pfn).
++	 */
++	if (pfn_valid(pfn)) {
++		struct page *page;
++
++		page = pfn_to_page(pfn);
++		
++		return insert_page(mm, addr, page, vma->vm_page_prot);
++	}
++	return insert_pfn(vma, addr, pfn, vma->vm_page_prot);
++}
++EXPORT_SYMBOL(vm_insert_mixed);
+ 
+ /*
+  * maps a range of physical memory into the requested pages. the old

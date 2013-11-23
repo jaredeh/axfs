@@ -1,0 +1,19 @@
+diff -r e35c8897c165 include/linux/fs.h
+--- a/include/linux/fs.h	Thu Sep 04 00:07:05 2008 -0700
++++ b/include/linux/fs.h	Wed Sep 17 11:15:20 2008 -0700
+@@ -704,6 +704,7 @@ struct quota_mount_options
+ #include <linux/ncp_fs_sb.h>
+ #include <linux/usbdev_fs_sb.h>
+ #include <linux/cramfs_fs_sb.h>
++#include <linux/axfs.h>
+ #include <linux/jffs2_fs_sb.h>
+ 
+ extern struct list_head super_blocks;
+@@ -763,6 +764,7 @@ struct super_block {
+ 		struct usbdev_sb_info   usbdevfs_sb;
+ 		struct jffs2_sb_info	jffs2_sb;
+ 		struct cramfs_sb_info	cramfs_sb;
++		struct axfs_super	axfs_sb;
+ 		void			*generic_sbp;
+ 	} u;
+ 	/*
