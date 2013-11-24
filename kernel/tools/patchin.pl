@@ -10,7 +10,7 @@
 #seeing as how the kernel itself is dependent on perl for
 #a number of its utilities, it's probably a safe bet to
 #be able to rely on it being present. Requires perl 5.10.
-use feature "switch";
+use Switch;
 use File::Copy;
 use Fcntl ':mode';
 use Tie::File;
@@ -39,15 +39,15 @@ sub print_help
 sub parse_args
 {
 	foreach $arg (0 .. $#ARGV) {
-		given ("$ARGV[$arg]") {
-			when ("--copy") { $insert_type = "copy"; }
-			when ("--link") { $insert_type = "link"; }
-			when ("--help") { print_help(); }
-			when ("--assume-yes") { $assume_yes = 1; }
-			when ("--assume-subver") { $assume_subver = 1; }
-			when (/^\d*$/) { if ($assume_subver) { $assume_subver = $_; } }
-			when (/^[\/|\.].*/) { $path = $_; }
-			default { print "don't know option $_\n"; }
+		switch ($ARGV[$arg]) {
+			case ("--copy") { $insert_type = "copy"; }
+			case ("--link") { $insert_type = "link"; }
+			case ("--help") { print_help(); exit;}
+			case ("--assume-yes") { $assume_yes = 1; }
+			case ("--assume-subver") { $assume_subver = 1; }
+			case (/^\d*$/) { if ($assume_subver) { $assume_subver = $_; } }
+			case (/^[\/|\.].*/) { $path = $_; }
+			else { print "don't know option $_\n"; }
 		}
 	}
 }
@@ -79,15 +79,14 @@ sub set_target
 # the second to be recognized as an array.
 sub do_find_index_in_file
 {
-	my $index = -1;
+	my $ind = -1;
 	my ($id, @lines) = @_;
-	foreach my $ind (0 .. $#lines) {
-		if (grep(/.*$id.*/,$lines[$ind]) > 0) {
-			$index = $ind;
-			last;
+	foreach (0 .. $#lines) {
+		if ($lines[$_] =~ m/(\Q$id\E)/ ) {
+			$ind = $_ 
 		}
 	}
-	return $index;
+	return $ind;
 }
 
 # 3 parameters
@@ -104,10 +103,12 @@ sub do_patch_line
 	my $insert = $_[2];
 	my $index = -1;
 
-	if (do_find_index_in_file($insert,@lines) > -1) {
-		return;
+	$index = do_find_index_in_file($insert,@lines);
+	if ($index > -1) {
+		print("File $_[0] already patched.\n");
+		return
 	}
-
+	
 	$index = do_find_index_in_file($id,@lines);
 	if ($index == -1) {
 		die "Couldn't find $id in $_[0]\n";
@@ -133,12 +134,13 @@ sub do_patch_file
 	tie my @source, 'Tie::File', $srcpath;
 
 	if (do_find_index_in_file($source[0],@existing) > -1) {
+		print("File $expath is already spliced\n");
 		return;
 	}
 
 	$index = do_find_index_in_file($id,@existing);
 
-	splice(@existing,($index + 1),0,@source);
+	splice(@existing,($index),0,@source);
 
 	untie @existing;
 	untie @source;
@@ -177,9 +179,9 @@ sub do_process_dir
 			do_process_dir(join("/",$filedir,$file));
 			next;
 		}
-		given("$insert_type") {
-			when("link") { link_file($src,$dst); }
-			when("copy") { copy_file($src,$dst); }
+		switch($insert_type) {
+			case ("link") { link_file($src,$dst); }
+			case ("copy") { copy_file($src,$dst); }
 		}
 	}	
 }
@@ -196,6 +198,7 @@ sub do_insert_files
 $insert_type = "link";
 $path = "";
 $patching_project = "AXFS";
+$assume_yes = 0;
 
 parse_args();
 set_target();
@@ -207,14 +210,14 @@ if ($assume_yes != 1) {
 	print "Proceed? [Y/n]: ";
 	$resp = readline(*STDIN);
 
-	if (grep(/[y|Y]/,$resp) <= 0) {
+	if (grep(/[n|N]/,$resp) > 0) {
 		exit;
 	}
 }
 
 if ($min > 5 || $assume_subver > 5) {
 	do_patch_line("fs/Makefile", "CONFIG_CRAMFS", "obj-\$(CONFIG_AXFS)		+= axfs/");
-	do_patch_file("fs/Kconfig", "fs/cramfs/Kconfig");
+	do_patch_file("fs/Kconfig", "config ECRYPT_FS");
 	do_insert_files("fs/axfs");
 	do_insert_files("include/linux");
 } else {
