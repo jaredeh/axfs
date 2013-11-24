@@ -27,6 +27,11 @@
 #include <linux/fs.h>
 #include <linux/mount.h>
 
+/* axfs_uncompress.c */
+int axfs_uncompress_block(void *, int, void *, int);
+int axfs_uncompress_init(void);
+int axfs_uncompress_exit(void);
+
 /* axfs_inode.c */
 struct inode *axfs_create_vfs_inode(struct super_block *, int);
 u64 axfs_get_mode(struct axfs_super *sbi, u64 index);

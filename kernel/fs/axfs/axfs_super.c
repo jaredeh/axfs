@@ -538,7 +538,7 @@ static int axfs_check_page_shift(struct axfs_super *sbi)
 		printk(KERN_ERR "axfs: Filesystem is AXFS, however "
 				"the page size does not match that\n"
 				"of the system. Cowardly refusing "
-				"to mount.\n")
+				"to mount.\n");
 		return -EINVAL;
 	}
 
@@ -549,7 +549,7 @@ static int axfs_check_compression_type(struct axfs_super *sbi)
 {
 	if (sbi->compression_type != ZLIB) {
 		printk(KERN_ERR "axfs: Unknown compression type "
-				"specified in super block.\n")
+				"specified in super block.\n");
 		return -EINVAL;
 	}
 
@@ -934,7 +934,7 @@ static int axfs_check_options(char *options, struct axfs_super *sbi)
 			break;
 		default:
 			printk(KERN_ERR
-			       "axfs: unrecognized mount option 's' "
+			       "axfs: unrecognized mount option '%s' "
 			       "or missing value\n", p);
 			goto out;
 		}

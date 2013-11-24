@@ -28,13 +28,13 @@
 
 #ifdef __KERNEL__
 #include <linux/rwsem.h>
+#endif
 #include <linux/errno.h>
 #include <linux/time.h>
 
 #include <linux/pagemap.h>
 #include <linux/fs.h>
 #include <linux/mount.h>
-#endif
 
 #define AXFS_MAGIC	0x48A0E4CD	/* some random number */
 #define AXFS_SIGNATURE	"Advanced XIP FS"
@@ -45,11 +45,6 @@
 #define false 0
 #define true 1
 #endif
-
-/* Uncompression interfaces to the underlying zlib */
-int axfs_uncompress_block(void *, int, void *, int);
-int axfs_uncompress_init(void);
-int axfs_uncompress_exit(void);
 
 struct axfs_profiling_data {
 	u64 inode_number;

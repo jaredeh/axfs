@@ -1,0 +1,11 @@
+diff -r 19b9bc164ccb arch/um/os-Linux/helper.c
+--- a/arch/um/os-Linux/helper.c	Tue Sep 16 17:35:27 2008 -0700
++++ b/arch/um/os-Linux/helper.c	Fri Nov 21 02:32:12 2008 -0800
+@@ -9,6 +9,7 @@
+ #include <sched.h>
+ #include <sys/socket.h>
+ #include <sys/wait.h>
++#include "limits.h"
+ #include "kern_constants.h"
+ #include "kern_util.h"
+ #include "os.h"

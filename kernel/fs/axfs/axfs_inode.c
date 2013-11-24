@@ -815,7 +815,7 @@ static int axfs_readpage(struct file *file, struct page *page)
 	node_type = axfs_get_node_type(sbi, array_index);
 
 	if (node_type == Compressed) {
-		/* node is in compessed region */
+		/* node is in compressed region */
 		cnode_offset = axfs_get_cnode_offset(sbi, node_index);
 		cnode_index = axfs_get_cnode_index(sbi, node_index);
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)

@@ -1,0 +1,220 @@
+diff -r 4f9182c0ca8f arch/um/include/kern_util.h
+--- a/arch/um/include/kern_util.h	Thu Sep 18 13:14:09 2008 -0700
++++ b/arch/um/include/kern_util.h	Fri Nov 21 03:15:05 2008 -0800
+@@ -6,7 +6,6 @@
+ #ifndef __KERN_UTIL_H__
+ #define __KERN_UTIL_H__
+ 
+-#include "linux/threads.h"
+ #include "sysdep/ptrace.h"
+ #include "sysdep/faultinfo.h"
+ 
+diff -r 4f9182c0ca8f arch/um/include/sysdep-i386/stub.h
+--- a/arch/um/include/sysdep-i386/stub.h	Thu Sep 18 13:14:09 2008 -0700
++++ b/arch/um/include/sysdep-i386/stub.h	Fri Nov 21 03:15:05 2008 -0800
+@@ -7,6 +7,7 @@
+ #define __SYSDEP_STUB_H
+ 
+ #include <sys/mman.h>
++#include <sys/user.h>
+ #include <asm/ptrace.h>
+ #include <asm/unistd.h>
+ #include "stub-data.h"
+@@ -16,6 +17,7 @@
+ extern void stub_segv_handler(int sig);
+ extern void stub_clone_handler(void);
+ 
++#define PAGE_SHIFT 12
+ #define STUB_SYSCALL_RET EAX
+ #define STUB_MMAP_NR __NR_mmap2
+ #define MMAP_OFFSET(o) ((o) >> PAGE_SHIFT)
+diff -r 4f9182c0ca8f arch/um/kernel/skas/clone.c
+--- a/arch/um/kernel/skas/clone.c	Thu Sep 18 13:14:09 2008 -0700
++++ b/arch/um/kernel/skas/clone.c	Fri Nov 21 03:15:05 2008 -0800
+@@ -3,7 +3,7 @@
+ #include <sys/mman.h>
+ #include <sys/time.h>
+ #include <asm/unistd.h>
+-#include <asm/page.h>
++#include <sys/user.h>
+ #include "ptrace_user.h"
+ #include "skas.h"
+ #include "stub-data.h"
+diff -r 4f9182c0ca8f arch/um/os-Linux/aio.c
+--- a/arch/um/os-Linux/aio.c	Thu Sep 18 13:14:09 2008 -0700
++++ b/arch/um/os-Linux/aio.c	Fri Nov 21 03:15:05 2008 -0800
+@@ -79,8 +79,7 @@
+ 				.aio_nbytes	= len,
+ 				.aio_offset	= offset,
+ 				.aio_reserved1	= 0,
+-				.aio_reserved2	= 0,
+-				.aio_reserved3	= 0 });
++				.aio_reserved2	= 0 });
+ 
+ 	switch(type){
+ 	case AIO_READ:
+diff -r 4f9182c0ca8f arch/um/os-Linux/main.c
+--- a/arch/um/os-Linux/main.c	Thu Sep 18 13:14:09 2008 -0700
++++ b/arch/um/os-Linux/main.c	Fri Nov 21 03:15:05 2008 -0800
+@@ -12,7 +12,6 @@
+ #include <sys/resource.h>
+ #include <sys/mman.h>
+ #include <sys/user.h>
+-#include <asm/page.h>
+ #include "user_util.h"
+ #include "kern_util.h"
+ #include "mem_user.h"
+diff -r 4f9182c0ca8f arch/um/os-Linux/process.c
+--- a/arch/um/os-Linux/process.c	Thu Sep 18 13:14:09 2008 -0700
++++ b/arch/um/os-Linux/process.c	Fri Nov 21 03:15:05 2008 -0800
+@@ -139,11 +139,9 @@
+  * syscalls, and also breaks with clone(), which does not unshare the TLS.
+  */
+ 
+-inline _syscall0(pid_t, getpid)
+-
+ int os_getpid(void)
+ {
+-	return(getpid());
++  return(syscall(__NR_getpid));
+ }
+ 
+ int os_getpgrp(void)
+diff -r 4f9182c0ca8f arch/um/os-Linux/skas/mem.c
+--- a/arch/um/os-Linux/skas/mem.c	Thu Sep 18 13:14:09 2008 -0700
++++ b/arch/um/os-Linux/skas/mem.c	Fri Nov 21 03:15:05 2008 -0800
+@@ -8,7 +8,7 @@
+ #include <string.h>
+ #include <sys/mman.h>
+ #include <sys/wait.h>
+-#include <asm/page.h>
++#include <sys/user.h>
+ #include <asm/unistd.h>
+ #include "mem_user.h"
+ #include "mem.h"
+diff -r 4f9182c0ca8f arch/um/os-Linux/skas/process.c
+--- a/arch/um/os-Linux/skas/process.c	Thu Sep 18 13:14:09 2008 -0700
++++ b/arch/um/os-Linux/skas/process.c	Fri Nov 21 03:15:05 2008 -0800
+@@ -8,14 +8,13 @@
+ #include <unistd.h>
+ #include <errno.h>
+ #include <signal.h>
+-#include <setjmp.h>
+ #include <sched.h>
+ #include "ptrace_user.h"
+ #include <sys/wait.h>
+ #include <sys/mman.h>
+ #include <sys/user.h>
+ #include <sys/time.h>
+-#include <asm/unistd.h>
++#include <sys/syscall.h>
+ #include <asm/types.h>
+ #include "user.h"
+ #include "sysdep/ptrace.h"
+diff -r 4f9182c0ca8f arch/um/os-Linux/start_up.c
+--- a/arch/um/os-Linux/start_up.c	Thu Sep 18 13:14:09 2008 -0700
++++ b/arch/um/os-Linux/start_up.c	Fri Nov 21 03:15:05 2008 -0800
+@@ -18,7 +18,7 @@
+ #include <sys/wait.h>
+ #include <sys/mman.h>
+ #include <asm/unistd.h>
+-#include <asm/page.h>
++#include <sys/user.h>
+ #include <sys/types.h>
+ #include "user_util.h"
+ #include "kern_util.h"
+diff -r 4f9182c0ca8f arch/um/os-Linux/sys-i386/registers.c
+--- a/arch/um/os-Linux/sys-i386/registers.c	Thu Sep 18 13:14:09 2008 -0700
++++ b/arch/um/os-Linux/sys-i386/registers.c	Fri Nov 21 03:15:05 2008 -0800
+@@ -130,6 +130,12 @@
+ 		       HOST_FP_SIZE * sizeof(unsigned long));
+ }
+ 
++#ifndef JB_PC
++#define JB_PC 5
++#define JB_SP 4
++#define JB_BP 3
++#endif
++
+ void get_thread_regs(union uml_pt_regs *uml_regs, void *buffer)
+ {
+ 	struct __jmp_buf_tag *jmpbuf = buffer;
+diff -r 4f9182c0ca8f arch/um/os-Linux/sys-x86_64/registers.c
+--- a/arch/um/os-Linux/sys-x86_64/registers.c	Thu Sep 18 13:14:09 2008 -0700
++++ b/arch/um/os-Linux/sys-x86_64/registers.c	Fri Nov 21 03:15:05 2008 -0800
+@@ -78,6 +78,12 @@
+ 		       HOST_FP_SIZE * sizeof(unsigned long));
+ }
+ 
++#ifndef JB_PC
++#define JB_PC 7
++#define JB_RSP 6
++#define JB_RBP 1
++#endif
++
+ void get_thread_regs(union uml_pt_regs *uml_regs, void *buffer)
+ {
+ 	struct __jmp_buf_tag *jmpbuf = buffer;
+diff -r 4f9182c0ca8f arch/um/os-Linux/tt.c
+--- a/arch/um/os-Linux/tt.c	Thu Sep 18 13:14:09 2008 -0700
++++ b/arch/um/os-Linux/tt.c	Fri Nov 21 03:15:05 2008 -0800
+@@ -18,7 +18,7 @@
+ #include <sys/mman.h>
+ #include <asm/ptrace.h>
+ #include <asm/unistd.h>
+-#include <asm/page.h>
++#include <sys/user.h>
+ #include "user_util.h"
+ #include "kern_util.h"
+ #include "user.h"
+diff -r 4f9182c0ca8f arch/um/sys-i386/ptrace_user.c
+--- a/arch/um/sys-i386/ptrace_user.c	Thu Sep 18 13:14:09 2008 -0700
++++ b/arch/um/sys-i386/ptrace_user.c	Fri Nov 21 03:15:05 2008 -0800
+@@ -6,10 +6,10 @@
+ #include <stdio.h>
+ #include <errno.h>
+ #include <unistd.h>
+-#include <linux/stddef.h>
++#include <stddef.h>
+ #include "ptrace_user.h"
+ /* Grr, asm/user.h includes asm/ptrace.h, so has to follow ptrace_user.h */
+-#include <asm/user.h>
++#include <sys/user.h>
+ #include "kern_util.h"
+ #include "sysdep/thread.h"
+ #include "user.h"
+diff -r 4f9182c0ca8f arch/um/sys-i386/user-offsets.c
+--- a/arch/um/sys-i386/user-offsets.c	Thu Sep 18 13:14:09 2008 -0700
++++ b/arch/um/sys-i386/user-offsets.c	Fri Nov 21 03:15:05 2008 -0800
+@@ -1,7 +1,8 @@
+ #include <stdio.h>
+ #include <signal.h>
++#include <stddef.h>
+ #include <asm/ptrace.h>
+-#include <asm/user.h>
++#include <sys/user.h>
+ #include <linux/stddef.h>
+ 
+ #define DEFINE(sym, val) \
+@@ -47,8 +48,8 @@
+ 	OFFSET(HOST_SC_FXSR_ENV, _fpstate, _fxsr_env);
+ 
+ 	DEFINE(HOST_FRAME_SIZE, FRAME_SIZE);
+-	DEFINE_LONGS(HOST_FP_SIZE, sizeof(struct user_i387_struct));
+-	DEFINE_LONGS(HOST_XFP_SIZE, sizeof(struct user_fxsr_struct));
++	DEFINE_LONGS(HOST_FP_SIZE, sizeof(struct user_fpregs_struct));
++	DEFINE_LONGS(HOST_XFP_SIZE, sizeof(struct user_fpxregs_struct));
+ 
+ 	DEFINE(HOST_IP, EIP);
+ 	DEFINE(HOST_SP, UESP);
+diff -r 4f9182c0ca8f scripts/mod/sumversion.c
+--- a/scripts/mod/sumversion.c	Thu Sep 18 13:14:09 2008 -0700
++++ b/scripts/mod/sumversion.c	Fri Nov 21 03:15:05 2008 -0800
+@@ -7,6 +7,7 @@
+ #include <ctype.h>
+ #include <errno.h>
+ #include <string.h>
++#include <limits.h>
+ #include "modpost.h"
+ 
+ /*

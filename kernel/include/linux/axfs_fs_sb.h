@@ -20,11 +20,15 @@
 #ifndef AXFS_FS_SB_H
 #define AXFS_FS_SB_H
 
+#ifndef ALL_VERSIONS
+#include <linux/version.h>	/* For multi-version support */
+#endif
+
 #ifdef __KERNEL__
 #include <linux/rwsem.h>
+#endif
 #include <linux/errno.h>
 #include <linux/time.h>
-#endif
 
 /* in memory region descriptor */
 struct axfs_region_desc {

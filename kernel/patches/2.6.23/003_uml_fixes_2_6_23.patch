@@ -1,0 +1,104 @@
+diff -r f502bd73906e arch/um/include/sysdep-i386/stub.h
+--- a/arch/um/include/sysdep-i386/stub.h	Tue Sep 16 17:31:59 2008 -0700
++++ b/arch/um/include/sysdep-i386/stub.h	Fri Nov 21 02:15:14 2008 -0800
+@@ -7,9 +7,9 @@
+ #define __SYSDEP_STUB_H
+ 
+ #include <sys/mman.h>
++#include <sys/user.h>
+ #include <asm/ptrace.h>
+ #include <asm/unistd.h>
+-#include <asm/page.h>
+ #include "stub-data.h"
+ #include "kern_constants.h"
+ #include "uml-config.h"
+@@ -17,6 +17,7 @@
+ extern void stub_segv_handler(int sig);
+ extern void stub_clone_handler(void);
+ 
++#define PAGE_SHIFT 12
+ #define STUB_SYSCALL_RET EAX
+ #define STUB_MMAP_NR __NR_mmap2
+ #define MMAP_OFFSET(o) ((o) >> PAGE_SHIFT)
+diff -r f502bd73906e arch/um/kernel/skas/clone.c
+--- a/arch/um/kernel/skas/clone.c	Tue Sep 16 17:31:59 2008 -0700
++++ b/arch/um/kernel/skas/clone.c	Fri Nov 21 02:15:14 2008 -0800
+@@ -3,7 +3,7 @@
+ #include <sys/mman.h>
+ #include <sys/time.h>
+ #include <asm/unistd.h>
+-#include <asm/page.h>
++#include <sys/user.h>
+ #include "ptrace_user.h"
+ #include "skas.h"
+ #include "stub-data.h"
+diff -r f502bd73906e arch/um/os-Linux/main.c
+--- a/arch/um/os-Linux/main.c	Tue Sep 16 17:31:59 2008 -0700
++++ b/arch/um/os-Linux/main.c	Fri Nov 21 02:15:14 2008 -0800
+@@ -12,7 +12,6 @@
+ #include <sys/resource.h>
+ #include <sys/mman.h>
+ #include <sys/user.h>
+-#include <asm/page.h>
+ #include "kern_util.h"
+ #include "as-layout.h"
+ #include "mem_user.h"
+diff -r f502bd73906e arch/um/os-Linux/skas/mem.c
+--- a/arch/um/os-Linux/skas/mem.c	Tue Sep 16 17:31:59 2008 -0700
++++ b/arch/um/os-Linux/skas/mem.c	Fri Nov 21 02:15:14 2008 -0800
+@@ -9,7 +9,7 @@
+ #include <unistd.h>
+ #include <sys/mman.h>
+ #include <sys/wait.h>
+-#include <asm/page.h>
++#include <sys/user.h>
+ #include <asm/unistd.h>
+ #include "mem_user.h"
+ #include "mem.h"
+diff -r f502bd73906e arch/um/os-Linux/start_up.c
+--- a/arch/um/os-Linux/start_up.c	Tue Sep 16 17:31:59 2008 -0700
++++ b/arch/um/os-Linux/start_up.c	Fri Nov 21 02:15:14 2008 -0800
+@@ -19,7 +19,7 @@
+ #include <sys/mman.h>
+ #include <sys/resource.h>
+ #include <asm/unistd.h>
+-#include <asm/page.h>
++#include <sys/user.h>
+ #include <sys/types.h>
+ #include "kern_util.h"
+ #include "user.h"
+diff -r f502bd73906e arch/um/sys-i386/ptrace_user.c
+--- a/arch/um/sys-i386/ptrace_user.c	Tue Sep 16 17:31:59 2008 -0700
++++ b/arch/um/sys-i386/ptrace_user.c	Fri Nov 21 02:15:14 2008 -0800
+@@ -9,7 +9,7 @@
+ #include <unistd.h>
+ #include "ptrace_user.h"
+ /* Grr, asm/user.h includes asm/ptrace.h, so has to follow ptrace_user.h */
+-#include <asm/user.h>
++#include <sys/user.h>
+ #include "kern_util.h"
+ #include "sysdep/thread.h"
+ #include "user.h"
+diff -r f502bd73906e arch/um/sys-i386/user-offsets.c
+--- a/arch/um/sys-i386/user-offsets.c	Tue Sep 16 17:31:59 2008 -0700
++++ b/arch/um/sys-i386/user-offsets.c	Fri Nov 21 02:15:14 2008 -0800
+@@ -4,7 +4,7 @@
+ #include <sys/poll.h>
+ #include <sys/mman.h>
+ #include <asm/ptrace.h>
+-#include <asm/user.h>
++#include <sys/user.h>
+ 
+ #define DEFINE(sym, val) \
+ 	asm volatile("\n->" #sym " %0 " #val : : "i" (val))
+@@ -48,8 +48,8 @@
+ 	OFFSET(HOST_SC_FP_ST, _fpstate, _st);
+ 	OFFSET(HOST_SC_FXSR_ENV, _fpstate, _fxsr_env);
+ 
+-	DEFINE_LONGS(HOST_FP_SIZE, sizeof(struct user_i387_struct));
+-	DEFINE_LONGS(HOST_XFP_SIZE, sizeof(struct user_fxsr_struct));
++	DEFINE_LONGS(HOST_FP_SIZE, sizeof(struct user_fpregs_struct));
++	DEFINE_LONGS(HOST_XFP_SIZE, sizeof(struct user_fpxregs_struct));
+ 
+ 	DEFINE(HOST_IP, EIP);
+ 	DEFINE(HOST_SP, UESP);
