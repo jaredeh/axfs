@@ -97,9 +97,9 @@ if not options[:kernel]
   raise "-k or --kernel required"
 end
 
+`mkdir -p linux`
 Dir.chdir File.join(File.dirname(__FILE__),"linux")
 puts options
-`mkdir -p linux`
 puts Dir.pwd
 build(options)
 test(options)
