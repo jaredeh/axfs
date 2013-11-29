@@ -41,33 +41,6 @@ def build(options)
   Dir.chdir startdir
 end
 
-def build(options)
-  if not File.exists?(options[:kernel])
-    run "git clone --no-checkout --reference /opt/linux_git https://github.com/torvalds/linux.git #{options[:kernel]}"
-  end
-  startdir = Dir.pwd
-  Dir.chdir options[:kernel]
-  run "git checkout -f #{options[:kernel]}"
-  run "make mrproper"
-  if options[:patch]
-    run "perl ../../tools/patchin.pl --assume-yes --link"
-  end
-  if options[:config]
-    run "make defconfig"
-    run "echo \"CONFIG_AXFS=#{options[:config]}\" >> .config"
-    if options[:profiling]
-      run "echo \"CONFIG_AXFS_PROFILING=#{options[:profiling]}\" >> .config"
-    end
-    run "make silentoldconfig"
-  elsif options[:build]
-    run "make defconfig"
-  end
-  if options[:build]
-    run "make -j 9; make"
-  end
-  Dir.chdir startdir
-end
-
 require 'optparse'
 require 'open4'
 
@@ -91,7 +64,6 @@ OptionParser.new do |opts|
     options[:patch] = o
   end
 
-
 end.parse!
 
 if not options[:kernel]
@@ -103,4 +75,3 @@ Dir.chdir File.join(File.dirname(__FILE__),"linux")
 puts options
 puts Dir.pwd
 build(options)
-test(options)
