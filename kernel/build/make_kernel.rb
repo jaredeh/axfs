@@ -63,7 +63,7 @@ OptionParser.new do |opts|
   end
 
   opts.on("-b", "--build","Do build") do |o|
-    options[:profiling] = o
+    options[:build] = o
   end
 
   opts.on("-t", "--patch","Patch in AXFS code") do |o|
