@@ -10,6 +10,7 @@ def run(cmd)
   puts "stderr     : #{ stderr.read.strip }"
   puts "status     : #{ status.inspect }"
   puts "exitstatus : #{ status.exitstatus }"
+  puts "================================================================"
 
 end
 
