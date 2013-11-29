@@ -11,7 +11,9 @@ def run(cmd)
   puts "status     : #{ status.inspect }"
   puts "exitstatus : #{ status.exitstatus }"
   puts "================================================================"
-
+  if status.exitstatus != 0
+    raise
+  end
 end
 
 def build(options)
