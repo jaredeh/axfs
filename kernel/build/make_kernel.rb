@@ -22,7 +22,7 @@ def build(options)
   startdir = Dir.pwd
   Dir.chdir options[:kernel]
   run "git checkout -f #{options[:kernel]}"
-  run "rm ../build.log"
+  run "rm -f ../build.log"
   run "make mrproper"
   if options[:patch]
     run "perl ../../tools/patchin.pl --assume-yes --link"
