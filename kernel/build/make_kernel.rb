@@ -1,11 +1,10 @@
 def run(cmd)
-  puts cmd
   pid, stdin, stdout, stderr = Open4::popen4 "bash"
   stdin.puts cmd
   stdin.close
-  ignored, status = Process::waitpid2 pid
   puts "cmd        : #{ cmd }"
   puts "pid        : #{ pid }"
+  ignored, status = Process::waitpid2 pid
   puts "stdout     : #{ stdout.read.strip }"
   puts "stderr     : #{ stderr.read.strip }"
   puts "status     : #{ status.inspect }"
@@ -23,6 +22,7 @@ def build(options)
   startdir = Dir.pwd
   Dir.chdir options[:kernel]
   run "git checkout -f #{options[:kernel]}"
+  run "rm ../build.log"
   run "make mrproper"
   if options[:patch]
     run "perl ../../tools/patchin.pl --assume-yes --link"
@@ -38,7 +38,7 @@ def build(options)
     run "make defconfig"
   end
   if options[:build]
-    run "make -j 2; make"
+    run "make -j 2 2>&1 | tee ../build.log;"
   end
   Dir.chdir startdir
 end
