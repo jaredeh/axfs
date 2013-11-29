@@ -38,7 +38,7 @@ def build(options)
     run "make defconfig"
   end
   if options[:build]
-    run "make -j 9; make"
+    run "make -j 2; make"
   end
   Dir.chdir startdir
 end
