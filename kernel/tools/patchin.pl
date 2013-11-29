@@ -18,6 +18,11 @@ use FindBin qw($Bin);
 use Cwd;
 
 $cwd = getcwd;
+my $Base = join("/",$Bin,"..");
+my $majver = 1;
+my $minver = 1;
+my $subver = 1;
+my $kernelver = "";
 
 sub print_help
 {
@@ -40,14 +45,15 @@ sub parse_args
 {
 	foreach $arg (0 .. $#ARGV) {
 		switch ($ARGV[$arg]) {
+			my $opt = $ARGV[$arg];
 			case ("--copy") { $insert_type = "copy"; }
 			case ("--link") { $insert_type = "link"; }
 			case ("--help") { print_help(); exit;}
 			case ("--assume-yes") { $assume_yes = 1; }
 			case ("--assume-subver") { $assume_subver = 1; }
-			case (/^\d*$/) { if ($assume_subver) { $assume_subver = $_; } }
-			case (/^[\/|\.].*/) { $path = $_; }
-			else { print "don't know option $_\n"; }
+			case (/^\d*$/) { if ($assume_subver) { $assume_subver = $opt; } }
+			case (/^[\/|\.|\w].*/) { $path = $opt; }
+			else { print "don't know option $opt\n"; }
 		}
 	}
 }
@@ -55,20 +61,23 @@ sub parse_args
 sub get_kernel_version
 {
 	my $file = open(FH, join("/",$path,"Makefile"));
-	my $maj_vstr = readline(FH);
-	my $min_vstr = readline(FH);
-	my $sub_vstr = readline(FH);
-	close(FH);
-	chomp($maj = (split(/ /, $maj_vstr))[2]);
-	chomp($min = (split(/ /, $min_vstr))[2]);
-	chomp($sub = (split(/ /, $sub_vstr))[2]);
+	if ($file) {
+		my $maj_vstr = readline(FH);
+		my $min_vstr = readline(FH);
+		my $sub_vstr = readline(FH);
+		close(FH);
+		chomp($majver = (split(/ /, $maj_vstr))[2]);
+		chomp($minver = (split(/ /, $min_vstr))[2]);
+		chomp($subver = (split(/ /, $sub_vstr))[2]);
+		$kernelver = "v".$majver.".".$minver.".".$subver
+	}
 }
 
-sub set_target 
+sub set_target
 {
 	if ($path eq "") {
 		$path = $cwd;
-	}	
+	}
 }
 
 # 2 parameters
@@ -83,7 +92,7 @@ sub do_find_index_in_file
 	my ($id, @lines) = @_;
 	foreach (0 .. $#lines) {
 		if ($lines[$_] =~ m/(\Q$id\E)/ ) {
-			$ind = $_ 
+			$ind = $_;
 		}
 	}
 	return $ind;
@@ -96,22 +105,23 @@ sub do_find_index_in_file
 # - Line to patch into the file.
 sub do_patch_line
 {
-	print "Patching file $_[0]\n";
+	my $expath = join("/",$path,$_[0]);
+	print "Patching file $expath\n";
 	# Tie is pretty nifty.
-	tie my @lines, 'Tie::File', $_[0];
+	tie my @lines, 'Tie::File', $expath;
 	my $id = $_[1];
 	my $insert = $_[2];
 	my $index = -1;
 
 	$index = do_find_index_in_file($insert,@lines);
 	if ($index > -1) {
-		print("File $_[0] already patched.\n");
+		print("File $expath already patched.\n");
 		return
 	}
 	
 	$index = do_find_index_in_file($id,@lines);
 	if ($index == -1) {
-		die "Couldn't find $id in $_[0]\n";
+		die "Couldn't find $id in $expath\n";
 	}
 
 	splice(@lines,($index + 1), 0, "$insert");
@@ -126,7 +136,7 @@ sub do_patch_file
 {
 	my $id = $_[1];
 	my $expath = join("/",$path,$_[0]);
-	my $srcpath = join("/",$Bin,$_[0]);
+	my $srcpath = join("/",$Base,$_[0]);
 
 	print "Splicing file $srcpath into $expath\n";
 
@@ -161,9 +171,9 @@ sub copy_file
 sub do_process_dir
 {
 	my $filedir = $_[0];
-	my $fileroot = join("/",$Bin,$filedir);
+	my $fileroot = join("/",$Base,$filedir);
 	my $filedest = join("/",$path,$filedir);
-	
+
 	if ( ! -e $filedest) {
 		mkdir($filedest);
 	}
@@ -183,16 +193,37 @@ sub do_process_dir
 			case ("link") { link_file($src,$dst); }
 			case ("copy") { copy_file($src,$dst); }
 		}
-	}	
+	}
 }
 
 # When given a directory, will ensure that the directory named
-# exists in the target location. It will then  either link or
+# exists in the target location. It will then either link or
 # copy every file in that directory to the other directory.
 sub do_insert_files
 {
 	my $filedir = $_[0];
 	do_process_dir($filedir);
+}
+
+# Looks for patches that associate with this kernel version
+# and then applies them to our kernel.
+sub do_kernel_patches
+{
+	my $expath = $path;
+	my $srcpath = join("/",$Base,$_[0],$kernelver);
+	my @files;
+
+	opendir(DIR, $srcpath);
+	while (my $file = readdir(DIR)) {
+		# We only want files
+		next unless (-f "$srcpath/$file");
+		push @files, "$srcpath/$file";
+	}
+	closedir(DIR);
+
+	foreach (sort @files) {
+		system "patch -p1 -i $_ -d $path"
+	}
 }
 
 $insert_type = "link";
@@ -205,7 +236,7 @@ set_target();
 get_kernel_version();
 
 if ($assume_yes != 1) {
-	print "Patching $patching_project into linux-$maj.$min.$sub.\n";
+	print "Patching $patching_project into linux-$majver.$minver.$subver.\n";
 	print "Using method: $insert_type\n";
 	print "Proceed? [Y/n]: ";
 	$resp = readline(*STDIN);
@@ -215,13 +246,10 @@ if ($assume_yes != 1) {
 	}
 }
 
-if ($min > 5 || $assume_subver > 5) {
+if ($minver > 5 || $assume_subver > 5) {
+	do_kernel_patches("patches");
 	do_patch_line("fs/Makefile", "CONFIG_CRAMFS", "obj-\$(CONFIG_AXFS)		+= axfs/");
 	do_patch_file("fs/Kconfig", "config ECRYPT_FS");
 	do_insert_files("fs/axfs");
 	do_insert_files("include/linux");
-} else {
-#	do_patch_line("fs/Makefile", "CONFIG_CRAMFS", "subdir-\$(CONFIG_AXFS)          += axfs");
-#	do_patch_file("fs/Config.in", "CONFIG_RAMFS");
-#	do_link();
 }
