@@ -21,9 +21,9 @@ def build(options)
   end
   startdir = Dir.pwd
   Dir.chdir options[:kernel]
-  run "git checkout -f #{options[:kernel]}"
+  #run "git checkout -f #{options[:kernel]}"
   run "rm -f ../build.log"
-  run "make mrproper"
+  #run "make mrproper"
   if options[:patch]
     run "perl ../../tools/patchin.pl --assume-yes --link"
   end
@@ -35,7 +35,7 @@ def build(options)
     end
     run "make silentoldconfig"
   elsif options[:build]
-    run "make defconfig"
+    #run "make defconfig"
   end
   if options[:build]
     run "make -j 2 2>&1 | tee ../build.log;"
