@@ -1,7 +1,12 @@
 STDOUT.sync = true
 STDERR.sync = true
 
+
 def run(cmd)
+  puts `#{cmd} 2>&1`
+end
+
+def ffrun(cmd)
   pid, stdin, stdout, stderr = Open4::popen4 "bash"
   stdin.puts cmd
   stdin.close
