@@ -47,8 +47,8 @@ def build(options)
   if options[:patch]
     run "perl ../../../tools/patchin.pl --assume-yes --link"
   end
+  run "make defconfig"
   if options[:config]
-    run "make defconfig"
     run "echo \"CONFIG_AXFS=#{options[:config]}\" >> .config"
     if options[:profiling]
       run "echo \"CONFIG_AXFS_PROFILING=#{options[:profiling]}\" >> .config"
@@ -56,8 +56,6 @@ def build(options)
     run "make silentoldconfig"
     test_config("CONFIG_AXFS=#{options[:config]}")
     test_config("CONFIG_AXFS_PROFILING=#{options[:profiling]}")
-  elsif options[:build]
-    run "make defconfig"
   end
   if options[:build]
     run "make"
