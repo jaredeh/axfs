@@ -21,6 +21,19 @@ def test_config(query)
   end
 end
 
+def fix_up_old_kernels(options)
+  ka = options[:kernel].split('v')[1].split('.')
+  kernelversion = ka[0].to_i * 1000
+  kernelversion += ka[1].to_i * 100
+  kernelversion += ka[2].to_i
+  if kernelversion > 2636
+    return
+  end
+  # older kernels don't want to build with this 4.7.X gcc I'm running at the moment
+  `mv arch/x86/vdso/Makefile arch/x86/vdso/Makefile.orig`
+  `cat arch/x86/vdso/Makefile.orig | sed 's/m elf_x86_64/m64/' | sed 's/m elf_i386/m32/' > arch/x86/vdso/Makefile`
+end
+
 def build(options)
   if not File.exists?(options[:kernel])
     run "git clone --no-checkout --reference /opt/linux_git https://github.com/torvalds/linux.git #{options[:kernel]}"
@@ -30,8 +43,9 @@ def build(options)
   run "git checkout -f #{options[:kernel]}"
   run "rm -f ../build.log"
   run "make mrproper"
+  fix_up_old_kernels(options)
   if options[:patch]
-    run "perl ../../tools/patchin.pl --assume-yes --link"
+    run "perl ../../../tools/patchin.pl --assume-yes --link"
   end
   if options[:config]
     run "make defconfig"
