@@ -13,21 +13,11 @@ def run(cmd)
   end
 end
 
-def ffrun(cmd)
-  pid, stdin, stdout, stderr = Open4::popen4 "bash"
-  stdin.puts cmd
-  stdin.close
-  puts "cmd        : #{ cmd }"
-  puts "pid        : #{ pid }"
-  Process::wait
-  status = $?
-  puts "stdout     : #{ stdout.read.strip }"
-  puts "stderr     : #{ stderr.read.strip }"
-  puts "status     : #{ status.inspect }"
-  puts "exitstatus : #{ status.exitstatus }"
-  puts "================================================================"
-  if status.exitstatus != 0
-    raise
+def test_config(query)
+  resp = `grep #{query} .config`
+  puts "looked for '#{query}' found '#{resp}'"
+  if not resp == query
+    raise "#{query} not found"
   end
 end
 
@@ -50,6 +40,8 @@ def build(options)
       run "echo \"CONFIG_AXFS_PROFILING=#{options[:profiling]}\" >> .config"
     end
     run "make silentoldconfig"
+    test_config("CONFIG_AXFS=#{options[:config]}")
+    test_config("CONFIG_AXFS_PROFILING=#{options[:profiling]}")
   elsif options[:build]
     run "make defconfig"
   end
