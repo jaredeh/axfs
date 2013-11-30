@@ -222,8 +222,9 @@ sub do_kernel_patches
 	closedir(DIR);
 
 	foreach (sort @files) {
-		system("patch -p1 -i $_ -d $path") == 0
-		or die "system @args failed: $?"
+		$cmd = "patch -p1 -i $_ -d $path";
+		system($cmd) == 0
+		or die "system $cmd failed: $?"
 	}
 }
 
