@@ -3,7 +3,14 @@ STDERR.sync = true
 
 
 def run(cmd)
+  puts "cmd        : #{ cmd }"
   puts `#{cmd} 2>&1`
+  status = $?
+  puts "exitstatus : #{ status.exitstatus }"
+  puts "================================================================"
+  if status.exitstatus != 0
+    raise
+  end
 end
 
 def ffrun(cmd)
