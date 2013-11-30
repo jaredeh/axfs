@@ -4,7 +4,8 @@ def run(cmd)
   stdin.close
   puts "cmd        : #{ cmd }"
   puts "pid        : #{ pid }"
-  ignored, status = Process::waitpid2 pid
+  Process::wait
+  status = $?
   puts "stdout     : #{ stdout.read.strip }"
   puts "stderr     : #{ stderr.read.strip }"
   puts "status     : #{ status.inspect }"
