@@ -1,0 +1,34 @@
+diff -r 86489f644d55 include/linux/mm.h
+--- a/include/linux/mm.h	Wed Sep 03 16:22:40 2008 -0700
++++ b/include/linux/mm.h	Wed Sep 03 17:59:11 2008 -0700
+@@ -160,6 +160,10 @@ struct vm_fault {
+ 					 * VM_FAULT_ERROR).
+ 					 */
+ };
++
++#ifdef CONFIG_FS_XIP
++extern int xip_file_fault(struct vm_area_struct *vma, struct vm_fault *vmf);
++#endif
+ 
+ /*
+  * These are the virtual MM functions - opening of an area, closing and
+diff -r 86489f644d55 mm/filemap_xip.c
+--- a/mm/filemap_xip.c	Wed Sep 03 16:22:40 2008 -0700
++++ b/mm/filemap_xip.c	Wed Sep 03 17:59:11 2008 -0700
+@@ -217,7 +217,7 @@ retry:
+  *
+  * This function is derived from filemap_fault, but used for execute in place
+  */
+-static int xip_file_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
++int xip_file_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
+ {
+ 	struct file *file = vma->vm_file;
+ 	struct address_space *mapping = file->f_mapping;
+@@ -295,6 +295,7 @@ out:
+ 		return ret;
+ 	}
+ }
++EXPORT_SYMBOL_GPL(xip_file_fault);
+ 
+ static struct vm_operations_struct xip_file_vm_ops = {
+ 	.fault	= xip_file_fault,
