@@ -117,8 +117,7 @@ sub do_patch_line
 
 	$index = do_find_index_in_file($insert,@lines);
 	if ($index > -1) {
-		print("File $expath already patched.\n");
-		return
+		die "File $expath already patched.\n";
 	}
 	
 	$index = do_find_index_in_file($id,@lines);
@@ -146,8 +145,7 @@ sub do_patch_file
 	tie my @source, 'Tie::File', $srcpath;
 
 	if (do_find_index_in_file($source[0],@existing) > -1) {
-		print("File $expath is already spliced\n");
-		return;
+		die "File $expath is already spliced\n";
 	}
 
 	$index = do_find_index_in_file($id,@existing);
@@ -224,7 +222,8 @@ sub do_kernel_patches
 	closedir(DIR);
 
 	foreach (sort @files) {
-		system "patch -p1 -i $_ -d $path"
+		system("patch -p1 -i $_ -d $path") == 0
+		or die "system @args failed: $?"
 	}
 }
 
