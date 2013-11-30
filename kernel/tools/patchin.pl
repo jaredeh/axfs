@@ -34,6 +34,7 @@ sub print_help
 	print "Usage: patchin.pl [OPTION] [PATH]\n";
 	print " --copy			Add via copy.\n";
 	print " --link			Add via softlink.\n";
+	print " --stock			Some older kernel need patches from stock just to build.\n";
 	print " --assume-yes		Assume yes to all questions\n";
 	print " --assume-subver <NUM> 	Assume we are patching against kernel minor version NUM\n";
 	print "\n";
@@ -51,6 +52,7 @@ sub parse_args
 			case ("--help") { print_help(); exit;}
 			case ("--assume-yes") { $assume_yes = 1; }
 			case ("--assume-subver") { $assume_subver = 1; }
+			case ("--stock") { $stock = 1; }
 			case (/^\d*$/) { if ($assume_subver) { $assume_subver = $opt; } }
 			case (/^[\/|\.|\w].*/) { $path = $opt; }
 			else { print "don't know option $opt\n"; }
@@ -230,10 +232,16 @@ $insert_type = "link";
 $path = "";
 $patching_project = "AXFS";
 $assume_yes = 0;
+$stock = 0;
 
 parse_args();
 set_target();
 get_kernel_version();
+
+if ($stock == 1) {
+	do_kernel_patches("patches/stock_patches");
+	exit;
+}
 
 if ($assume_yes != 1) {
 	print "Patching $patching_project into linux-$majver.$minver.$subver.\n";
