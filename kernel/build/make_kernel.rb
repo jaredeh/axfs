@@ -13,6 +13,14 @@ def run(cmd)
   end
 end
 
+def kernel_version(options)
+  ka = options[:kernel].split('v')[1].split('.')
+  kernelversion  = ka[0] * 1000
+  kernelversion += ka[1] * 100
+  kernelversion += ka[2]
+  return kernelversion
+end
+
 def test_config(query)
   resp = `grep "#{query}" .config`.chomp
   puts "looked for '#{query}' found '#{resp}'"
@@ -22,6 +30,11 @@ def test_config(query)
 end
 
 def build(options)
+  if kernel_version(options) < 2627
+    opt = "ARCH=i386"
+  else
+    opt = ""
+  end
   if not File.exists?(options[:kernel])
     run "git clone --no-checkout --reference /opt/linux_git https://github.com/torvalds/linux.git #{options[:kernel]}"
   end
@@ -34,7 +47,7 @@ def build(options)
   if options[:patch]
     run "perl ../../../tools/patchin.pl --assume-yes --link"
   end
-  run "make defconfig"
+  run "make #{opt} defconfig"
   if options[:config]
     run "echo \"CONFIG_AXFS=#{options[:config]}\" >> .config"
     if options[:profiling] == 'N'
@@ -42,16 +55,16 @@ def build(options)
     else
       run "echo \"CONFIG_AXFS_PROFILING=#{options[:profiling]}\" >> .config"
     end
-    run "make silentoldconfig"
-    test_config("CONFIG_AXFS=#{options[:config]}")
+    run "make #{opt} silentoldconfig"
+    test_config "CONFIG_AXFS=#{options[:config]}"
     if options[:profiling] == 'N'
-      test_config '# CONFIG_AXFS_PROFILING is not set'
+      test_config "# CONFIG_AXFS_PROFILING is not set"
     else
       test_config "CONFIG_AXFS_PROFILING=#{options[:profiling]}"
     end
   end
   if options[:build]
-    run "make"
+    run "make #{opt}"
   end
   Dir.chdir startdir
 end
