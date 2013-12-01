@@ -36,7 +36,6 @@ sub print_help
 	print " --link			Add via softlink.\n";
 	print " --stock			Some older kernel need patches from stock just to build.\n";
 	print " --assume-yes		Assume yes to all questions\n";
-	print " --assume-subver <NUM> 	Assume we are patching against kernel minor version NUM\n";
 	print "\n";
 	print "[PATH] should point to a kernel directory, otherwise the current\n";
 	print "working directory will be assumed to be the desired kernel directory\n";
@@ -51,9 +50,7 @@ sub parse_args
 			case ("--link") { $insert_type = "link"; }
 			case ("--help") { print_help(); exit;}
 			case ("--assume-yes") { $assume_yes = 1; }
-			case ("--assume-subver") { $assume_subver = 1; }
 			case ("--stock") { $stock = 1; }
-			case (/^\d*$/) { if ($assume_subver) { $assume_subver = $opt; } }
 			case (/^[\/|\.|\w].*/) { $path = $opt; }
 			else { print "don't know option $opt\n"; }
 		}
@@ -213,6 +210,9 @@ sub do_kernel_patches
 	my $srcpath = join("/",$Base,$_[0],$kernelver);
 	my @files;
 
+	if (!( -d $srcpath )) {
+		return;
+	}
 	opendir(DIR, $srcpath);
 	while (my $file = readdir(DIR)) {
 		# We only want files
@@ -254,10 +254,9 @@ if ($assume_yes != 1) {
 	}
 }
 
-if ($minver > 5 || $assume_subver > 5) {
-	do_kernel_patches("patches");
-	do_patch_line("fs/Makefile", "CONFIG_CRAMFS", "obj-\$(CONFIG_AXFS)		+= axfs/");
-	do_patch_file("fs/Kconfig", "config ECRYPT_FS");
-	do_insert_files("fs/axfs");
-	do_insert_files("include/linux");
-}
+
+do_kernel_patches("patches");
+do_patch_line("fs/Makefile", "CONFIG_CRAMFS", "obj-\$(CONFIG_AXFS)		+= axfs/");
+do_patch_file("fs/Kconfig", "config ECRYPT_FS");
+do_insert_files("fs/axfs");
+do_insert_files("include/linux");
