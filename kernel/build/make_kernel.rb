@@ -15,9 +15,9 @@ end
 
 def kernel_version(options)
   ka = options[:kernel].split('v')[1].split('.')
-  kernelversion  = ka[0] * 1000
-  kernelversion += ka[1] * 100
-  kernelversion += ka[2]
+  kernelversion  = ka[0].to_i * 1000
+  kernelversion += ka[1].to_i * 100
+  kernelversion += ka[2].to_i
   return kernelversion
 end
 
