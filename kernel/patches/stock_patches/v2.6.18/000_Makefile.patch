@@ -1,0 +1,13 @@
+diff --git a/arch/i386/kernel/Makefile b/arch/i386/kernel/Makefile
+index 5427a84..d157558 100644
+--- a/arch/i386/kernel/Makefile
++++ b/arch/i386/kernel/Makefile
+@@ -53,7 +53,7 @@ targets += vsyscall-note.o vsyscall.lds
+ 
+ # The DSO images are built using a special linker script.
+ quiet_cmd_syscall = SYSCALL $@
+-      cmd_syscall = $(CC) -m elf_i386 -nostdlib $(SYSCFLAGS_$(@F)) \
++      cmd_syscall = $(CC) -m32 -nostdlib $(SYSCFLAGS_$(@F)) \
+ 		          -Wl,-T,$(filter-out FORCE,$^) -o $@
+ 
+ export CPPFLAGS_vsyscall.lds += -P -C -U$(ARCH)

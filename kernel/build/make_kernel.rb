@@ -41,7 +41,6 @@ def build(options)
   startdir = Dir.pwd
   Dir.chdir options[:kernel]
   run "git checkout -f #{options[:kernel]}"
-  run "rm -f ../build.log"
   run "make mrproper"
   run "perl ../../../tools/patchin.pl --stock"
   if options[:patch]

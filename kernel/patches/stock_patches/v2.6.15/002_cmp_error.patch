@@ -1,0 +1,13 @@
+diff --git a/include/asm-i386/uaccess.h b/include/asm-i386/uaccess.h
+index 89ab7e2..ed784e9 100644
+--- a/include/asm-i386/uaccess.h
++++ b/include/asm-i386/uaccess.h
+@@ -59,7 +59,7 @@ extern struct movsl_mask {
+ 	__chk_user_ptr(addr); \
+ 	asm("addl %3,%1 ; sbbl %0,%0; cmpl %1,%4; sbbl $0,%0" \
+ 		:"=&r" (flag), "=r" (sum) \
+-		:"1" (addr),"g" ((int)(size)),"g" (current_thread_info()->addr_limit.seg)); \
++		:"1" (addr),"r" ((int)(size)),"r" (current_thread_info()->addr_limit.seg)); \
+ 	flag; })
+ 
+ /**
