@@ -14,7 +14,7 @@ def run(cmd)
 end
 
 def test_config(query)
-  resp = `grep #{query} .config`
+  resp = `grep "#{query}" .config`.chomp
   puts "looked for '#{query}' found '#{resp}'"
   if not resp == query
     raise "#{query} not found"
@@ -37,12 +37,18 @@ def build(options)
   run "make defconfig"
   if options[:config]
     run "echo \"CONFIG_AXFS=#{options[:config]}\" >> .config"
-    if options[:profiling]
+    if options[:profiling] == 'N'
+      run "echo \"# CONFIG_AXFS_PROFILING is not set\" >> .config"
+    else
       run "echo \"CONFIG_AXFS_PROFILING=#{options[:profiling]}\" >> .config"
     end
     run "make silentoldconfig"
     test_config("CONFIG_AXFS=#{options[:config]}")
-    test_config("CONFIG_AXFS_PROFILING=#{options[:profiling]}")
+    if options[:profiling] == 'N'
+      test_config '# CONFIG_AXFS_PROFILING is not set'
+    else
+      test_config "CONFIG_AXFS_PROFILING=#{options[:profiling]}"
+    end
   end
   if options[:build]
     run "make"
@@ -63,6 +69,9 @@ OptionParser.new do |opts|
 
   opts.on("-c", "--config TYPE", ['y', 'm'], "AXFS Kconfig options build type, 'y' for builtin, 'm' for module") do |o|
     options[:config] = o
+    if not options[:profiling]
+      options[:profiling] = 'N'
+    end
   end
 
   opts.on("-p", "--profiling","Enable profiling") do |o|
