@@ -57,9 +57,9 @@ def build(options)
     old_txt = "# CONFIG_AXFS is not set"
     new_txt = "CONFIG_AXFS=#{options[:config]}"
     if options[:profiling] == 'N'
-      new_txt += "\n# CONFIG_AXFS_PROFILING is not set"
+      new_txt += "\\n# CONFIG_AXFS_PROFILING is not set"
     else
-      new_txt += "\nCONFIG_AXFS_PROFILING=#{options[:profiling]}"
+      new_txt += "\\nCONFIG_AXFS_PROFILING=#{options[:profiling]}"
     end
     patch_config(old_txt,new_txt)
     run "make #{opt} silentoldconfig"
