@@ -29,6 +29,12 @@ def test_config(query)
   end
 end
 
+def patch_config(old_txt,new_txt)
+  run "mv .config .config.old"
+  run "cat .config.old | sed 's/#{old_txt}/#{new_txt}/' >> .config"
+  run "mv .config.old"
+end
+
 def build(options)
   if kernel_version(options) < 2627
     opt = "ARCH=i386"
@@ -48,12 +54,14 @@ def build(options)
   end
   run "make #{opt} defconfig"
   if options[:config]
-    run "echo \"CONFIG_AXFS=#{options[:config]}\" >> .config"
+    old_txt = "# CONFIG_AXFS is not set"
+    new_txt = "CONFIG_AXFS=#{options[:config]}"
     if options[:profiling] == 'N'
-      run "echo \"# CONFIG_AXFS_PROFILING is not set\" >> .config"
+      new_txt += "\n# CONFIG_AXFS_PROFILING is not set"
     else
-      run "echo \"CONFIG_AXFS_PROFILING=#{options[:profiling]}\" >> .config"
+      new_txt += "\nCONFIG_AXFS_PROFILING=#{options[:profiling]}"
     end
+    patch_config(old_txt,new_txt)
     run "make #{opt} silentoldconfig"
     test_config "CONFIG_AXFS=#{options[:config]}"
     if options[:profiling] == 'N'
