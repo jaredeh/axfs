@@ -30,9 +30,7 @@ def test_config(query)
 end
 
 def patch_config(old_txt,new_txt)
-  run "mv .config .config.old"
-  run "cat .config.old | sed 's/#{old_txt}/#{new_txt}/' >> .config"
-  run "mv .config.old"
+  run "mv .config .config.old; cat .config.old | sed 's/#{old_txt}/#{new_txt}/' >> .config; rm .config.old"
 end
 
 def build(options)
