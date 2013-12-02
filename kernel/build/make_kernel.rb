@@ -34,7 +34,7 @@ def patch_config(old_txt,new_txt)
 end
 
 def build(options)
-  if kernel_version(options) < 2627
+  if kernel_version(options) < 2627 and kernel_version(options) != 2612
     opt = "ARCH=i386"
   else
     opt = ""

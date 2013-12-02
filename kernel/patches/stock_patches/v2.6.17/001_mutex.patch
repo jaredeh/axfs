@@ -1,8 +1,16 @@
 diff --git a/kernel/mutex.c b/kernel/mutex.c
-index 5449b21..9f4e742 100644
+index 5449b21..b706cd7 100644
 --- a/kernel/mutex.c
 +++ b/kernel/mutex.c
-@@ -55,7 +55,7 @@ EXPORT_SYMBOL(__mutex_init);
+@@ -17,6 +17,7 @@
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
+ #include <linux/interrupt.h>
++#define __used                  __attribute__((__used__))
+ 
+ /*
+  * In the DEBUG case we are using the "NULL fastpath" for mutexes,
+@@ -55,7 +56,7 @@ EXPORT_SYMBOL(__mutex_init);
   * We also put the fastpath first in the kernel image, to make sure the
   * branch is predicted by the CPU as default-untaken.
   */
@@ -11,7 +19,7 @@ index 5449b21..9f4e742 100644
  __mutex_lock_slowpath(atomic_t *lock_count __IP_DECL__);
  
  /***
-@@ -91,7 +91,7 @@ void fastcall __sched mutex_lock(struct mutex *lock)
+@@ -91,7 +92,7 @@ void fastcall __sched mutex_lock(struct mutex *lock)
  
  EXPORT_SYMBOL(mutex_lock);
  
@@ -20,7 +28,7 @@ index 5449b21..9f4e742 100644
  __mutex_unlock_slowpath(atomic_t *lock_count __IP_DECL__);
  
  /***
-@@ -188,7 +188,7 @@ __mutex_lock_common(struct mutex *lock, long state __IP_DECL__)
+@@ -188,7 +189,7 @@ __mutex_lock_common(struct mutex *lock, long state __IP_DECL__)
  	return 0;
  }
  
@@ -29,7 +37,7 @@ index 5449b21..9f4e742 100644
  __mutex_lock_slowpath(atomic_t *lock_count __IP_DECL__)
  {
  	struct mutex *lock = container_of(lock_count, struct mutex, count);
-@@ -199,7 +199,7 @@ __mutex_lock_slowpath(atomic_t *lock_count __IP_DECL__)
+@@ -199,7 +200,7 @@ __mutex_lock_slowpath(atomic_t *lock_count __IP_DECL__)
  /*
   * Release the lock, slowpath:
   */
