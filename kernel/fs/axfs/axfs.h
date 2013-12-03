@@ -46,8 +46,13 @@ char *axfs_get_inode_name(struct axfs_super *sbi, u64 index);
 /* axfs_super.c */
 u64 axfs_get_io_dev_size(struct super_block *sb);
 int axfs_fill_super(struct super_block *sb, void *data, int silent);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
 int axfs_get_sb(struct file_system_type *, int, const char *, void *,
 		struct vfsmount *);
+#else
+struct super_block *axfs_get_sb(struct file_system_type *fs_type, int flags,
+				const char *dev_name, void *data);
+#endif
 int axfs_physaddr_is_valid(struct axfs_super *sbi);
 int axfs_virtaddr_is_valid(struct axfs_super *sbi);
 int axfs_is_iomem(struct axfs_super *sbi);
