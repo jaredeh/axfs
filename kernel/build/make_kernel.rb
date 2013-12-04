@@ -70,6 +70,7 @@ def build(options)
   end
   if options[:build]
     run "make #{opt}"
+    run "make mrproper"
   end
   Dir.chdir startdir
 end
