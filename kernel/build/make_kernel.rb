@@ -40,7 +40,7 @@ def build(options)
     opt = ""
   end
   if not File.exists?(options[:kernel])
-    run "git clone --no-checkout --reference /opt/linux_git https://github.com/torvalds/linux.git #{options[:kernel]}"
+    run "git clone --no-checkout --reference /opt/git/linux /opt/git/linux #{options[:kernel]}"
   end
   startdir = Dir.pwd
   Dir.chdir options[:kernel]
