@@ -112,9 +112,8 @@ void axfs_copy_block(struct super_block *sb, void *dst_addr, u64 fsoffset,
 		return;
 
 	while (copied < len) {
-		/* Explicit casting for ARM linker errors. */
-		block = (sector_t) boffset + (sector_t) copied;
-		block /= (sector_t) blksize;
+		block = boffset + copied;
+		block = do_div(block, blksize);
 		bh = sb_bread(sb, block);
 		src = (unsigned long)bh->b_data;
 		dst = (unsigned long)dst_addr;
