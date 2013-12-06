@@ -853,7 +853,9 @@ static int axfs_get_sb_address(struct axfs_super *sbi, int *err)
 	} else if (axfs_is_dev_bdev(sd)) {
 		return axfs_get_sb_bdev(fs_type, flags, sd, sbi, mnt, err);
 	} else {
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+		*err = mount_nodev(fs_type, flags, sbi, axfs_fill_super);
+#elif LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
 		*err = get_sb_nodev(fs_type, flags, sbi, axfs_fill_super, mnt);
 #else
 		mnt->mnt_sb =

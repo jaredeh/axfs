@@ -389,7 +389,9 @@ static int axfs_register_profiling_proc(struct axfs_profiling_manager *manager)
 	proc_name_inc++;
 	proc_file->read_proc = axfs_procfile_read;
 	proc_file->write_proc = axfs_procfile_write;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
 	proc_file->owner = THIS_MODULE;
+#endif
 	proc_file->mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 	proc_file->uid = 0;
 	proc_file->gid = 0;
