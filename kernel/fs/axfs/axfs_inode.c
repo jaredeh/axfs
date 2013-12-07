@@ -25,11 +25,6 @@
  */
 #include "axfs.h"
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
-#else
-#include <asm/uaccess.h>
-#endif
-
 static const struct file_operations axfs_directory_operations;
 static const struct file_operations axfs_fops;
 static struct address_space_operations axfs_aops;
@@ -229,7 +224,6 @@ static int axfs_copy_data(struct super_block *sb, void *dst,
 	return 0;
 }
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 static int axfs_iget5_test(struct inode *inode, void *opaque)
 {
 	u64 *inode_number = (u64 *) opaque;
@@ -255,7 +249,6 @@ static int axfs_iget5_set(struct inode *inode, void *opaque)
 	inode->i_ino = *inode_number;
 	return 0;
 }
-#endif
 
 struct inode *axfs_create_vfs_inode(struct super_block *sb, int ino)
 {
@@ -263,15 +256,9 @@ struct inode *axfs_create_vfs_inode(struct super_block *sb, int ino)
 	struct inode *inode;
 	u64 size;
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 	inode = iget5_locked(sb, ino, axfs_iget5_test, axfs_iget5_set, &ino);
 
 	if (!(inode && (inode->i_state & I_NEW)))
-#else
-	inode = new_inode(sb);
-
-	if (!inode)
-#endif
 		return inode;
 
 	inode->i_mode = axfs_get_mode(sbi, ino);
@@ -282,12 +269,7 @@ struct inode *axfs_create_vfs_inode(struct super_block *sb, int ino)
 	inode->i_blkbits = PAGE_CACHE_SIZE * 8;
 	inode->i_gid = axfs_get_gid(sbi, ino);
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 	inode->i_mtime = inode->i_atime = inode->i_ctime = sbi->timestamp;
-#else
-	inode->i_mtime = inode->i_atime = inode->i_ctime =
-	    sbi->timestamp.tv_sec;
-#endif
 	inode->i_ino = ino;
 
 	if (S_ISREG(inode->i_mode)) {
@@ -303,23 +285,14 @@ struct inode *axfs_create_vfs_inode(struct super_block *sb, int ino)
 	} else {
 		inode->i_size = 0;
 		inode->i_blocks = 0;
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 		init_special_inode(inode, inode->i_mode, old_decode_dev(size));
 	}
 	unlock_new_inode(inode);
-#else
-		init_special_inode(inode, inode->i_mode, to_kdev_t(size));
-	}
-#endif
 
 	return inode;
 }
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 static int axfs_get_xip_mem(struct address_space *mapping, pgoff_t offset,
-#else
-static int axfs_get_xip_mem(struct address_space *mapping, unsigned long offset,
-#endif
 			    int create, void **kaddr, unsigned long *pfn)
 {
 	struct inode *inode = mapping->host;
@@ -356,11 +329,7 @@ static int axfs_get_xip_mem(struct address_space *mapping, unsigned long offset,
 static int axfs_insert_pfns(struct file *file, struct vm_area_struct *vma)
 {
 	struct inode *inode = file->f_dentry->d_inode;
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 	struct address_space *mapping = file->f_mapping;
-#else
-	struct address_space *mapping = inode->i_mapping;
-#endif
 	struct super_block *sb = inode->i_sb;
 	struct axfs_super *sbi = AXFS_SB(sb);
 	unsigned long array_index, length, offset, count, addr, pfn;
@@ -392,18 +361,12 @@ static int axfs_insert_pfns(struct file *file, struct vm_area_struct *vma)
 #endif
 		addr = vma->vm_start + (PAGE_SIZE * count);
 		axfs_get_xip_mem(mapping, offset + count, 0, &kaddr, &pfn);
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
 		error = vm_insert_mixed(vma, addr, pfn);
 #else
 		error =
 		    remap_pfn_range(vma, addr, pfn, PAGE_SIZE,
 				    vma->vm_page_prot);
-#endif
-#else
-		error =
-		    remap_page_range(addr, pfn << PAGE_SHIFT, PAGE_SIZE,
-				     vma->vm_page_prot);
 #endif
 		if (error)
 			return error;
@@ -415,11 +378,6 @@ static int axfs_insert_pfns(struct file *file, struct vm_area_struct *vma)
 
 static int axfs_mmap(struct file *file, struct vm_area_struct *vma)
 {
-
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
-	file_accessed(file);
-#endif
-
 	vma->vm_ops = &axfs_vm_ops;
 
 #ifdef VM_MIXEDMAP
@@ -446,7 +404,6 @@ static int axfs_mmap(struct file *file, struct vm_area_struct *vma)
 #endif
 }
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 /* The loop does a handful of things:
  * - First we see if they're the same length, if not we don't care.
  * - Then, we do a strncmp on two same-length strings:
@@ -456,9 +413,6 @@ static int axfs_mmap(struct file *file, struct vm_area_struct *vma)
  */
 static struct dentry *axfs_lookup(struct inode *dir, struct dentry *dentry,
 				  struct nameidata *nd)
-#else
-static struct dentry *axfs_lookup(struct inode *dir, struct dentry *dentry)
-#endif
 {
 	struct super_block *sb = dir->i_sb;
 	struct axfs_super *sbi = AXFS_SB(sb);
@@ -559,11 +513,7 @@ out:
 static int axfs_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
 #else
 static struct page *axfs_nopage(struct vm_area_struct *vma,
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 				unsigned long address, int *type)
-#else
-				unsigned long address, int type)
-#endif
 #endif
 {
 	struct file *file = vma->vm_file;
@@ -617,19 +567,11 @@ static struct page *axfs_nopage(struct vm_area_struct *vma,
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,12)
 #else
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 static ssize_t axfs_xip_file_read(struct file *file, char __user * buf,
-#else
-static ssize_t axfs_xip_file_read(struct file *file, char *buf,
-#endif
 				  size_t len, loff_t *ppos)
 {
 	struct inode *inode = file->f_dentry->d_inode;
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 	struct address_space *mapping = file->f_mapping;
-#else
-	struct address_space *mapping = inode->i_mapping;
-#endif
 	unsigned long index, end_index, offset;
 	loff_t isize, pos;
 	size_t copied = 0, error = 0;
@@ -638,11 +580,7 @@ static ssize_t axfs_xip_file_read(struct file *file, char *buf,
 	index = pos >> PAGE_CACHE_SHIFT;
 	offset = pos & ~PAGE_CACHE_MASK;
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 	isize = i_size_read(inode);
-#else
-	isize = inode->i_size;
-#endif
 	if (!isize)
 		goto out;
 
@@ -706,16 +644,11 @@ static ssize_t axfs_xip_file_read(struct file *file, char *buf,
 
 out:
 	*ppos = pos + copied;
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
-	if (file)
-		file_accessed(file);
-#endif
 
 	return copied ? copied : error;
 }
 #endif
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 /******************************************************************************
  *
  * axfs_file_read
@@ -740,10 +673,6 @@ out:
  *****************************************************************************/
 static ssize_t axfs_file_read(struct file *filp, char __user *buf, size_t len,
 			      loff_t *ppos)
-#else
-static ssize_t axfs_file_read(struct file *filp, char *buf, size_t len,
-			      loff_t *ppos)
-#endif
 {
 	struct inode *inode = filp->f_dentry->d_inode;
 	struct super_block *sb = inode->i_sb;
@@ -769,12 +698,7 @@ static ssize_t axfs_file_read(struct file *filp, char *buf, size_t len,
 			read = axfs_xip_file_read(filp, buf, readlength, ppos);
 #endif
 		} else {
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 			read = do_sync_read(filp, buf, readlength, ppos);
-#else
-			read = generic_file_read(filp, buf, readlength, ppos);
-#endif
-
 		}
 		buf += read;
 		total_read += read;
@@ -818,10 +742,6 @@ static int axfs_readpage(struct file *file, struct page *page)
 		/* node is in compressed region */
 		cnode_offset = axfs_get_cnode_offset(sbi, node_index);
 		cnode_index = axfs_get_cnode_index(sbi, node_index);
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
-#else
-retry:
-#endif
 		down_write(&sbi->lock);
 		if (cnode_index != sbi->current_cnode_index) {
 			/* uncompress only necessary if different cblock */
@@ -832,16 +752,7 @@ retry:
 			axfs_uncompress_block(cblk0, cblk_size, cblk1, len);
 			sbi->current_cnode_index = cnode_index;
 		}
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 		downgrade_write(&sbi->lock);
-#else
-		up_write(&sbi->lock);
-		down_read(&sbi->lock);
-		if (cnode_index != sbi->current_cnode_index) {
-			up_read(&sbi->lock);
-			goto retry;
-		}
-#endif
 		max_len = cblk_size - cnode_offset;
 		len = max_len > PAGE_CACHE_SIZE ? PAGE_CACHE_SIZE : max_len;
 		src = (void *)((unsigned long)cblk0 + cnode_offset);
@@ -896,9 +807,6 @@ static const struct file_operations axfs_directory_operations = {
 
 static const struct file_operations axfs_fops = {
 	.read = axfs_file_read,
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
-	.aio_read = generic_file_aio_read,
-#endif
 	.mmap = axfs_mmap,
 };
 

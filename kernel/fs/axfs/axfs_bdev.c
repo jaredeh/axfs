@@ -26,7 +26,6 @@
 #define CONFIG_BLOCK
 #endif
 #ifdef CONFIG_BLOCK
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 #include <linux/buffer_head.h>
 #include <linux/namei.h>
 
@@ -67,33 +66,6 @@ void axfs_kill_block_super(struct super_block *sb)
 {
 	kill_block_super(sb);
 }
-#else
-#include <linux/blkdev.h>
-#include <linux/types.h>
-#define sector_t int
-
-int axfs_set_block_size(struct super_block *sb)
-{
-	int blocksize;
-	kdev_t dev = sb->s_dev;
-
-	if (!(sb->s_bdev))
-		return 0;
-
-	blocksize = get_hardsect_size(dev);
-	if (blocksize < BLOCK_SIZE)
-		blocksize = BLOCK_SIZE;
-
-	if (set_blocksize(dev, blocksize) < 0) {
-		printk(KERN_ERR "axfs: unable to set secondary blocksize %d\n",
-		       blocksize);
-		return -EINVAL;
-	}
-	sb->s_blocksize = blocksize;
-
-	return 0;
-}
-#endif
 
 void axfs_copy_block(struct super_block *sb, void *dst_addr, u64 fsoffset,
 		     u64 len)
@@ -179,11 +151,7 @@ int axfs_verify_bdev_sizes(struct super_block *sb, int *err)
 	if (!io_dev_size)
 		return false;
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 	bdev_size = i_size_read(axfs_bdev(sb)->bd_inode);
-#else
-	bdev_size = axfs_bdev(sb)->bd_inode->i_size;
-#endif
 	if (io_dev_size <= bdev_size)
 		return true;
 

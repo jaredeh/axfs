@@ -22,16 +22,9 @@
 #include <linux/fs.h>
 #include <linux/mount.h>
 #include <linux/ctype.h>
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 #include <linux/namei.h>
 
 #ifdef CONFIG_MTD
-#define AXFS_CONFIG_MTD
-#endif
-#else
-#endif
-
-#ifdef AXFS_CONFIG_MTD
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,21)
 #include <linux/mtd/super.h>
 #else
@@ -584,7 +577,7 @@ void axfs_kill_mtd_super(struct super_block *sb)
 {
 	kill_mtd_super(sb);
 }
-#else
+#else /* else !CONFIG_MTD */
 struct mtd_info *axfs_mtd(struct super_block *sb)
 {
 	return NULL;

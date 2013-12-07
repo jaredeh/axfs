@@ -24,14 +24,8 @@
 
 #include <linux/vmalloc.h>
 #include <linux/slab.h>
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 #include <linux/parser.h>
 #include <linux/statfs.h>
-#else
-#include <linux/pagemap.h>
-#include <asm/io.h>
-#include <linux/init.h>
-#endif
 #include <linux/module.h>
 #include <linux/mount.h>
 #include <linux/mtd/mtd.h>
@@ -190,7 +184,6 @@ static void axfs_free_region(struct axfs_super *sbi,
 	vfree(region->virt_addr);
 }
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 static struct axfs_super *axfs_get_sbi(void)
 {
 	struct axfs_super *sbi;
@@ -206,7 +199,6 @@ static struct axfs_super *axfs_get_sbi(void)
 
 	return ERR_PTR(-ENOMEM);
 }
-#endif
 
 static void axfs_put_sbi(struct axfs_super *sbi)
 {
@@ -247,9 +239,7 @@ static void axfs_put_super(struct super_block *sb)
 	axfs_unmap_physmem(sb);
 #endif
 	axfs_put_sbi(AXFS_SB(sb));
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 	sb->s_fs_info = NULL;
-#endif
 }
 
 static void axfs_copy_mem(struct super_block *sb, void *buf, u64 fsoffset,
@@ -376,19 +366,15 @@ static int axfs_fill_region_data_ptrs(struct super_block *sb)
 	err = axfs_fill_region_data(sb, &sbi->strings, true);
 	if (err)
 		goto out;
-
 	err = axfs_fill_region_data(sb, &sbi->xip, true);
 	if (err)
 		goto out;
-
 	err = axfs_fill_region_data(sb, &sbi->compressed, false);
 	if (err)
 		goto out;
-
 	err = axfs_fill_region_data(sb, &sbi->byte_aligned, false);
 	if (err)
 		goto out;
-
 	err = axfs_fill_region_data(sb, &sbi->node_type, true);
 	if (err)
 		goto out;
@@ -718,56 +704,11 @@ out:
 	return err;
 }
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
-#else
-
-static int axfs_check_options(char *, struct axfs_super *);
-int axfs_set_block_size(struct super_block *);
-static int axfs_get_sb_address(struct axfs_super *, int *);
-
-int axfs_find_devs(struct super_block *sb, void *data)
-{
-	struct axfs_super *sbi = AXFS_SB(sb);
-	int err;
-
-	err = axfs_check_options((char *)data, sbi);
-	if (err)
-		goto out;
-
-	/* set block_size for any block devices */
-	err = axfs_set_block_size(sb);
-	if (err)
-		goto out;
-
-	/* Check if physaddr is valid */
-	if (axfs_get_sb_address(sbi, &err))
-		goto out;
-
-	/* Now we assume it's a block device */
-	if (sb->s_bdev)
-		goto out;
-
-	printk(KERN_ERR "axfs: no valid devices found\n");
-
-	err = -EINVAL;		/*No SB found */
-
-out:
-
-	return err;
-}
-#endif
-
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 int axfs_fill_super(struct super_block *sb, void *data, int silent)
-#else
-struct super_block *axfs_read_super(struct super_block *sb, void *data,
-				    int silent)
-#endif
 {
 	struct axfs_super *sbi;
 	struct inode *root;
 	int err;
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 	struct axfs_super *sbi_in = (struct axfs_super *)data;
 
 	sbi = axfs_get_sbi();
@@ -777,12 +718,6 @@ struct super_block *axfs_read_super(struct super_block *sb, void *data,
 	sb->s_fs_info = (void *)sbi;
 
 	memcpy(sbi, sbi_in, sizeof(*sbi));
-#else
-
-	sbi = AXFS_SB(sb);
-
-	err = axfs_find_devs(sb, data);
-#endif
 
 	/* fully populate the incore superblock structures */
 	err = axfs_do_fill_super(sb);
@@ -810,32 +745,19 @@ struct super_block *axfs_read_super(struct super_block *sb, void *data,
 	if (err)
 		goto out;
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 	return 0;
-#else
-	return sb;
-#endif
 
 out:
 	axfs_put_super(sb);
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 	return err;
-#else
-	return NULL;
-#endif
 }
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 static int axfs_get_sb_address(struct file_system_type *fs_type, int flags,
 			       struct axfs_super *sbi, struct vfsmount *mnt,
 			       int *err)
 {
 	int mtdnr;
 	char *sd = sbi->second_dev;
-#else
-static int axfs_get_sb_address(struct axfs_super *sbi, int *err)
-{
-#endif
 
 	if (sbi->phys_start_addr == 0)
 		return false;
@@ -847,7 +769,6 @@ static int axfs_get_sb_address(struct axfs_super *sbi, int *err)
 		*err = -EINVAL;
 		return true;
 	}
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 	if (axfs_is_dev_mtd(sd, &mtdnr)) {
 		return axfs_get_sb_mtd(fs_type, flags, sd, sbi, mnt, err);
 	} else if (axfs_is_dev_bdev(sd)) {
@@ -862,12 +783,10 @@ static int axfs_get_sb_address(struct axfs_super *sbi, int *err)
 		    get_sb_nodev(fs_type, flags, (void *)sbi, axfs_fill_super);
 #endif
 	}
-#endif
 
 	return true;
 }
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 /* helpers for parse_axfs_options */
 enum {
 	OPTION_ERR,
@@ -885,12 +804,10 @@ static match_table_t tokens = {
 	{OPTION_IOMEM, "iomem=%s"},
 	{OPTION_ERR, NULL}
 };
-#endif
 
 static int axfs_check_options(char *options, struct axfs_super *sbi)
 {
 	int err = -EINVAL;
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 	unsigned long address = 0;
 	char *iomem = NULL;
 	unsigned long length = 0;
@@ -962,46 +879,13 @@ bad_value:
 
 out:
 	kfree(iomem);
-#else
-	char *key;
-	char *value;
-	char *end;
-
-	sbi->phys_start_addr = 0;
-	err = 0;
-
-	if (!options) {
-		goto out;
-	}
-
-	for (key = strtok(options, ","); key != NULL; key = strtok(NULL, ",")) {
-		if ((value = strchr(key, '=')) != NULL) {
-			if (*value == 0) {
-				err = -EINVAL;
-				goto out;
-			}
-			*value = 0;
-			value++;
-		}
-		if (!strcmp(key, "physaddr")) {
-			if (value != NULL)
-				sbi->phys_start_addr =
-				    simple_strtoul(value, &end, 0);
-		}
-	}
-
-out:
-#endif
 	return err;
 }
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+#elif LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
 int axfs_get_sb(struct file_system_type *fs_type, int flags,
 		const char *dev_name, void *data, struct vfsmount *mnt)
-#else
-struct super_block *axfs_get_sb(struct file_system_type *fs_type, int flags,
-				const char *dev_name, void *data)
 #endif
 {
 	struct axfs_super *sbi;
@@ -1074,7 +958,6 @@ static void axfs_kill_super(struct super_block *sb)
 	if (axfs_has_bdev(sb))
 		axfs_kill_block_super(sb);
 }
-#endif
 
 static int axfs_remount(struct super_block *sb, int *flags, char *data)
 {
@@ -1084,15 +967,11 @@ static int axfs_remount(struct super_block *sb, int *flags, char *data)
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
 static int axfs_statfs(struct dentry *dentry, struct kstatfs *buf)
-#elif LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
-static int axfs_statfs(struct super_block *sb, struct kstatfs *buf)
-#else
-static int axfs_statfs(struct super_block *sb, struct statfs *buf)
-#endif
 {
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
 	struct axfs_super *sbi = AXFS_SB(dentry->d_sb);
 #else
+static int axfs_statfs(struct super_block *sb, struct kstatfs *buf)
+{
 	struct axfs_super *sbi = AXFS_SB(sb);
 #endif
 
@@ -1113,17 +992,12 @@ static struct super_operations axfs_sops = {
 	.statfs = axfs_statfs,
 };
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 static struct file_system_type axfs_fs_type = {
 	.owner = THIS_MODULE,
 	.name = "axfs",
 	.get_sb = axfs_get_sb,
 	.kill_sb = axfs_kill_super,
 };
-#else
-DECLARE_FSTYPE(axfs_fs_type, "axfs", axfs_read_super, 0);
-DECLARE_FSTYPE_DEV(axfs_bdev_fs_type, "axfs_bdev", axfs_read_super);
-#endif
 
 static int __init init_axfs_fs(void)
 {
@@ -1133,11 +1007,7 @@ static int __init init_axfs_fs(void)
 	if (err)
 		return err;
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 	err = register_filesystem(&axfs_fs_type);
-#else
-	err = register_filesystem(&axfs_bdev_fs_type);
-#endif
 
 	if (!err)
 		return 0;
@@ -1149,11 +1019,7 @@ static int __init init_axfs_fs(void)
 static void __exit exit_axfs_fs(void)
 {
 	axfs_uncompress_exit();
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 	unregister_filesystem(&axfs_fs_type);
-#else
-	unregister_filesystem(&axfs_bdev_fs_type);
-#endif
 }
 
 module_init(init_axfs_fs);

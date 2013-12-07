@@ -37,19 +37,11 @@ void axfs_unmap_physmem(struct super_block *sb)
 #include <asm/pgtable.h>
 #endif
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
 #ifdef ioremap_cached
 #define AXFS_REMAP(a,b) (void __force *)ioremap_cached((a),(b))
 #else
 #define AXFS_REMAP(a,b) (void __force *)ioremap((a),(b))
 #endif /* ioremap_cached */
-#else
-#ifdef CONFIG_ARM
-#define AXFS_REMAP(a,b) __ioremap((a),(b),L_PTE_CACHEABLE)
-#else
-#define AXFS_REMAP ioremap
-#endif
-#endif
 
 void axfs_map_physmem(struct axfs_super *sbi, unsigned long size)
 {
