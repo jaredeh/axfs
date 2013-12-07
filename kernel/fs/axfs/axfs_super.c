@@ -568,7 +568,7 @@ static int axfs_get_onmedia_super(struct super_block *sb)
 
 	/* verify the signiture is correct */
 	if (strncmp(sbo->signature, AXFS_SIGNATURE, sizeof(AXFS_SIGNATURE))) {
-		printk(KERN_ERR "axfs: wrong signature: " 
+		printk(KERN_ERR "axfs: wrong signature: "
 				"got '%s', expected '%s'\n",
 		       sbo->signature, AXFS_SIGNATURE);
 		err = -EINVAL;

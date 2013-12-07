@@ -170,7 +170,7 @@ static inline u64 axfs_get_xip_region_physaddr(struct axfs_super *sbi)
 static inline int axfs_region_is_vmalloc(struct axfs_super *sbi,
 					 struct axfs_region_desc *region)
 {
-	u64 va = (u32) region->virt_addr;
+	u64 va = (unsigned long) region->virt_addr;
 	u64 vo = (u64) region->fsoffset + (u64) sbi->virt_start_addr;
 
 	if (va == 0)
@@ -244,7 +244,7 @@ static int axfs_iget5_set(struct inode *inode, void *opaque)
 
 	if (inode->i_sb == NULL) {
 		printk(KERN_ERR "axfs_iget5_set:"
-		       " the super block is set to null \n");
+		       " the super block is set to null\n");
 	}
 	inode->i_ino = *inode_number;
 	return 0;
@@ -266,7 +266,7 @@ struct inode *axfs_create_vfs_inode(struct super_block *sb, int ino)
 	size = axfs_get_inode_file_size(sbi, ino);
 	inode->i_size = size;
 	inode->i_blocks = axfs_get_inode_num_entries(sbi, ino);
-	inode->i_blkbits = PAGE_CACHE_SIZE * 8;
+	inode->i_blkbits = PAGE_CACHE_SHIFT;
 	inode->i_gid = axfs_get_gid(sbi, ino);
 
 	inode->i_mtime = inode->i_atime = inode->i_ctime = sbi->timestamp;
@@ -464,8 +464,10 @@ static int axfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
 	int namelen, mode;
 	int err = 0;
 
-	/* Get the current index into the directory and verify it is not beyond
-	   the end of the list */
+	/*
+	 * Get the current index into the directory and verify it is not beyond
+	 * the end of the list
+	 */
 	dir_index = filp->f_pos;
 	if (dir_index >= axfs_get_inode_num_entries(sbi, ino_number))
 		goto out;
@@ -534,14 +536,17 @@ static struct page *axfs_nopage(struct vm_area_struct *vma,
 	array_index = axfs_get_inode_array_index(sbi, ino_number) + pgoff;
 #endif
 
-	/* if that pages are marked for write they will probably end up in RAM
-	   therefore we don't want their counts for being XIP'd */
+	/*
+	 * if that pages are marked for write they will probably end up in RAM
+	 * therefore we don't want their counts for being XIP'd
+	 */
 	if (!(vma->vm_flags & VM_WRITE))
 		axfs_profiling_add(sbi, array_index, ino_number);
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,12)
-	/* figure out if the node is XIP or compressed and call the
-	   appropriate function
+	/*
+	 * figure out if the node is XIP or compressed and call the
+	 * appropriate function
 	 */
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,25)
 	if (axfs_is_node_xip(sbi, array_index))

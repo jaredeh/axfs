@@ -42,9 +42,14 @@ int axfs_has_bdev(struct super_block *sb)
 	return true;
 }
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+struct dentry *axfs_get_sb_bdev(struct file_system_type *fs_type, int flags,
+		     const char *dev_name, struct axfs_super *sbi)
+#else
 int axfs_get_sb_bdev(struct file_system_type *fs_type, int flags,
 		     const char *dev_name, struct axfs_super *sbi,
 		     struct vfsmount *mnt, int *err)
+#endif
 {
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
 	*err = get_sb_bdev(fs_type, flags, dev_name, sbi, axfs_fill_super, mnt);
@@ -59,7 +64,11 @@ int axfs_get_sb_bdev(struct file_system_type *fs_type, int flags,
 		return false;
 	}
 #endif
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+	return mount_bdev(fs_type, flags, dev_name, sbi, axfs_fill_super);
+#else
 	return true;
+#endif
 }
 
 void axfs_kill_block_super(struct super_block *sb)

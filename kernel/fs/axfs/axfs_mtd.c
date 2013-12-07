@@ -66,6 +66,9 @@ struct mtd_info *axfs_mtd1(struct super_block *sb)
 
 int axfs_has_mtd(struct super_block *sb)
 {
+	if (sb->s_fs_info == NULL)
+		return false;
+
 	if (axfs_mtd0(sb))
 		return true;
 
@@ -150,7 +153,11 @@ int axfs_copy_mtd(struct super_block *sb, void *dst, u64 fsoffset, u64 len)
 		return 0;
 
 	mtd = axfs_get_mtd_info(sb, fsoffset);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+	err = mtd_read(mtd, (loff_t) offset, (size_t) len, &retlen, mtdbuf);
+#else
 	err = mtd->read(mtd, (loff_t) offset, (size_t) len, &retlen, mtdbuf);
+#endif
 
 	if (len != retlen)
 		return -EIO;
@@ -188,6 +195,7 @@ int axfs_map_mtd(struct super_block *sb)
 #else
 	u_char *virt;
 #endif
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
 	if (!mtd->point || !mtd->unpoint)
 		return 0;
 
