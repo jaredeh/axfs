@@ -794,7 +794,6 @@ static int axfs_get_sb_address(struct file_system_type *fs_type, int flags,
 	}
 	if (axfs_is_dev_mtd(sd, &mtdnr)) {
 		return axfs_get_sb_mtd(fs_type, flags, sd, sbi, mnt, err);
-	}
 	} else if (axfs_is_dev_bdev(sd)) {
 		return axfs_get_sb_bdev(fs_type, flags, sd, sbi, mnt, err);
 	} else {
