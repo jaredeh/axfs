@@ -118,6 +118,8 @@ void axfs_copy_block(struct super_block *sb, void *dst_addr, u64 fsoffset,
 		brelse(bh);
 	}
 }
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+#else
 
 int axfs_is_dev_bdev(char *path)
 {
@@ -144,6 +146,7 @@ int axfs_is_dev_bdev(char *path)
 #endif
 	return ret;
 }
+#endif
 
 int axfs_verify_bdev_sizes(struct super_block *sb, int *err)
 {
@@ -188,11 +191,14 @@ int axfs_copy_block(struct super_block *sb, void *dst_addr, u64 fsoffset,
 {
 	return -EINVAL;
 }
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+#else
 
 int axfs_is_dev_bdev(char *path)
 {
 	return false;
 }
+#endif
 
 int axfs_verify_bdev_sizes(struct super_block *sb, int *err)
 {
