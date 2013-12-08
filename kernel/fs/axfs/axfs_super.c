@@ -752,12 +752,21 @@ out:
 	return err;
 }
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+static struct dentry  *
+axfs_get_sb_address(struct file_system_type *fs_type,
+					int flags, struct axfs_super *sbi)
+#else
 static int axfs_get_sb_address(struct file_system_type *fs_type, int flags,
 			       struct axfs_super *sbi, struct vfsmount *mnt,
 			       int *err)
+#endif
 {
 	int mtdnr;
 	char *sd = sbi->second_dev;
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+	struct dentry *dp = NULL;
+#endif
 
 	if (sbi->phys_start_addr == 0)
 		return false;
@@ -766,17 +775,30 @@ static int axfs_get_sb_address(struct file_system_type *fs_type, int flags,
 		printk(KERN_ERR
 		       "axfs: address 0x%lx for axfs image isn't aligned "
 		       "to a page boundary\n", sbi->phys_start_addr);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+		return ERR_PTR(-EINVAL);
+	}
+
+	dp = axfs_get_sb_mtd(fs_type, flags, sd, sbi);
+	if (!IS_ERR_OR_NULL(dp))
+		return dp;
+
+	dp = axfs_get_sb_bdev(fs_type, flags, sd, sbi);
+	if (!IS_ERR_OR_NULL(dp))
+		return dp;
+
+	return mount_nodev(fs_type, flags, sbi, axfs_fill_super);
+#else
 		*err = -EINVAL;
 		return true;
 	}
 	if (axfs_is_dev_mtd(sd, &mtdnr)) {
 		return axfs_get_sb_mtd(fs_type, flags, sd, sbi, mnt, err);
+	}
 	} else if (axfs_is_dev_bdev(sd)) {
 		return axfs_get_sb_bdev(fs_type, flags, sd, sbi, mnt, err);
 	} else {
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
-		*err = mount_nodev(fs_type, flags, sbi, axfs_fill_super);
-#elif LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
 		*err = get_sb_nodev(fs_type, flags, sbi, axfs_fill_super, mnt);
 #else
 		mnt->mnt_sb =
@@ -785,6 +807,7 @@ static int axfs_get_sb_address(struct file_system_type *fs_type, int flags,
 	}
 
 	return true;
+#endif
 }
 
 /* helpers for parse_axfs_options */
@@ -883,10 +906,54 @@ out:
 }
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+struct dentry *axfs_get_sb(struct file_system_type *fs_type, int flags,
+		const char *dev_name, void *data)
+{
+	struct axfs_super *sbi;
+	int err;
+	struct dentry *ret = ERR_PTR(-EINVAL);
+
+	sbi = axfs_get_sbi();
+	if (IS_ERR(sbi))
+		return sbi;
+
+	err = axfs_check_options((char *)data, sbi);
+	if (err) {
+		ret = ERR_PTR(err);
+		goto out;
+	}
+
+	/* First we check if we are mounting directly to memory */
+	ret = axfs_get_sb_address(fs_type, flags, sbi);
+	if (!(IS_ERR_OR_NULL(ret)))
+		goto out;
+
+	/* Next we assume there's a MTD device */
+	ret = axfs_get_sb_mtd(fs_type, flags, dev_name, sbi);
+	if (!(IS_ERR_OR_NULL(ret)))
+		goto out;
+
+	/* Now we assume it's a block device */
+	if (sbi->second_dev) {
+		printk(KERN_ERR
+		       "axfs: can't specify secondary block device %s because "
+		       "%s is assumed to be a block device\n", sbi->second_dev,
+		       dev_name);
+		ret = ERR_PTR(-EINVAL);
+		goto out;
+	}
+	ret = axfs_get_sb_bdev(fs_type, flags, dev_name, sbi);
+	if (!(IS_ERR_OR_NULL(ret)))
+		goto out;
+	ret = ERR_PTR(-EINVAL);
+
+out:
+	axfs_put_sbi(sbi);
+	return ret;
+}
 #elif LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
 int axfs_get_sb(struct file_system_type *fs_type, int flags,
 		const char *dev_name, void *data, struct vfsmount *mnt)
-#endif
 {
 	struct axfs_super *sbi;
 	int err;
@@ -946,6 +1013,7 @@ out:
 	return sb;
 #endif
 }
+#endif
 
 static void axfs_kill_super(struct super_block *sb)
 {

@@ -79,7 +79,10 @@ int axfs_get_sb_mtd(struct file_system_type *, int, const char *,
 		    struct axfs_super *, struct vfsmount *, int *);
 #endif
 void axfs_kill_mtd_super(struct super_block *);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+#else
 int axfs_is_dev_mtd(char *, int *);
+#endif
 int axfs_verify_mtd_sizes(struct super_block *sb, int *err);
 int axfs_map_mtd(struct super_block *);
 void axfs_unmap_mtd(struct super_block *);

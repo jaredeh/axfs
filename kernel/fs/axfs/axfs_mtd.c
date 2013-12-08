@@ -89,7 +89,11 @@ struct mtd_info *axfs_get_mtd_device(int mtdnr)
 	return device;
 }
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+static int axfs_is_dev_mtd(char *path, int *mtdnr)
+#else
 int axfs_is_dev_mtd(char *path, int *mtdnr)
+#endif
 {
 	char *off = NULL;
 	char *endptr = NULL;
@@ -209,10 +213,7 @@ int axfs_map_mtd(struct super_block *sb)
 	}
 
 	sbi->virt_start_addr = (unsigned long)virt;
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
-#else
 	sbi->phys_start_addr = (unsigned long)phys;
-#endif
 	sbi->mtd_pointed = true;
 
 	return 0;
@@ -543,17 +544,28 @@ static void kill_mtd_super(struct super_block *sb)
 /* ---------------------- END COPY --------------------------------------*/
 #endif
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+struct dentry *axfs_get_sb_mtd(struct file_system_type *fs_type, int flags,
+			       const char *dev_name, struct axfs_super *sbi)
+{
+	int *err = ERR_PTR(-EINVAL);
+#else
 int axfs_get_sb_mtd(struct file_system_type *fs_type, int flags,
 		    const char *dev_name, struct axfs_super *sbi,
 		    struct vfsmount *mnt, int *err)
 {
+#endif
 	int nflags, mtdnr;
 
 	if (axfs_is_dev_mtd(sbi->second_dev, &mtdnr)) {
 		sbi->mtd1 = (void *)axfs_get_mtd_device(mtdnr);
 		if (!sbi->mtd1) {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+			return ERR_PTR(-EINVAL);
+#else
 			*err = -EINVAL;
 			return false;
+#endif
 		}
 	}
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
@@ -562,6 +574,9 @@ int axfs_get_sb_mtd(struct file_system_type *fs_type, int flags,
 	nflags = flags;
 #endif
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+	return mount_mtd(fs_type, nflags, dev_name, sbi, axfs_fill_super);
+#else
 	*err = get_sb_mtd(fs_type, nflags, dev_name, sbi, axfs_fill_super, mnt);
 	if (*err)
 		return false;
@@ -570,6 +585,7 @@ int axfs_get_sb_mtd(struct file_system_type *fs_type, int flags,
 	sbi->mtd0 = mnt->mnt_sb->s_mtd;
 #endif
 	return true;
+#endif
 }
 
 void axfs_kill_mtd_super(struct super_block *sb)
