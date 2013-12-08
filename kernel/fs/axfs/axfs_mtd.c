@@ -30,10 +30,6 @@
 #else
 #include <linux/mtd/mtd.h>
 #endif
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,9)
-#else
-#define OLD_POINT 1
-#endif
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,21)
 struct mtd_info *axfs_mtd(struct super_block *sb)
@@ -185,42 +181,37 @@ int axfs_map_mtd(struct super_block *sb)
 	struct mtd_info *mtd = (struct mtd_info *)axfs_mtd0(sb);
 	size_t retlen;
 	int err = 0;
-#ifndef OLD_POINT
 	void *virt;
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
 	resource_size_t phys;
 #else
 	unsigned long phys;
 #endif
-#else
-	u_char *virt;
-#endif
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+
 	if (!mtd->point || !mtd->unpoint)
 		return 0;
 
-#ifndef OLD_POINT
-	err = mtd->point(mtd, 0, sbi->mmap_size, &retlen, &virt, &phys);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+	err = mtd_point(mtd, 0, sbi->mmap_size, &retlen, &virt, &phys);
 #else
-	err = mtd->point(mtd, 0, sbi->mmap_size, &retlen, &virt);
+	err = mtd->point(mtd, 0, sbi->mmap_size, &retlen, &virt, &phys);
 #endif
 	if (err)
 		return err;
 
 	if (retlen != sbi->mmap_size) {
-#ifndef OLD_POINT
-		mtd->unpoint(mtd, 0, retlen);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+		mtd_unpoint(mtd, 0, retlen);
 #else
-		mtd->unpoint(mtd, 0, 0, retlen);
+		mtd->unpoint(mtd, 0, retlen);
 #endif
 		return -EINVAL;
 	}
 
 	sbi->virt_start_addr = (unsigned long)virt;
-#ifndef OLD_POINT
-	sbi->phys_start_addr = (unsigned long)phys;
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
 #else
-	sbi->phys_start_addr = 0;
+	sbi->phys_start_addr = (unsigned long)phys;
 #endif
 	sbi->mtd_pointed = true;
 
@@ -239,10 +230,10 @@ void axfs_unmap_mtd(struct super_block *sb)
 		put_mtd_device((struct mtd_info *)axfs_mtd1(sb));
 
 	if (axfs_is_pointed(sbi)) {
-#ifndef OLD_POINT
-		mtd->unpoint(mtd, 0, sbi->mmap_size);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+		mtd_unpoint(mtd, 0, sbi->mmap_size);
 #else
-		mtd->unpoint(mtd, 0, 0, sbi->mmap_size);
+		mtd->unpoint(mtd, 0, sbi->mmap_size);
 #endif
 	} else {
 		if (axfs_mtd0(sb))
@@ -301,7 +292,7 @@ int axfs_verify_mtd_sizes(struct super_block *sb, int *err)
 too_small:
 	printk(KERN_ERR "axfs: filesystem extends beyond end of MTD, ");
 	printk(KERN_ERR "expected 0x%llx ", io_dev_size);
-	printk(KERN_ERR "got 0x%x\n", (mtd1) ? mtd1->size : mtd0->size);
+	printk(KERN_ERR "got 0x%llx\n", (mtd1) ? mtd1->size : mtd0->size);
 	*err = -EINVAL;
 	return true;
 }
