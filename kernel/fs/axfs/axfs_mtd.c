@@ -632,6 +632,13 @@ int axfs_copy_mtd(struct super_block *sb, void *dst, u64 fsoffset, u64 len)
 	return -EINVAL;
 }
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+struct dentry *axfs_get_sb_mtd(struct file_system_type *fs_type, int flags,
+			       const char *dev_name, struct axfs_super *sbi)
+{
+	return NULL;
+}
+#else
 int axfs_get_sb_mtd(struct file_system_type *fs_type, int flags,
 		    const char *dev_name, struct axfs_super *sbi,
 		    struct vfsmount *mnt, int *err)
@@ -643,6 +650,7 @@ int axfs_is_dev_mtd(char *path, int *mtdnr)
 {
 	return false;
 }
+#endif
 
 void axfs_kill_mtd_super(struct super_block *sb)
 {
