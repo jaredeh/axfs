@@ -68,7 +68,12 @@ sub get_kernel_version
 		chomp($majver = (split(/ /, $maj_vstr))[2]);
 		chomp($minver = (split(/ /, $min_vstr))[2]);
 		chomp($subver = (split(/ /, $sub_vstr))[2]);
-		$kernelver = "v".$majver.".".$minver.".".$subver
+		if ($subver == "0") {
+			$kernelver = "v".$majver.".".$minver;
+		} else {
+			$kernelver = "v".$majver.".".$minver.".".$subver;
+		}
+		
 	}
 }
 
@@ -211,6 +216,7 @@ sub do_kernel_patches
 	my @files;
 
 	if (!( -d $srcpath )) {
+		print "do_kernel_patches - Can't find '$srcpath'\n";
 		return;
 	}
 	opendir(DIR, $srcpath);
