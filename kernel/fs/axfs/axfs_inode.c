@@ -452,9 +452,16 @@ out:
 	return NULL;
 }
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,0)
+static int axfs_iterate(struct file *file, struct dir_context *ctx)
+#else
 static int axfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
-{
+#endif
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,0){
+	struct inode *inode = file_inode(file);
+#else
 	struct inode *inode = filp->f_dentry->d_inode;
+#endif
 	struct super_block *sb = inode->i_sb;
 	struct axfs_super *sbi = AXFS_SB(sb);
 	u64 ino_number = inode->i_ino;
@@ -462,13 +469,20 @@ static int axfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
 	loff_t dir_index;
 	char *name;
 	int namelen, mode;
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,0)
+#else
 	int err = 0;
+#endif
 
 	/*
 	 * Get the current index into the directory and verify it is not beyond
 	 * the end of the list
 	 */
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,0)
+	dir_index = ctx->pos;
+#else
 	dir_index = filp->f_pos;
+#endif
 	if (dir_index >= axfs_get_inode_num_entries(sbi, ino_number))
 		goto out;
 
@@ -479,13 +493,21 @@ static int axfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
 		namelen = strlen(name);
 
 		mode = (int)axfs_get_mode(sbi, entry);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,0)
+		if (!dir_emit(ctx, name, namelen, entry, mode))
+#else
 		err = filldir(dirent, name, namelen, dir_index, entry, mode);
 
 		if (err)
+#endif
 			break;
 
 		dir_index++;
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,0)
+		ctx->pos = dir_index;
+#else
 		filp->f_pos = dir_index;
+#endif
 	}
 
 out:
@@ -807,7 +829,11 @@ struct page *axfs_get_xip_page(struct address_space *mapping, sector_t offset,
 static const struct file_operations axfs_directory_operations = {
 	.llseek = generic_file_llseek,
 	.read = generic_read_dir,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,0)
+	.iterate = axfs_iterate,
+#else
 	.readdir = axfs_readdir,
+#endif
 };
 
 static const struct file_operations axfs_fops = {
