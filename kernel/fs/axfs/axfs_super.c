@@ -735,7 +735,7 @@ int axfs_fill_super(struct super_block *sb, void *data, int silent)
 	}
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,3,0)
-	sb->s_root = d_make_root(root)
+	sb->s_root = d_make_root(root);
 #else
 	sb->s_root = d_alloc_root(root);
 #endif
