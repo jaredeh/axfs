@@ -957,7 +957,8 @@ out:
 	axfs_put_sbi(sbi);
 	return ret;
 }
-#elif LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
+#else
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
 int axfs_get_sb(struct file_system_type *fs_type, int flags,
 		const char *dev_name, void *data, struct vfsmount *mnt)
 #else
@@ -1023,6 +1024,7 @@ out:
 	return sb;
 #endif
 }
+#endif
 
 static void axfs_kill_super(struct super_block *sb)
 {
