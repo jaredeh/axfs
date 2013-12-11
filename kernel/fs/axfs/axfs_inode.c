@@ -457,7 +457,8 @@ static int axfs_iterate(struct file *file, struct dir_context *ctx)
 #else
 static int axfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
 #endif
-#if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,0){
+{
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,0)
 	struct inode *inode = file_inode(file);
 #else
 	struct inode *inode = filp->f_dentry->d_inode;
