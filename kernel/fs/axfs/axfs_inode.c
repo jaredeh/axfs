@@ -839,6 +839,7 @@ static const struct file_operations axfs_directory_operations = {
 
 static const struct file_operations axfs_fops = {
 	.read = axfs_file_read,
+	.aio_read = generic_file_aio_read,
 	.mmap = axfs_mmap,
 };
 

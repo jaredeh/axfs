@@ -960,6 +960,10 @@ out:
 #elif LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
 int axfs_get_sb(struct file_system_type *fs_type, int flags,
 		const char *dev_name, void *data, struct vfsmount *mnt)
+#else
+struct super_block *axfs_get_sb(struct file_system_type *fs_type, int flags,
+				const char *dev_name, void *data)
+#endif
 {
 	struct axfs_super *sbi;
 	int err;
@@ -1019,7 +1023,6 @@ out:
 	return sb;
 #endif
 }
-#endif
 
 static void axfs_kill_super(struct super_block *sb)
 {
