@@ -734,9 +734,16 @@ int axfs_fill_super(struct super_block *sb, void *data, int silent)
 		goto out;
 	}
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,3,0)
+	sb->s_root = d_make_root(root)
+#else
 	sb->s_root = d_alloc_root(root);
+#endif
 	if (!sb->s_root) {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,3,0)
+#else
 		iput(root);
+#endif
 		err = -EINVAL;
 		goto out;
 	}
