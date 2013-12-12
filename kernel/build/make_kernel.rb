@@ -51,6 +51,12 @@ def build(options)
     run "perl ../../../tools/patchin.pl --assume-yes --link"
   end
   run "make #{opt} defconfig"
+  if options[:mtd]
+    old_txt = "# CONFIG_MTD is not set"
+    new_txt = "CONFIG_MTD=y"
+    patch_config(old_txt,new_txt)
+    test_config "CONFIG_MTD=y"
+  end
   if options[:config]
     old_txt = "# CONFIG_AXFS is not set"
     new_txt = "CONFIG_AXFS=#{options[:config]}"
@@ -60,7 +66,7 @@ def build(options)
       new_txt += "\\nCONFIG_AXFS_PROFILING=#{options[:profiling]}"
     end
     patch_config(old_txt,new_txt)
-    run "make #{opt} silentoldconfig"
+    run "yes \"\" | make #{opt} oldconfig"
     test_config "CONFIG_AXFS=#{options[:config]}"
     if options[:profiling] == 'N'
       test_config "# CONFIG_AXFS_PROFILING is not set"
@@ -91,6 +97,10 @@ OptionParser.new do |opts|
     if not options[:profiling]
       options[:profiling] = 'N'
     end
+  end
+
+  opts.on("-m", "--mtd","Enable MTD") do |o|
+    options[:mtd] = 'y'
   end
 
   opts.on("-p", "--profiling","Enable profiling") do |o|

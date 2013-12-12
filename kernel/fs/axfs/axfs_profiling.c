@@ -27,6 +27,9 @@
 #include <linux/module.h>
 #include <linux/vmalloc.h>
 #include <linux/proc_fs.h>
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+#include <linux/seq_file.h>
+#endif
 
 #define AXFS_PROC_DIR_NAME "axfs"
 
@@ -35,6 +38,7 @@ struct axfs_profiling_manager {
 	struct axfs_super *sbi;
 	u32 *dir_structure;
 	u32 size;
+	u32 count;
 };
 
 #define MAX_STRING_LEN 1024
@@ -173,6 +177,59 @@ static int axfs_get_directory_path(struct axfs_profiling_manager *manager,
 
 }
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+static int axfs_procfile_read(struct seq_file *m, void *data)
+{
+	struct axfs_profiling_manager *man;
+	struct axfs_profiling_data *profile;
+	struct axfs_super *sbi;
+	u64 array_index;
+	u64 loop_size, inode_page_offset, node_offset, inode_number;
+	unsigned long addr;
+	int len = 0;
+	int i;
+	char *name = NULL;
+	char *path;
+
+	man = (struct axfs_profiling_manager *)data;
+	sbi = man->sbi;
+
+	loop_size = man->size / sizeof(*profile);
+
+	path = vmalloc(MAX_STRING_LEN);
+
+	for (i = 0; i < loop_size; i++) {
+		/* get the first profile data structure */
+		profile = &(man->profiling_data[i]);
+
+		if (profile->count == 0)
+			continue;
+
+		inode_number = profile->inode_number;
+
+		/* file names can be duplicated so we must print out the path */
+		len = axfs_get_directory_path(man, path, inode_number);
+
+		/* get a pointer to the inode name */
+		array_index = axfs_get_inode_array_index(sbi, inode_number);
+		name = axfs_get_inode_name(sbi, inode_number);
+
+		/* need to convert the page number in the node area to
+		   the page number within the file */
+		node_offset = i;
+		/* gives the offset of the node in the node list area
+		   then substract that from the */
+		inode_page_offset = node_offset - array_index;
+
+		/* set everything up to print out */
+		addr = (unsigned long)(inode_page_offset * PAGE_SIZE);
+		seq_printf(m, "%s%s,%lu,%lu\n", path, name, addr, profile->count);
+	}
+
+	vfree(path);
+	return 0;
+}
+#else
 static ssize_t axfs_procfile_read(char *buffer,
 				  char **buffer_location,
 				  off_t offset, int buffer_length, int *eof,
@@ -245,6 +302,7 @@ static ssize_t axfs_procfile_read(char *buffer,
 
 	return print_len;
 }
+#endif
 
 static ssize_t axfs_procfile_write(struct file *file,
 				   const char *buffer, unsigned long count,
@@ -292,6 +350,9 @@ static void axfs_delete_proc_directory(void)
 	/* Determine if there are any directory elements
 	   and remove if all of the proc files are removed. */
 	if (axfs_proc_dir != NULL) {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+		remove_proc_entry(AXFS_PROC_DIR_NAME, NULL);
+#else
 		if (axfs_proc_dir->subdir == NULL) {
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,25)
 			remove_proc_entry(AXFS_PROC_DIR_NAME, NULL);
@@ -300,6 +361,7 @@ static void axfs_delete_proc_directory(void)
 #endif
 			axfs_proc_dir = NULL;
 		}
+#endif
 	}
 }
 
@@ -324,10 +386,19 @@ static struct axfs_profiling_manager *axfs_delete_proc_file(struct axfs_super
 	struct proc_dir_entry *current_proc_file;
 	struct axfs_profiling_manager *manager;
 	void *rv = NULL;
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+	char file_name[20];
+#endif
 
 	if (!axfs_proc_dir)
 		return NULL;
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+	manager = (struct axfs_profiling_manager *) sbi->profile_man;
+	sprintf(file_name, "volume%d", manager->count);
+	remove_proc_entry(file_name, axfs_proc_dir);
+	return manager;
+#else
 	/* Walk through the proc file entries to find the matching sbi */
 	current_proc_file = axfs_proc_dir->subdir;
 
@@ -349,7 +420,9 @@ static struct axfs_profiling_manager *axfs_delete_proc_file(struct axfs_super
 		}
 		current_proc_file = axfs_proc_dir->next;
 	}
+
 	return (struct axfs_profiling_manager *)rv;
+#endif
 }
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
@@ -394,7 +467,7 @@ static int axfs_register_profiling_proc(struct axfs_profiling_manager *manager)
 
 	sprintf(file_name, "volume%d", proc_name_inc);
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
-	proc_file = proc_create(file_name, 0644, axfs_proc_dir, &axfs_proc_fops);
+	proc_file = proc_create_data(file_name, 0644, axfs_proc_dir, &axfs_proc_fops, (void *) manager);
 #else
 	proc_file = create_proc_entry(file_name, (mode_t) 0644, axfs_proc_dir);
 #endif
@@ -404,13 +477,13 @@ static int axfs_register_profiling_proc(struct axfs_profiling_manager *manager)
 		rv = -ENOMEM;
 		goto out;
 	}
-
+	manager->sbi->profile_man = (void *) manager;
+	manager->count = proc_name_inc;
 	proc_name_inc++;
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
 #else
 	proc_file->read_proc = axfs_procfile_read;
 	proc_file->write_proc = axfs_procfile_write;
-#endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
 	proc_file->owner = THIS_MODULE;
 #endif
@@ -419,6 +492,7 @@ static int axfs_register_profiling_proc(struct axfs_profiling_manager *manager)
 	proc_file->gid = 0;
 	proc_file->data = manager;
 
+#endif
 	printk(KERN_DEBUG "axfs: Proc entry created\n");
 
       out:

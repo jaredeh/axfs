@@ -86,6 +86,7 @@ struct axfs_super {
 	u8 compression_type;
 	struct timespec timestamp;
 	u8 page_shift;
+	void *profile_man;
 };
 
 #endif
