@@ -352,6 +352,21 @@ static struct axfs_profiling_manager *axfs_delete_proc_file(struct axfs_super
 	return (struct axfs_profiling_manager *)rv;
 }
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+static int axfs_proc_open(struct inode *inode, struct file *file)
+{
+	return single_open(file, axfs_procfile_read, NULL);
+}
+
+static const struct file_operations axfs_proc_fops = {
+	.open		= axfs_proc_open,
+	.read		= seq_read,
+	.llseek		= seq_lseek,
+	.release	= single_release,
+	.write		= axfs_procfile_write,
+};
+#endif
+
 /******************************************************************************
  *
  * axfs_register_profiling_proc
@@ -378,7 +393,11 @@ static int axfs_register_profiling_proc(struct axfs_profiling_manager *manager)
 	}
 
 	sprintf(file_name, "volume%d", proc_name_inc);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+	proc_file = proc_create(file_name, 0644, axfs_proc_dir, &axfs_proc_fops);
+#else
 	proc_file = create_proc_entry(file_name, (mode_t) 0644, axfs_proc_dir);
+#endif
 	if (proc_file == NULL) {
 		remove_proc_entry(file_name, axfs_proc_dir);
 		axfs_delete_proc_directory();
@@ -387,8 +406,11 @@ static int axfs_register_profiling_proc(struct axfs_profiling_manager *manager)
 	}
 
 	proc_name_inc++;
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+#else
 	proc_file->read_proc = axfs_procfile_read;
 	proc_file->write_proc = axfs_procfile_write;
+#endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
 	proc_file->owner = THIS_MODULE;
 #endif
