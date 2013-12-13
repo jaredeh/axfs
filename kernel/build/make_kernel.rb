@@ -55,6 +55,7 @@ def build(options)
     old_txt = "# CONFIG_MTD is not set"
     new_txt = "CONFIG_MTD=y"
     patch_config(old_txt,new_txt)
+    run "yes \"\" | make #{opt} oldconfig"
     test_config "CONFIG_MTD=y"
   end
   if options[:config]
@@ -121,8 +122,20 @@ if not options[:kernel]
   raise "-k or --kernel required"
 end
 
-`mkdir -p linux`
-Dir.chdir File.join(File.dirname(__FILE__),"linux")
-puts options
-puts Dir.pwd
-build(options)
+d = Dir.pwd
+begin
+  `mkdir -p linux`
+  Dir.chdir File.join(File.dirname(__FILE__),"linux")
+  puts options
+  puts Dir.pwd
+  build(options)
+  Dir.chdir d
+  run "rm -rf linux"
+rescue Exception => e
+  puts "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
+  puts "  failed - cleaning up"
+  Dir.chdir d
+  puts Dir.pwd
+  run "rm -rf linux"
+  raise e
+end
