@@ -911,8 +911,8 @@ out:
 	return err;
 }
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
-struct dentry *axfs_get_sb(struct file_system_type *fs_type, int flags,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,36)
+struct dentry *axfs_mount(struct file_system_type *fs_type, int flags,
 		const char *dev_name, void *data)
 {
 	struct axfs_super *sbi;
@@ -930,12 +930,12 @@ struct dentry *axfs_get_sb(struct file_system_type *fs_type, int flags,
 	}
 
 	/* First we check if we are mounting directly to memory */
-	ret = axfs_get_sb_address(fs_type, flags, sbi);
+	ret = axfs_mount_address(fs_type, flags, sbi);
 	if (!(IS_ERR_OR_NULL(ret)))
 		goto out;
 
 	/* Next we assume there's a MTD device */
-	ret = axfs_get_sb_mtd(fs_type, flags, dev_name, sbi);
+	ret = axfs_mount_mtd(fs_type, flags, dev_name, sbi);
 	if (!(IS_ERR_OR_NULL(ret)))
 		goto out;
 
@@ -948,7 +948,7 @@ struct dentry *axfs_get_sb(struct file_system_type *fs_type, int flags,
 		ret = ERR_PTR(-EINVAL);
 		goto out;
 	}
-	ret = axfs_get_sb_bdev(fs_type, flags, dev_name, sbi);
+	ret = axfs_mount_bdev(fs_type, flags, dev_name, sbi);
 	if (!(IS_ERR_OR_NULL(ret)))
 		goto out;
 	ret = ERR_PTR(-EINVAL);
