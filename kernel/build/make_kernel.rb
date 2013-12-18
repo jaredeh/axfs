@@ -82,6 +82,12 @@ def build(options)
   Dir.chdir startdir
 end
 
+def cleanup(options)
+  if not options[:no_cleanup]
+    run "rm -rf linux"
+  end
+end
+
 require 'optparse'
 require 'open4'
 
@@ -116,6 +122,10 @@ OptionParser.new do |opts|
     options[:patch] = o
   end
 
+  opts.on("-n", "--no_cleanup","Don't cleanup files") do |o|
+    options[:no_cleanup] = o
+  end
+
 end.parse!
 
 if not options[:kernel]
@@ -130,12 +140,12 @@ begin
   puts Dir.pwd
   build(options)
   Dir.chdir d
-  run "rm -rf linux"
+  cleanup(options)
 rescue Exception => e
   puts "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
   puts "  failed - cleaning up"
   Dir.chdir d
   puts Dir.pwd
-  run "rm -rf linux"
+  cleanup(options)
   raise e
 end
