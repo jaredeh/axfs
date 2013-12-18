@@ -544,8 +544,8 @@ static void kill_mtd_super(struct super_block *sb)
 /* ---------------------- END COPY --------------------------------------*/
 #endif
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
-struct dentry *axfs_get_sb_mtd(struct file_system_type *fs_type, int flags,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,36)
+struct dentry *axfs_mount_mtd(struct file_system_type *fs_type, int flags,
 			       const char *dev_name, struct axfs_super *sbi)
 {
 	int *err = ERR_PTR(-EINVAL);
@@ -574,7 +574,7 @@ int axfs_get_sb_mtd(struct file_system_type *fs_type, int flags,
 	nflags = flags;
 #endif
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,36)
 	return mount_mtd(fs_type, nflags, dev_name, sbi, axfs_fill_super);
 #else
 	*err = get_sb_mtd(fs_type, nflags, dev_name, sbi, axfs_fill_super, mnt);

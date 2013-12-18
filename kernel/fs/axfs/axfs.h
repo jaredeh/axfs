@@ -46,8 +46,8 @@ char *axfs_get_inode_name(struct axfs_super *sbi, u64 index);
 /* axfs_super.c */
 u64 axfs_get_io_dev_size(struct super_block *sb);
 int axfs_fill_super(struct super_block *sb, void *data, int silent);
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
-struct dentry *axfs_get_sb(struct file_system_type *, int, const char *, void *);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,36)
+struct dentry *axfs_mount(struct file_system_type *, int, const char *, void *);
 #elif LINUX_VERSION_CODE > KERNEL_VERSION(2,6,17)
 int axfs_get_sb(struct file_system_type *, int, const char *, void *,
 		struct vfsmount *);
@@ -71,15 +71,15 @@ int axfs_shutdown_profiling(struct axfs_super *);
 
 /* axfs_mtd.c */
 int axfs_copy_mtd(struct super_block *, void *, u64, u64);
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
-struct dentry *axfs_get_sb_mtd(struct file_system_type *, int ,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,36)
+struct dentry *axfs_mount_mtd(struct file_system_type *, int ,
 			       const char *, struct axfs_super *);
 #else
 int axfs_get_sb_mtd(struct file_system_type *, int, const char *,
 		    struct axfs_super *, struct vfsmount *, int *);
 #endif
 void axfs_kill_mtd_super(struct super_block *);
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,36)
 #else
 int axfs_is_dev_mtd(char *, int *);
 #endif
@@ -93,8 +93,8 @@ int axfs_has_mtd(struct super_block *sb);
 
 /* axfs_bdev.c */
 void axfs_copy_block(struct super_block *, void *, u64, u64);
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
-struct dentry *axfs_get_sb_bdev(struct file_system_type *, int,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,36)
+struct dentry *axfs_mount_bdev(struct file_system_type *, int,
 				const char *, struct axfs_super *);
 #else
 int axfs_get_sb_bdev(struct file_system_type *, int, const char *,
