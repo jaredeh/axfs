@@ -1074,8 +1074,8 @@ static struct super_operations axfs_sops = {
 static struct file_system_type axfs_fs_type = {
 	.owner = THIS_MODULE,
 	.name = "axfs",
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
-	.mount = axfs_get_sb,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,36)
+	.mount = axfs_mount,
 #else
 	.get_sb = axfs_get_sb,
 #endif
