@@ -759,9 +759,9 @@ out:
 	return err;
 }
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,36)
 static struct dentry  *
-axfs_get_sb_address(struct file_system_type *fs_type,
+axfs_mount_address(struct file_system_type *fs_type,
 					int flags, struct axfs_super *sbi)
 #else
 static int axfs_get_sb_address(struct file_system_type *fs_type, int flags,
@@ -771,7 +771,7 @@ static int axfs_get_sb_address(struct file_system_type *fs_type, int flags,
 {
 	int mtdnr;
 	char *sd = sbi->second_dev;
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,36)
 	struct dentry *dp = NULL;
 #endif
 
@@ -782,15 +782,15 @@ static int axfs_get_sb_address(struct file_system_type *fs_type, int flags,
 		printk(KERN_ERR
 		       "axfs: address 0x%lx for axfs image isn't aligned "
 		       "to a page boundary\n", sbi->phys_start_addr);
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,36)
 		return ERR_PTR(-EINVAL);
 	}
 
-	dp = axfs_get_sb_mtd(fs_type, flags, sd, sbi);
+	dp = axfs_mount_mtd(fs_type, flags, sd, sbi);
 	if (!IS_ERR_OR_NULL(dp))
 		return dp;
 
-	dp = axfs_get_sb_bdev(fs_type, flags, sd, sbi);
+	dp = axfs_mount_bdev(fs_type, flags, sd, sbi);
 	if (!IS_ERR_OR_NULL(dp))
 		return dp;
 
