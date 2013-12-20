@@ -153,7 +153,7 @@ int axfs_copy_mtd(struct super_block *sb, void *dst, u64 fsoffset, u64 len)
 		return 0;
 
 	mtd = axfs_get_mtd_info(sb, fsoffset);
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,3,0)
 	err = mtd_read(mtd, (loff_t) offset, (size_t) len, &retlen, mtdbuf);
 #else
 	err = mtd->read(mtd, (loff_t) offset, (size_t) len, &retlen, mtdbuf);
@@ -192,10 +192,13 @@ int axfs_map_mtd(struct super_block *sb)
 	unsigned long phys;
 #endif
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,3,0)
+#else
 	if (!mtd->point || !mtd->unpoint)
 		return 0;
+#endif
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,3,0)
 	err = mtd_point(mtd, 0, sbi->mmap_size, &retlen, &virt, &phys);
 #else
 	err = mtd->point(mtd, 0, sbi->mmap_size, &retlen, &virt, &phys);
@@ -204,7 +207,7 @@ int axfs_map_mtd(struct super_block *sb)
 		return err;
 
 	if (retlen != sbi->mmap_size) {
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,3,0)
 		mtd_unpoint(mtd, 0, retlen);
 #else
 		mtd->unpoint(mtd, 0, retlen);
@@ -231,7 +234,7 @@ void axfs_unmap_mtd(struct super_block *sb)
 		put_mtd_device((struct mtd_info *)axfs_mtd1(sb));
 
 	if (axfs_is_pointed(sbi)) {
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,3,0)
 		mtd_unpoint(mtd, 0, sbi->mmap_size);
 #else
 		mtd->unpoint(mtd, 0, sbi->mmap_size);
