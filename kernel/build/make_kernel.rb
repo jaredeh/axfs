@@ -39,43 +39,46 @@ def build(options)
   else
     opt = ""
   end
+  startdir = Dir.pwd
   if not File.exists?(options[:kernel])
     run "git clone --no-checkout --reference /opt/git/linux /opt/git/linux #{options[:kernel]}"
-  end
-  startdir = Dir.pwd
-  Dir.chdir options[:kernel]
-  run "git checkout -f #{options[:kernel]}"
-  run "make mrproper"
-  run "perl ../../../tools/patchin.pl --stock"
-  if options[:patch]
-    run "perl ../../../tools/patchin.pl --assume-yes --link"
-  end
-  run "make #{opt} defconfig"
-  if options[:mtd]
-    old_txt = "# CONFIG_MTD is not set"
-    new_txt = "CONFIG_MTD=y"
-    patch_config(old_txt,new_txt)
-    run "yes \"\" | make #{opt} oldconfig"
-    test_config "CONFIG_MTD=y"
-  end
-  if options[:config]
-    old_txt = "# CONFIG_AXFS is not set"
-    new_txt = "CONFIG_AXFS=#{options[:config]}"
-    if options[:profiling] == 'N'
-      new_txt += "\\n# CONFIG_AXFS_PROFILING is not set"
-    else
-      new_txt += "\\nCONFIG_AXFS_PROFILING=#{options[:profiling]}"
+    Dir.chdir options[:kernel]
+    run "git checkout -f #{options[:kernel]}"
+    run "make mrproper"
+    run "perl ../../../tools/patchin.pl --stock"
+    if options[:patch]
+      run "perl ../../../tools/patchin.pl --assume-yes --link"
     end
-    patch_config(old_txt,new_txt)
-    run "yes \"\" | make #{opt} oldconfig"
-    test_config "CONFIG_AXFS=#{options[:config]}"
-    if options[:profiling] == 'N'
-      test_config "# CONFIG_AXFS_PROFILING is not set"
-    else
-      test_config "CONFIG_AXFS_PROFILING=#{options[:profiling]}"
+    run "make #{opt} defconfig"
+    if options[:mtd]
+      old_txt = "# CONFIG_MTD is not set"
+      new_txt = "CONFIG_MTD=y"
+      patch_config(old_txt,new_txt)
+      run "yes \"\" | make #{opt} oldconfig"
+      test_config "CONFIG_MTD=y"
+    end
+    if options[:config]
+      old_txt = "# CONFIG_AXFS is not set"
+      new_txt = "CONFIG_AXFS=#{options[:config]}"
+      if options[:profiling] == 'N'
+        new_txt += "\\n# CONFIG_AXFS_PROFILING is not set"
+      else
+        new_txt += "\\nCONFIG_AXFS_PROFILING=#{options[:profiling]}"
+      end
+      patch_config(old_txt,new_txt)
+      run "yes \"\" | make #{opt} oldconfig"
+      test_config "CONFIG_AXFS=#{options[:config]}"
+      if options[:profiling] == 'N'
+        test_config "# CONFIG_AXFS_PROFILING is not set"
+      else
+        test_config "CONFIG_AXFS_PROFILING=#{options[:profiling]}"
+      end
     end
   end
   if options[:build]
+    if options[:no_cleanup]
+      run "rm linux/#{options[:kernel]}/fs/axfs/*.o"
+    end
     run "make #{opt}"
   end
   Dir.chdir startdir
