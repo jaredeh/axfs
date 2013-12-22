@@ -33,11 +33,24 @@ def patch_config(old_txt,new_txt)
   run "mv .config .config.old; cat .config.old | sed 's/#{old_txt}/#{new_txt}/' >> .config; rm .config.old"
 end
 
+def kconfig_opts(key,value,options)
+  old_txt = "# #{key} is not set"
+  new_txt = "#{key}=#{value}"
+  if key == "CONFIG_AXFS" and ['n','N'].include?(value)
+    if not options[:config]["CONFIG_AXFS_PROFILING"]
+      new_txt += "\\n# CONFIG_AXFS_PROFILING is not set"
+    end
+  end
+  patch_config(old_txt,new_txt)
+  run "yes \"\" | make #{options[:buildopt]} oldconfig"
+  test_config "#{key}=#{value}"
+end
+
 def build(options)
   if kernel_version(options) < 2627 and kernel_version(options) != 2612
-    opt = "ARCH=i386"
+    options[:buildopt] = "ARCH=i386"
   else
-    opt = ""
+    options[:buildopt] = ""
   end
   startdir = Dir.pwd
   if not File.exists?(options[:kernel])
@@ -49,30 +62,10 @@ def build(options)
     if options[:patch]
       run "perl ../../../tools/patchin.pl --assume-yes --link"
     end
-    run "make #{opt} defconfig"
-    if options[:mtd]
-      old_txt = "# CONFIG_MTD is not set"
-      new_txt = "CONFIG_MTD=y"
-      patch_config(old_txt,new_txt)
-      run "yes \"\" | make #{opt} oldconfig"
-      test_config "CONFIG_MTD=y"
-    end
-    if options[:config]
-      old_txt = "# CONFIG_AXFS is not set"
-      new_txt = "CONFIG_AXFS=#{options[:config]}"
-      if options[:profiling] == 'N'
-        new_txt += "\\n# CONFIG_AXFS_PROFILING is not set"
-      else
-        new_txt += "\\nCONFIG_AXFS_PROFILING=#{options[:profiling]}"
-      end
-      patch_config(old_txt,new_txt)
-      run "yes \"\" | make #{opt} oldconfig"
-      test_config "CONFIG_AXFS=#{options[:config]}"
-      if options[:profiling] == 'N'
-        test_config "# CONFIG_AXFS_PROFILING is not set"
-      else
-        test_config "CONFIG_AXFS_PROFILING=#{options[:profiling]}"
-      end
+    run "make #{options[:buildopt]} defconfig"
+
+    options[:config].each do |key,value|
+      kconfig_opts(key,value,options)
     end
   end
   if options[:build]
@@ -101,19 +94,19 @@ OptionParser.new do |opts|
     options[:kernel] = o
   end
 
-  opts.on("-c", "--config TYPE", ['y', 'm'], "AXFS Kconfig options build type, 'y' for builtin, 'm' for module") do |o|
-    options[:config] = o
-    if not options[:profiling]
-      options[:profiling] = 'N'
+  opts.on("-c", "--config CONFIGS", String, "Kconfig options CONFIG_PANCAKES=y => PANCAKES=y or PANCAKES=m.  Multiple options PANCAKES=y,PROFILING=y.") do |o|
+    options[:config] = Hash.new
+    o.split(',').each do |configline|
+      config = configline.split('=')[0]
+      configopt = configline.split('=')[1]
+      if configopt == nil
+        raise
+      end
+      options[:config]["CONFIG_"+config] = configopt
     end
-  end
+    
+    puts options[:config]
 
-  opts.on("-m", "--mtd","Enable MTD") do |o|
-    options[:mtd] = 'y'
-  end
-
-  opts.on("-p", "--profiling","Enable profiling") do |o|
-    options[:profiling] = 'y'
   end
 
   opts.on("-b", "--build","Do build") do |o|
@@ -124,8 +117,8 @@ OptionParser.new do |opts|
     options[:patch] = o
   end
 
-  opts.on("-n", "--no_cleanup","Don't cleanup files") do |o|
-    options[:no_cleanup] = o
+  opts.on("-r", "--rebuild","Don't cleanup files") do |o|
+    options[:rebuild] = o
   end
 
 end.parse!

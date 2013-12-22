@@ -77,7 +77,7 @@ def build(options)
   end
   if options[:build]
     if options[:no_cleanup]
-      run "rm linux/#{options[:kernel]}/fs/axfs/*.o"
+      run "rm -f linux/#{options[:kernel]}/fs/axfs/*.o"
     end
     run "make #{opt}"
   end
