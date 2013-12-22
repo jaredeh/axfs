@@ -74,6 +74,8 @@ def build(options)
         test_config "CONFIG_AXFS_PROFILING=#{options[:profiling]}"
       end
     end
+  else
+    Dir.chdir options[:kernel]
   end
   if options[:build]
     if options[:no_cleanup]
