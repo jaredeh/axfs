@@ -34,10 +34,21 @@ def patch_config(old_txt,new_txt)
 end
 
 def kconfig_opts(key,value,options)
+  if ['n','N'].include?(value)
+    old_txt = "#{key}=y"
+    new_txt = "# #{key} is not set"
+    patch_config(old_txt,new_txt)
+    run "yes \"\" | make #{options[:buildopt]} oldconfig"
+    old_txt = "#{key}=m"
+    patch_config(old_txt,new_txt)
+    run "yes \"\" | make #{options[:buildopt]} oldconfig"
+    test_config "# #{key} is not set"
+    return
+  end
   old_txt = "# #{key} is not set"
   new_txt = "#{key}=#{value}"
-  if key == "CONFIG_AXFS" and ['n','N'].include?(value)
-    if not options[:config]["CONFIG_AXFS_PROFILING"]
+  if key == "CONFIG_AXFS"
+    if not options[:config]["CONFIG_AXFS_PROFILING"] = 'y'
       new_txt += "\\n# CONFIG_AXFS_PROFILING is not set"
     end
   end
@@ -67,9 +78,11 @@ def build(options)
     options[:config].each do |key,value|
       kconfig_opts(key,value,options)
     end
+  else
+    Dir.chdir options[:kernel]
   end
   if options[:build]
-    if options[:no_cleanup]
+    if options[:rebuild]
       run "rm -f fs/axfs/*.o"
     end
     run "make #{options[:buildopt]}"
@@ -78,7 +91,7 @@ def build(options)
 end
 
 def cleanup(options)
-  if not options[:no_cleanup]
+  if not options[:rebuild]
     run "rm -rf linux"
   end
 end
