@@ -48,7 +48,7 @@ def unset_kconfig_opt(key,options)
   if test_config("# #{key} is not set",false)
     return
   elsif test_config("#{key}=y",false) or test_config("#{key}=m",false)
-    raise "#{query} not found"
+    raise "#{key} found"
   end
 end
 
