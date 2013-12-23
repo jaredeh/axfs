@@ -194,10 +194,10 @@ void axfs_kill_block_super(struct super_block *sb)
 {
 }
 
-int axfs_copy_block(struct super_block *sb, void *dst_addr, u64 fsoffset,
-		    u64 len)
+void axfs_copy_block(struct super_block *sb, void *dst_addr, u64 fsoffset,
+		     u64 len)
 {
-	return -EINVAL;
+	return;
 }
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,36)
 #else
