@@ -45,7 +45,7 @@ def unset_kconfig_opt(key,options)
   old_txt = "#{key}=m"
   patch_config(old_txt,new_txt)
   run "yes \"\" | make #{options[:buildopt]} oldconfig"
-  if test_config "# #{key} is not set"
+  if test_config("# #{key} is not set",false)
     return
   elsif test_config("#{key}=y",false) or test_config("#{key}=m",false)
     raise "#{query} not found"
