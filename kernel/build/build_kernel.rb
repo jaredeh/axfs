@@ -87,6 +87,9 @@ def build(options)
   else
     options[:buildopt] = ""
   end
+  if options[:uml]
+    options[:buildopt] += "ARCH=um"
+  end
   startdir = Dir.pwd
   if not File.exists?(options[:kernel])
     run "git clone --no-checkout --reference /opt/git/linux /opt/git/linux #{options[:kernel]}"
@@ -147,6 +150,10 @@ OptionParser.new do |opts|
 
   opts.on("-b", "--build","Do build") do |o|
     options[:build] = o
+  end
+
+  opts.on("-u", "--uml","Do uml build") do |o|
+    options[:uml] = o
   end
 
   opts.on("-t", "--patch","Patch in AXFS code") do |o|
