@@ -175,6 +175,11 @@ int axfs_verify_bdev_sizes(struct super_block *sb, int *err)
 
 #else
 
+int axfs_has_bdev(struct super_block *sb)
+{
+	return false;
+}
+
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,36)
 struct dentry *axfs_mount_bdev(struct file_system_type *fs_type, int flags,
 		     const char *dev_name, struct axfs_super *sbi)
