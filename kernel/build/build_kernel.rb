@@ -52,7 +52,10 @@ def unset_kconfig_opt(key,options)
   end
 end
 
-def set_kconfig_opt(key,value,new_txt,options)
+def set_kconfig_opt(key,value,options,new_txt="")
+  if new_txt == ""
+    new_txt = "#{key}=#{value}"
+  end
   old_txt = "# #{key} is not set"
   patch_config(old_txt,new_txt)
   run "yes \"\" | make #{options[:buildopt]} oldconfig"
@@ -61,15 +64,20 @@ end
 
 def kconfig_opts(key,value,options)
   if ['n','N'].include?(value)
+    if key == "CONFIG_BLOCK"
+      set_kconfig_opt("CONFIG_EMBEDDED","y",options)
+    end
     unset_kconfig_opt(key,options)
   else
-    new_txt = "#{key}=#{value}"
     if key == "CONFIG_AXFS"
+      new_txt = "#{key}=#{value}"
       if not options[:config]["CONFIG_AXFS_PROFILING"] = 'y'
         new_txt += "\\n# CONFIG_AXFS_PROFILING is not set"
       end
+      set_kconfig_opt(key,value,options,new_txt)
+    else
+      set_kconfig_opt(key,value,options)
     end
-    set_kconfig_opt(key,value,new_txt,options)
   end
 end
 
@@ -82,7 +90,10 @@ def build(options)
   startdir = Dir.pwd
   if not File.exists?(options[:kernel])
     run "git clone --no-checkout --reference /opt/git/linux /opt/git/linux #{options[:kernel]}"
-    Dir.chdir options[:kernel]
+    options[:mrproper] = true
+  end
+  Dir.chdir options[:kernel]
+  if options[:mrproper]
     run "git checkout -f #{options[:kernel]}"
     run "make mrproper"
     run "perl ../../../tools/patchin.pl --stock"
@@ -94,20 +105,16 @@ def build(options)
     options[:config].each do |key,value|
       kconfig_opts(key,value,options)
     end
-  else
-    Dir.chdir options[:kernel]
   end
   if options[:build]
-    if options[:rebuild]
-      run "rm -f fs/axfs/*.o"
-    end
+    run "rm -f fs/axfs/*.o"
     run "make #{options[:buildopt]}"
   end
   Dir.chdir startdir
 end
 
 def cleanup(options)
-  if not options[:rebuild]
+  if options[:wipe]
     run "rm -rf linux"
   end
 end
@@ -146,8 +153,12 @@ OptionParser.new do |opts|
     options[:patch] = o
   end
 
-  opts.on("-r", "--rebuild","Don't cleanup files") do |o|
-    options[:rebuild] = o
+  opts.on("-m", "--mrproper","Do a make mrproper") do |o|
+    options[:mrproper] = o
+  end
+
+  opts.on("-w", "--wipe","Like we were never here") do |o|
+    options[:wipe] = o
   end
 
 end.parse!
