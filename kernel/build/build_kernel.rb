@@ -21,40 +21,56 @@ def kernel_version(options)
   return kernelversion
 end
 
-def test_config(query)
+def test_config(query,fail=true)
   resp = `grep "#{query}" .config`.chomp
   puts "looked for '#{query}' found '#{resp}'"
   if not resp == query
-    raise "#{query} not found"
+    if fail
+      raise "#{query} not found"
+    end
+    return false
   end
+  return true
 end
 
 def patch_config(old_txt,new_txt)
   run "mv .config .config.old; cat .config.old | sed 's/#{old_txt}/#{new_txt}/' >> .config; rm .config.old"
 end
 
-def kconfig_opts(key,value,options)
-  if ['n','N'].include?(value)
-    old_txt = "#{key}=y"
-    new_txt = "# #{key} is not set"
-    patch_config(old_txt,new_txt)
-    run "yes \"\" | make #{options[:buildopt]} oldconfig"
-    old_txt = "#{key}=m"
-    patch_config(old_txt,new_txt)
-    run "yes \"\" | make #{options[:buildopt]} oldconfig"
-    test_config "# #{key} is not set"
+def unset_kconfig_opt(key,options)
+  old_txt = "#{key}=y"
+  new_txt = "# #{key} is not set"
+  patch_config(old_txt,new_txt)
+  run "yes \"\" | make #{options[:buildopt]} oldconfig"
+  old_txt = "#{key}=m"
+  patch_config(old_txt,new_txt)
+  run "yes \"\" | make #{options[:buildopt]} oldconfig"
+  if test_config "# #{key} is not set"
     return
+  elsif test_config "#{key}=y" or test_config "#{key}=m"
+    raise "#{query} not found"
   end
+end
+
+def set_kconfig_opt(key,value,new_txt,options)
   old_txt = "# #{key} is not set"
-  new_txt = "#{key}=#{value}"
-  if key == "CONFIG_AXFS"
-    if not options[:config]["CONFIG_AXFS_PROFILING"] = 'y'
-      new_txt += "\\n# CONFIG_AXFS_PROFILING is not set"
-    end
-  end
   patch_config(old_txt,new_txt)
   run "yes \"\" | make #{options[:buildopt]} oldconfig"
   test_config "#{key}=#{value}"
+end
+
+def kconfig_opts(key,value,options)
+  if ['n','N'].include?(value)
+    unset_kconfig_opt(key,options)
+  else
+    new_txt = "#{key}=#{value}"
+    if key == "CONFIG_AXFS"
+      if not options[:config]["CONFIG_AXFS_PROFILING"] = 'y'
+        new_txt += "\\n# CONFIG_AXFS_PROFILING is not set"
+      end
+    end
+    set_kconfig_opt(key,value,new_txt,options)
+  end
 end
 
 def build(options)
