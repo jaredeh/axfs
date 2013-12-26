@@ -152,8 +152,12 @@ OptionParser.new do |opts|
     options[:build] = o
   end
 
-  opts.on("-u", "--uml","Do uml build") do |o|
-    options[:uml] = o
+  opts.on("-u", "--uml=y/n",['y','n'],"Do uml build") do |o|
+    if o == 'y'
+      options[:uml] = true
+    else o == 'n'
+      options[:uml] = false
+    end
   end
 
   opts.on("-t", "--patch","Patch in AXFS code") do |o|
