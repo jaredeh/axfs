@@ -4,13 +4,15 @@ STDERR.sync = true
 
 def run(cmd)
   puts "cmd        : #{ cmd }"
-  puts `#{cmd} 2>&1`
+  out = `#{cmd} 2>&1`
+  puts out
   status = $?
   puts "exitstatus : #{ status.exitstatus }"
   puts "================================================================"
   if status.exitstatus != 0
     raise
   end
+  return out
 end
 
 def kernel_version(options)
@@ -81,6 +83,20 @@ def kconfig_opts(key,value,options)
   end
 end
 
+def check_for_warnings(txt)
+  fail = false
+  txt.split('\n').each do |l|
+    if l =~ /[Ww]arning/
+      fail = true
+    elsif l =~ /[Ee]rror/
+      fail = true
+    end
+  end
+  if fail
+    raise
+  end
+end
+
 def build(options)
   if kernel_version(options) < 2627 and kernel_version(options) != 2612
     options[:buildopt] = "ARCH=i386"
@@ -111,7 +127,8 @@ def build(options)
   end
   if options[:build]
     run "rm -f fs/axfs/*.o"
-    run "make #{options[:buildopt]}"
+    output = run "make #{options[:buildopt]}"
+    check_for_warnings(output)
   end
   Dir.chdir startdir
 end
