@@ -922,7 +922,7 @@ struct dentry *axfs_mount(struct file_system_type *fs_type, int flags,
 
 	sbi = axfs_get_sbi();
 	if (IS_ERR(sbi))
-		return sbi;
+		return ERR_CAST(sbi);
 
 	err = axfs_check_options((char *)data, sbi);
 	if (err) {
