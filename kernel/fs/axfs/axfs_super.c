@@ -769,11 +769,12 @@ static int axfs_get_sb_address(struct file_system_type *fs_type, int flags,
 			       int *err)
 #endif
 {
-	int mtdnr;
-	char *sd = sbi->second_dev;
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,36)
 	struct dentry *dp = NULL;
+#else
+	int mtdnr;
 #endif
+	char *sd = sbi->second_dev;
 
 	if (sbi->phys_start_addr == 0)
 		return false;
