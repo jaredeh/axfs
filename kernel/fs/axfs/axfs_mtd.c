@@ -551,7 +551,10 @@ static void kill_mtd_super(struct super_block *sb)
 struct dentry *axfs_mount_mtd(struct file_system_type *fs_type, int flags,
 			       const char *dev_name, struct axfs_super *sbi)
 {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,38)
+#else
 	int *err = ERR_PTR(-EINVAL);
+#endif
 #else
 int axfs_get_sb_mtd(struct file_system_type *fs_type, int flags,
 		    const char *dev_name, struct axfs_super *sbi,

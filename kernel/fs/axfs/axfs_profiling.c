@@ -383,11 +383,12 @@ static void axfs_delete_proc_directory(void)
 static struct axfs_profiling_manager *axfs_delete_proc_file(struct axfs_super
 							    *sbi)
 {
-	struct proc_dir_entry *current_proc_file;
 	struct axfs_profiling_manager *manager;
-	void *rv = NULL;
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
 	char file_name[20];
+#else
+	struct proc_dir_entry *current_proc_file;
+	void *rv = NULL;
 #endif
 
 	if (!axfs_proc_dir)
