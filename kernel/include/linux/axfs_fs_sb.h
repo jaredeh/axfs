@@ -80,7 +80,6 @@ struct axfs_super {
 	u64 current_cnode_index;
 	void *cblock_buffer[2];
 	struct rw_semaphore lock;
-	struct axfs_profiling_data *profile_data_ptr;
 	u8 profiling_on;	/* Determines if profiling is on or off */
 	u8 mtd_pointed;
 	u8 compression_type;

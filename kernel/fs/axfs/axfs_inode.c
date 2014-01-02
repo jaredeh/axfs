@@ -411,8 +411,13 @@ static int axfs_mmap(struct file *file, struct vm_area_struct *vma)
  *	  right before this one.
  *  >  1 -> It's somewhere farther along in this directory.
  */
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,5,0)
+static struct dentry *axfs_lookup(struct inode *dir, struct dentry *dentry,
+				  unsigned int flags)
+#else
 static struct dentry *axfs_lookup(struct inode *dir, struct dentry *dentry,
 				  struct nameidata *nd)
+#endif
 {
 	struct super_block *sb = dir->i_sb;
 	struct axfs_super *sbi = AXFS_SB(sb);

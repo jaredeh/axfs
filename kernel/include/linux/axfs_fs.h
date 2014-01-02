@@ -46,11 +46,6 @@
 #define true 1
 #endif
 
-struct axfs_profiling_data {
-	u64 inode_number;
-	unsigned long count;
-};
-
 enum axfs_node_types {
 	XIP = 0,
 	Compressed,

@@ -28,10 +28,18 @@
 #include <linux/vmalloc.h>
 #include <linux/proc_fs.h>
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
-#include <linux/seq_file.h>
+#include <asm/uaccess.h>
 #endif
 
 #define AXFS_PROC_DIR_NAME "axfs"
+
+#define MAX_STRING_LEN 1024
+#define TEMP_BUFFER_SIZE 4096
+
+struct axfs_profiling_data {
+	u64 inode_number;
+	unsigned long count;
+};
 
 struct axfs_profiling_manager {
 	struct axfs_profiling_data *profiling_data;
@@ -39,9 +47,8 @@ struct axfs_profiling_manager {
 	u32 *dir_structure;
 	u32 size;
 	u32 count;
+	char *temp;
 };
-
-#define MAX_STRING_LEN 1024
 
 /* Handles for our Directory and File */
 static struct proc_dir_entry *axfs_proc_dir;
@@ -117,17 +124,18 @@ static int axfs_init_profile_dir_structure(struct axfs_profiling_manager
  *
  *
  **************************************************************************/
-static int axfs_get_directory_path(struct axfs_profiling_manager *manager,
-				   char *buffer, u32 inode_number)
+static char * axfs_get_directory_path(struct axfs_profiling_manager *manager,
+				      u32 *count, u32 inode_number)
 {
 	u32 path_depth = 0;
-	u32 path_size = 0;
 	u32 string_len = 0;
 	u32 index = inode_number;
 	u32 dir_number;
-	u8 **path_array = NULL;
+	char **path_array = NULL;
 	struct axfs_super *sbi = (struct axfs_super *)manager->sbi;
 	int i;
+	char *buffer;
+	char *temp;
 
 	/* determine how deep the directory path is and how big the name
 	   string will be walk back until the root directory index is found
@@ -145,7 +153,7 @@ static int axfs_get_directory_path(struct axfs_profiling_manager *manager,
 		if (path_array == NULL) {
 			printk(KERN_DEBUG
 			       "axfs: directory_path vmalloc failed.\n");
-			goto out;
+			return NULL;
 		}
 	}
 
@@ -156,115 +164,113 @@ static int axfs_get_directory_path(struct axfs_profiling_manager *manager,
 		dir_number = axfs_get_inode_array_index(sbi, index);
 
 		/* store a pointer to the name in the array */
-		path_array[(i - 1)] = (u8 *) axfs_get_inode_name(sbi, index);
-
+		path_array[(i - 1)] = axfs_get_inode_name(sbi, index);
 		index = manager->dir_structure[index];
+
+		/* add up the individual string lengths in the path */
+		*count += strlen(path_array[(i - 1)]);
+
+		/* account for the trailing '/' */
+		*count += 1;
 	}
 
+	/* account for leading './' */
+	*count += 2;
+
+	/* malloc the buffer that will hold the directory string
+	   don't forget the trailing NULL*/
+	buffer = vmalloc(*count + 1);
+	if (buffer == NULL) {
+		printk(KERN_DEBUG
+		       "axfs: directory buffer vmalloc failed.\n");
+		return NULL;
+	}
+	buffer[*count] = 0;
+	temp = buffer;
+
 	/* now print out the directory structure from the begining */
-	string_len = sprintf(buffer, "./");
-	path_size += string_len;
+	string_len = sprintf(temp, "./");
 	for (i = 0; i < path_depth; i++) {
-		buffer = buffer + string_len;
-		string_len = sprintf(buffer, "%s/", (char *)path_array[i]);
-		path_size += string_len;
+		temp = temp + string_len;
+		string_len = sprintf(buffer, "%s/", path_array[i]);
 	}
 
 	vfree(path_array);
-
-      out:
-	return path_size;
-
+	return buffer;
 }
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
-static int axfs_procfile_read(struct seq_file *m, void *data)
+static ssize_t axfs_procfile_read(struct file *file, char __user *buffer, size_t count, loff_t *offset)
 {
-	struct axfs_profiling_manager *man;
-	struct axfs_profiling_data *profile;
-	struct axfs_super *sbi;
-	u64 array_index;
-	u64 loop_size, inode_page_offset, node_offset, inode_number;
-	unsigned long addr;
-	int len = 0;
-	int i;
-	char *name = NULL;
-	char *path;
-
-	man = (struct axfs_profiling_manager *)data;
-	sbi = man->sbi;
-
-	loop_size = man->size / sizeof(*profile);
-
-	path = vmalloc(MAX_STRING_LEN);
-
-	for (i = 0; i < loop_size; i++) {
-		/* get the first profile data structure */
-		profile = &(man->profiling_data[i]);
-
-		if (profile->count == 0)
-			continue;
-
-		inode_number = profile->inode_number;
-
-		/* file names can be duplicated so we must print out the path */
-		len = axfs_get_directory_path(man, path, inode_number);
-
-		/* get a pointer to the inode name */
-		array_index = axfs_get_inode_array_index(sbi, inode_number);
-		name = axfs_get_inode_name(sbi, inode_number);
-
-		/* need to convert the page number in the node area to
-		   the page number within the file */
-		node_offset = i;
-		/* gives the offset of the node in the node list area
-		   then substract that from the */
-		inode_page_offset = node_offset - array_index;
-
-		/* set everything up to print out */
-		addr = (unsigned long)(inode_page_offset * PAGE_SIZE);
-		seq_printf(m, "%s%s,%lu,%lu\n", path, name, addr, profile->count);
-	}
-
-	vfree(path);
-	return 0;
-}
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,0)
+	struct inode *inode = file_inode(file);
 #else
-static ssize_t axfs_procfile_read(char *buffer,
+	struct inode *inode = file->f_dentry->d_inode;
+#endif
+	struct super_block *sb = inode->i_sb;
+	struct axfs_super *sbi = AXFS_SB(sb);
+	struct axfs_profiling_manager *manager;
+#else
+static int axfs_procfile_read(char *buffer,
 				  char **buffer_location,
 				  off_t offset, int buffer_length, int *eof,
 				  void *data)
 {
-	struct axfs_profiling_manager *man;
-	struct axfs_profiling_data *profile;
+	struct axfs_profiling_manager *manager = (struct axfs_profiling_manager *)data;
 	struct axfs_super *sbi;
+#endif
+	struct axfs_profiling_data *profile;
+
 	u64 array_index;
-	u64 loop_size, inode_page_offset, node_offset, inode_number;
+	u64 loop_size, inode_page_offset, node_offset, inode_number, temp_len;
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+	u64 buffer_length;
+#endif
 	u64 print_len = 0;
 	unsigned long addr;
 	int len = 0;
 	int i;
-	char *buff, *name = NULL;
+	char *temp, *name = NULL, *path;
+	char numbers[50];
 
-	man = (struct axfs_profiling_manager *)data;
-	sbi = man->sbi;
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+	manager = (struct axfs_profiling_manager *)sbi->profile_man;
+#else
+	sbi = manager->sbi;
+#endif
+	loop_size = manager->size / sizeof(*profile);
 
-	loop_size = man->size / sizeof(*profile);
-
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+	/* If all data has been sent then return */
+	if (*offset >= loop_size)
+		return 0;
+#else
 	/* If all data has been returned set EOF */
 	if (offset >= loop_size) {
 		*eof = 1;
 		return 0;
 	}
+#endif
 
-	buff = buffer;
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+	temp = manager->temp;
+	if (count > TEMP_BUFFER_SIZE) {
+		buffer_length = TEMP_BUFFER_SIZE;
+	} else {
+		buffer_length = count;
+	}
+
+	/* print as much as the buffer can take */
+	for (i = *offset; i < loop_size; i++) {
+#else
+	temp = buffer;
+
 	/* print as much as the buffer can take */
 	for (i = offset; i < loop_size; i++) {
+#endif
 
-		if ((print_len + MAX_STRING_LEN) > buffer_length)
-			break;
 		/* get the first profile data structure */
-		profile = &(man->profiling_data[i]);
+		profile = &(manager->profiling_data[i]);
 
 		if (profile->count == 0)
 			continue;
@@ -272,14 +278,13 @@ static ssize_t axfs_procfile_read(char *buffer,
 		inode_number = profile->inode_number;
 
 		/* file names can be duplicated so we must print out the path */
-		len = axfs_get_directory_path(man, buff, inode_number);
-
-		print_len += len;
-		buff += len;
+		path = axfs_get_directory_path(manager, &len, inode_number);
+		temp_len = len;
 
 		/* get a pointer to the inode name */
 		array_index = axfs_get_inode_array_index(sbi, inode_number);
 		name = axfs_get_inode_name(sbi, inode_number);
+		temp_len += strlen(name);
 
 		/* need to convert the page number in the node area to
 		   the page number within the file */
@@ -288,35 +293,97 @@ static ssize_t axfs_procfile_read(char *buffer,
 		   then substract that from the */
 		inode_page_offset = node_offset - array_index;
 
-		/* set everything up to print out */
 		addr = (unsigned long)(inode_page_offset * PAGE_SIZE);
-		len = sprintf(buff, "%s,%lu,%lu\n", name, addr, profile->count);
 
+		/* now prepare the last part of the string */
+		len = sprintf(numbers,",%lu,%lu\n", addr, profile->count);
+		numbers[len] = 0;
+		temp_len += len;
+
+		if (temp_len > buffer_length) {
+			printk(KERN_WARNING
+			       "axfs: Error, profile line too for buffers.\n");
+			vfree(path);
+			return -ENOMEM;
+		}
+
+		if ((print_len + temp_len) > buffer_length) {
+			vfree(path);
+			break;
+		}
+
+		/* print it all out together */
+		len = sprintf(temp, "%s%s%s", path, name, numbers);
+
+		vfree(path);
 		print_len += len;
-		buff += len;
+		temp += len;
 	}
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+	temp_len = copy_to_user(buffer, manager->temp, print_len);
+	if (temp_len != print_len) {
+		printk(KERN_WARNING
+		       "axfs: Error, Not sure what happened.\n");
+		return -ENOMEM;
+	}
+	*offset += print_len;
+#else
 	/* return the number of items printed.
 	   This will be added to offset and passed back to us */
 	*buffer_location = (char *)(i - offset);
+#endif
 
 	return print_len;
 }
-#endif
 
-static ssize_t axfs_procfile_write(struct file *file,
-				   const char *buffer, unsigned long count,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+static ssize_t axfs_procfile_write(struct file *file, const char __user *buffer, size_t count, loff_t *offset)
+{
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,0)
+	struct inode *inode = file_inode(file);
+#else
+	struct inode *inode = file->f_dentry->d_inode;
+#endif
+	struct super_block *sb = inode->i_sb;
+	char temp[5];
+	int len, i;
+#else
+static int axfs_procfile_write(struct file *file,
+				   const char *temp, unsigned long count,
 				   void *data)
 {
-	struct axfs_profiling_manager *man_ptr =
-	    (struct axfs_profiling_manager *)data;
+#endif
+	struct axfs_profiling_manager *manager;
+	struct axfs_super *sbi;
 
-	if ((count >= 2) && (0 == memcmp(buffer, "on", 2))) {
-		man_ptr->sbi->profiling_on = true;
-	} else if ((count >= 3) && (0 == memcmp(buffer, "off", 3))) {
-		man_ptr->sbi->profiling_on = false;
-	} else if ((count >= 5) && (0 == memcmp(buffer, "clear", 5))) {
-		memset(man_ptr->profiling_data, 0, man_ptr->size);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
+	sbi = AXFS_SB(sb);
+	manager = (struct axfs_profiling_manager *)sbi->profile_man;
+
+	if (count > 5)
+		i = 5;
+	else
+		i = count;
+
+	len = copy_from_user(temp, buffer, i);
+	if (len != i) {
+		printk(KERN_WARNING
+		       "axfs: Error, Not sure what happened.\n");
+		return -ENOMEM;
+	}
+
+#else
+	manager = (struct axfs_profiling_manager *)data;
+	sbi = manager->sbi;
+#endif
+
+	if ((count >= 2) && (0 == memcmp(temp, "on", 2))) {
+		sbi->profiling_on = true;
+	} else if ((count >= 3) && (0 == memcmp(temp, "off", 3))) {
+		sbi->profiling_on = false;
+	} else if ((count >= 5) && (0 == memcmp(temp, "clear", 5))) {
+		memset(manager->profiling_data, 0, manager->size);
 	} else {
 		printk(KERN_INFO
 		       "axfs: Unknown command.  Supported options are:\n");
@@ -425,18 +492,10 @@ static struct axfs_profiling_manager *axfs_delete_proc_file(struct axfs_super
 	return (struct axfs_profiling_manager *)rv;
 #endif
 }
-
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
-static int axfs_proc_open(struct inode *inode, struct file *file)
-{
-	return single_open(file, axfs_procfile_read, NULL);
-}
 
 static const struct file_operations axfs_proc_fops = {
-	.open		= axfs_proc_open,
-	.read		= seq_read,
-	.llseek		= seq_lseek,
-	.release	= single_release,
+	.read		= axfs_procfile_read,
 	.write		= axfs_procfile_write,
 };
 #endif
@@ -576,8 +635,9 @@ int axfs_init_profiling(struct axfs_super *sbi)
 	manager->profiling_data = profile_data;
 	manager->size = num_nodes * sizeof(*profile_data);
 	manager->sbi = sbi;
+	manager->temp = vmalloc(TEMP_BUFFER_SIZE);
 	sbi->profiling_on = true;	/* Turn on profiling by default */
-	sbi->profile_data_ptr = profile_data;
+	sbi->profile_man = manager;
 
 	err = axfs_init_profile_dir_structure(manager, num_inodes);
 	if (err)
@@ -591,6 +651,7 @@ int axfs_init_profiling(struct axfs_super *sbi)
 
       out:
 	vfree(manager->dir_structure);
+	vfree(manager->temp);
 	vfree(profile_data);
 	vfree(manager);
 	return err;
@@ -620,7 +681,7 @@ int axfs_shutdown_profiling(struct axfs_super *sbi)
 	if (!sbi)
 		return true;
 
-	if (!sbi->profile_data_ptr)
+	if (!sbi->profile_man)
 		return true;
 
 	manager = axfs_unregister_profiling_proc(sbi);
@@ -629,6 +690,7 @@ int axfs_shutdown_profiling(struct axfs_super *sbi)
 		return false;
 
 	vfree(manager->dir_structure);
+	vfree(manager->temp);
 	vfree(manager->profiling_data);
 	vfree(manager);
 	return true;
@@ -657,12 +719,14 @@ void axfs_profiling_add(struct axfs_super *sbi, unsigned long array_index,
 			unsigned int axfs_inode_number)
 {
 	unsigned long addr;
+	struct axfs_profiling_manager *manager;
 	struct axfs_profiling_data *profile_data;
 
 	if (sbi->profiling_on != true)
 		return;
 
-	addr = (unsigned long)sbi->profile_data_ptr;
+	manager = (struct axfs_profiling_manager *)sbi->profile_man;
+	addr = (unsigned long)manager->profiling_data;
 	addr += array_index * sizeof(*profile_data);
 
 	profile_data = (struct axfs_profiling_data *)addr;
