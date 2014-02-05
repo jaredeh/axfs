@@ -1,7 +1,7 @@
 arch = "ppc"
 port = "5533"
 
-qemu_system_binary = "qemu-system-" + arch
+qemu_system_binary = "/opt/poky/usr/bin/qemu-system-" + arch
 qemu_extra = "-m 256 -nographic -no-reboot -device pcnet,netdev=user.0 -netdev user,id=user.0,hostfwd=tcp::#{port}-:22"
 append = "root=/dev/hda rw init=/sbin/init.sh panic=1 console=ttyS0"
 
