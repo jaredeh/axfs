@@ -16,3 +16,16 @@ do
   sudo umount mnt
   cd ..
 done
+
+cd /opt/poky/arm/
+wget http://downloads.yoctoproject.org/releases/yocto/yocto-1.4.2/machines/qemu/qemuarm/zImage-qemuarm.bin
+cd /opt/poky/mips/
+wget http://downloads.yoctoproject.org/releases/yocto/yocto-1.4.2/machines/qemu/qemumips/vmlinux-qemumips.bin
+cd /opt/poky/ppc/
+wget http://downloads.yoctoproject.org/releases/yocto/yocto-1.4.2/machines/qemu/qemuppc/vmlinux-qemuppc.bin
+cd /opt/poky/x86/
+wget http://downloads.yoctoproject.org/releases/yocto/yocto-1.4.2/machines/qemu/qemux86/bzImage-qemux86.bin
+cd /opt/poky/x86-64/
+wget http://downloads.yoctoproject.org/releases/yocto/yocto-1.4.2/machines/qemu/qemux86-64/bzImage-qemux86-64.bin
+
+
