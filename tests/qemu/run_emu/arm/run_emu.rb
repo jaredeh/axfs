@@ -23,12 +23,6 @@ def run_emulator(parameter)
   end
   cmd += " -append \"" + parameter[:KERNEL_APPEND] + "\""
   cmd += " " + parameter[:QEMU_EXTRA]
-  if parameter["hda"] != nil
-    cmd += " -hda " + parameter["hda"]
-  end
-  if parameter["hdb"] != nil
-    cmd += " -hdb " + parameter["hdb"]
-  end
   puts cmd
   `#{cmd}`
 end
