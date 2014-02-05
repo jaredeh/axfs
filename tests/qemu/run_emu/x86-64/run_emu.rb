@@ -2,7 +2,7 @@ arch = "x86_64"
 port = "5511"
 
 qemu_system_binary = "/opt/poky/usr/bin/qemu-system-" + arch
-qemu_extra = "-m 256 -nographic -no-reboot -device e1000,netdev=user.0 -netdev user,id=user.0,hostfwd=tcp::#{port}-:22"
+qemu_extra = "-m 256 -nographic -no-reboot -redir tcp:#{port}::22"
 append = "root=/dev/hda rw init=/sbin/init.sh panic=1 console=ttyS0"
 
 a={}
@@ -24,7 +24,6 @@ def run_emulator(parameter)
   cmd += " -append \"" + parameter[:KERNEL_APPEND] + "\""
   cmd += " " + parameter[:QEMU_EXTRA]
   puts cmd
-  `#{cmd}`
 end
 
 run_emulator(a)

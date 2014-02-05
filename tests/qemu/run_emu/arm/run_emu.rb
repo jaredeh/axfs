@@ -2,8 +2,8 @@ arch = "arm"
 port = "5555"
 
 qemu_system_binary = "/opt/poky/usr/bin/qemu-system-" + arch
-qemu_extra = "-m 256 -nographic -no-reboot -M versatilepb -device smc91c111,netdev=user.0 -netdev user,id=user.0,hostfwd=tcp::#{port}-:22"
-append = "root=\"0800\" rw init=/sbin/init.sh panic=1 console=ttyAMA0"
+qemu_extra = "-m 256 -nographic -no-reboot -M versatilepb -redir tcp:#{port}::22"
+append = "root=/dev/sda rw init=/sbin/init.sh panic=1 console=ttyAMA0"
 
 a={}
 a["kernel"] = "zImage-qemuarm.bin"
@@ -24,7 +24,6 @@ def run_emulator(parameter)
   cmd += " -append \"" + parameter[:KERNEL_APPEND] + "\""
   cmd += " " + parameter[:QEMU_EXTRA]
   puts cmd
-  `#{cmd}`
 end
 
 run_emulator(a)
