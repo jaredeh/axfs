@@ -6,7 +6,7 @@ qemu_extra = "-m 256 -nographic -no-reboot -redir tcp:#{port}::22"
 append = "root=/dev/hda rw init=/sbin/init.sh panic=1 console=ttyS0"
 
 a={}
-a["kernel"] = "vmlinux"
+a["kernel"] = "vmlinux-qemuppc.bin"
 a["hda"] = "hda.ext2"
 a["hdb"] = "hdb.ext2"
 a[:KERNEL_APPEND] = append
