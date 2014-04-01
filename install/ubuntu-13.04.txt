@@ -8,3 +8,17 @@ apt-get install libffi-dev
 gem install open4
 gem install ffi
 
+
+cd /opt/poky/
+git clone git://github.com/woglinde/meta-java.git
+# source oe-init-build-env
+# add /opt/poky/meta-java to BBLAYERS
+# in build/conf/bblayers.conf
+
+PREFERRED_PROVIDER_virtual/java-initial = "cacao-initial"
+PREFERRED_PROVIDER_virtual/java-native = "jamvm-native"
+PREFERRED_PROVIDER_virtual/javac-native = "ecj-bootstrap-native"
+PREFERRED_VERSION_openjdk-6-jre = "6b27-1.12.5"
+PREFERRED_VERSION_icedtea6-native = "1.8.11"
+# in build/conf/local.conf
+bitbake

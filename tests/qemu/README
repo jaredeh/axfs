@@ -1,0 +1,52 @@
+http://people.debian.org/~aurel32/qemu/powerpc/debian_wheezy_powerpc_standard.qcow2
+http://people.debian.org/~aurel32/qemu/amd64/debian_wheezy_amd64_standard.qcow2
+http://people.debian.org/~aurel32/qemu/i386/debian_wheezy_i386_standard.qcow2
+
+http://people.debian.org/~aurel32/qemu/mips/debian_wheezy_mips_standard.qcow2
+http://people.debian.org/~aurel32/qemu/mips/vmlinux-3.2.0-4-5kc-malta
+http://people.debian.org/~aurel32/qemu/mips/vmlinux-3.2.0-4-4kc-malta
+
+
+http://people.debian.org/~aurel32/qemu/armel/debian_wheezy_armel_standard.qcow2
+http://people.debian.org/~aurel32/qemu/armel/vmlinuz-3.2.0-4-versatile
+http://people.debian.org/~aurel32/qemu/armel/initrd.img-3.2.0-4-versatile
+
+http://people.debian.org/~aurel32/qemu/armhf/debian_wheezy_armhf_standard.qcow2
+http://people.debian.org/~aurel32/qemu/armhf/vmlinuz-3.2.0-4-vexpress
+http://people.debian.org/~aurel32/qemu/armhf/initrd.img-3.2.0-4-vexpress
+
+apt-get install tinyproxy
+export http_proxy=10.0.2.2:8888
+
+
+mkdir -p /opt/poky/src/mips ; wget -P /opt/poky/src/mips http://people.debian.org/~aurel32/qemu/mips/debian_wheezy_mips_standard.qcow2 ; wget -P /opt/poky/src/mips http://people.debian.org/~aurel32/qemu/mips/vmlinux-3.2.0-4-5kc-malta ; wget -P /opt/poky/src/mips http://people.debian.org/~aurel32/qemu/mips/vmlinux-3.2.0-4-4kc-malta
+
+wget -P /opt/poky/src/ http://people.debian.org/~aurel32/qemu/powerpc/debian_wheezy_powerpc_standard.qcow2
+wget -P /opt/poky/src/ http://people.debian.org/~aurel32/qemu/amd64/debian_wheezy_amd64_standard.qcow2
+wget -P /opt/poky/src/ http://people.debian.org/~aurel32/qemu/i386/debian_wheezy_i386_standard.qcow2
+
+wget -P /opt/poky/src/ http://people.debian.org/~aurel32/qemu/armel/debian_wheezy_armel_standard.qcow2
+wget -P /opt/poky/src/ http://people.debian.org/~aurel32/qemu/armel/vmlinuz-3.2.0-4-versatile
+wget -P /opt/poky/src/ http://people.debian.org/~aurel32/qemu/armel/initrd.img-3.2.0-4-versatile
+
+wget -P /opt/poky/src/ http://people.debian.org/~aurel32/qemu/armhf/debian_wheezy_armhf_standard.qcow2
+wget -P /opt/poky/src/ http://people.debian.org/~aurel32/qemu/armhf/vmlinuz-3.2.0-4-vexpress
+wget -P /opt/poky/src/ http://people.debian.org/~aurel32/qemu/armhf/initrd.img-3.2.0-4-vexpress
+
+
+
+
+http://www.aurel32.net/info/debian_arm_qemu.php
+
+export http_proxy=http://10.0.2.2:8888
+apt-get update
+apt-get -y install sudo git
+apt-get -y install build-essential fakeroot
+apt-get -y build-dep linux
+
+apt-get -y install rake
+apt-get install gobjc
+apt-get install gnustep-make
+apt-get install libgnustep-base-dev
+apt-get install autoconf automake
+apt-get install libtool
