@@ -40,13 +40,33 @@ http://www.aurel32.net/info/debian_arm_qemu.php
 
 export http_proxy=http://10.0.2.2:8888
 apt-get update
-apt-get -y install sudo git
-apt-get -y install build-essential fakeroot
-apt-get -y build-dep linux
+apt-get -y install sudo
+cat /etc/sudoers | sed 's/root\tALL=(ALL:ALL) ALL/root\tALL = NOPASSWD: ALL\nuser\tALL = NOPASSWD: ALL/' > /etc/sudoers.new
+mv /etc/sudoers.new /etc/sudoers
+apt-get -y install default-jre
 
-apt-get -y install rake
-apt-get install gobjc
-apt-get install gnustep-make
-apt-get install libgnustep-base-dev
-apt-get install autoconf automake
-apt-get install libtool
+sudo apt-get -y install git
+sudo apt-get -y install build-essential fakeroot
+sudo apt-get -y build-dep linux
+
+sudo apt-get -y install rake
+sudo apt-get -y install gobjc
+sudo apt-get -y install gnustep-make
+sudo apt-get -y install libgnustep-base-dev
+sudo apt-get -y install autoconf automake
+sudo apt-get -y install libtool
+
+sudo mkdir -p /opt/git
+sudo chmod 777 /opt/git
+mkdir -p /opt/git/axfs/.git
+mkdir -p /opt/git/linux/.git
+scp -r jared@10.0.2.2:/opt/git/axfs/.git /opt/git/axfs/
+scp -r jared@10.0.2.2:/opt/git/linux/.git /opt/git/linux/
+cd /opt/git/axfs
+git checkout -f
+cd /opt/git/linux
+git checkout -f
+
+
+scp jared@10.0.2.2:~/.ssh/id_rsa.pub ~/.ssh/id_rsa.pub
+scp jared@10.0.2.2:~/.ssh/id_rsa ~/.ssh/id_rsa

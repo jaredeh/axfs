@@ -2,11 +2,10 @@ apt-get install gobjc
 
 
 
-gem
-apt-get install ruby1.9.1-dev
-apt-get install libffi-dev
-gem install open4
-gem install ffi
+sudo apt-get install ruby1.9.1-dev
+sudo apt-get install libffi-dev
+sudo gem install open4
+sudo gem install ffi
 
 
 cd /opt/poky/
@@ -22,3 +21,15 @@ PREFERRED_VERSION_openjdk-6-jre = "6b27-1.12.5"
 PREFERRED_VERSION_icedtea6-native = "1.8.11"
 # in build/conf/local.conf
 bitbake
+
+#$COMMAND
+sudo mkdir -p /opt/git
+sudo chmod 777 /opt/git
+mkdir -p /opt/git/axfs/.git
+mkdir -p /opt/git/linux/.git
+scp -r jared@10.0.2.2:/opt/git/axfs/.git /opt/git/axfs/
+scp -r jared@10.0.2.2:/opt/git/linux/.git /opt/git/linux/
+cd /opt/git/axfs
+git checkout -f
+cd /opt/git/linux
+git checkout -f
