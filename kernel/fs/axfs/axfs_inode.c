@@ -106,6 +106,7 @@ u64 axfs_get_mode(struct axfs_super *sbi, u64 index)
 
 u64 axfs_get_uid(struct axfs_super *sbi, u64 index)
 {
+	u64 uid;
 	u64 mode = axfs_get_inode_mode_index(sbi, index);
 	u64 depth = (sbi->uids).table_byte_depth;
 	u8 *vaddr = (u8 *) (sbi->uids).virt_addr;
@@ -262,12 +263,17 @@ struct inode *axfs_create_vfs_inode(struct super_block *sb, int ino)
 		return inode;
 
 	inode->i_mode = axfs_get_mode(sbi, ino);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,13,0)
+	i_uid_write(inode, axfs_get_uid(sbi, ino));
+	i_gid_write(inode, axfs_get_gid(sbi, ino));
+#else
 	inode->i_uid = axfs_get_uid(sbi, ino);
+	inode->i_gid = axfs_get_gid(sbi, ino);
+#endif
 	size = axfs_get_inode_file_size(sbi, ino);
 	inode->i_size = size;
 	inode->i_blocks = axfs_get_inode_num_entries(sbi, ino);
 	inode->i_blkbits = PAGE_CACHE_SHIFT;
-	inode->i_gid = axfs_get_gid(sbi, ino);
 
 	inode->i_mtime = inode->i_atime = inode->i_ctime = sbi->timestamp;
 	inode->i_ino = ino;
