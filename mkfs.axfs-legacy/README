@@ -1,0 +1,64 @@
+How to Build
+--------------------
+1. "cd mkfs.axfs"
+2. "make"
+
+Usage Notes
+--------------------
+1. "./mkfs.axfs [-h] [-i infile] indir outfile"
+
+ -h         print this help
+ -i infile  input file of the XIP information
+ dirname    root of the directory tree to be compressed
+ outfile    output file
+
+
+About the Input File
+--------------------
+The input file is a CSV table containing three values in the following
+format:
+
+entry := path,offset,count\n
+
+Path is relative to the root of the filesystem image, prepended
+with a . for purposes of later image generation.
+
+Offset is the number of bytes into the file where the 4KByte page to be
+included in the XIP region is located.
+
+Count indicates the number of times the page was accessed.
+
+The AXFS Profiling driver will generate a format immediately usable in
+the imagebuilder.
+
+CHANGES
+--------------------
+Aug. 17, 2008
+
+Completed the removal of XML input support for filesystem profiles. The
+image builder now only supports CSV table input.
+
+TODO
+--------------------
+0. Remove test code.
+
+1. Writer will generate a temp image in RAM before writing the output file.
+Not sure if this is a problem.  (this is also what cramfs does)
+
+2. Check macro of AXFS_SIZE_WIDTH, and AXFS_OFFSET_WIDTH in axfs_fs.h. These
+macros will determine the maximum FS size.  AXFS_OFFSET_WIDTH should be removed.
+And verify MAXFSLEN macro in mkfs.axfs.c, since it seems inaccurate.
+
+3. Align file name and data to u32 if needed.
+
+4. Improve the search method of XIP files.
+
+5. The name field of the root inode stores the root directory's path.  But
+the path could be a relative path got from command line.  Figure out if this
+is proper.
+
+6. Use more efficient dynamic memory allocation for xipfileset[] and
+xipchunkset[].
+
+7. Potentially consolidate some CSV parsing functions, or even make them
+inline.
