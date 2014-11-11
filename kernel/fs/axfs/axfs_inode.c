@@ -106,7 +106,6 @@ u64 axfs_get_mode(struct axfs_super *sbi, u64 index)
 
 u64 axfs_get_uid(struct axfs_super *sbi, u64 index)
 {
-	u64 uid;
 	u64 mode = axfs_get_inode_mode_index(sbi, index);
 	u64 depth = (sbi->uids).table_byte_depth;
 	u8 *vaddr = (u8 *) (sbi->uids).virt_addr;
