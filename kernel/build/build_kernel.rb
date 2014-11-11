@@ -10,7 +10,7 @@ def run(cmd)
   puts "exitstatus : #{ status.exitstatus }"
   puts "================================================================"
   if status.exitstatus != 0
-    raise
+    raise "exitstatus != 0"
   end
   return out
 end
