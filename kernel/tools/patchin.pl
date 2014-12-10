@@ -10,7 +10,6 @@
 #seeing as how the kernel itself is dependent on perl for
 #a number of its utilities, it's probably a safe bet to
 #be able to rely on it being present. Requires perl 5.10.
-use Switch;
 use File::Copy;
 use Fcntl ':mode';
 use Tie::File;
@@ -44,16 +43,14 @@ sub print_help
 sub parse_args
 {
 	foreach $arg (0 .. $#ARGV) {
-		switch ($ARGV[$arg]) {
-			my $opt = $ARGV[$arg];
-			case ("--copy") { $insert_type = "copy"; }
-			case ("--link") { $insert_type = "link"; }
-			case ("--help") { print_help(); exit;}
-			case ("--assume-yes") { $assume_yes = 1; }
-			case ("--stock") { $stock = 1; }
-			case (/^[\/|\.|\w].*/) { $path = $opt; }
-			else { print "don't know option $opt\n"; }
-		}
+		my $opt = $ARGV[$arg];
+		if ($opt == "--copy") { $insert_type = "copy"; }
+		elsif ($opt == "--link") { $insert_type = "link"; }
+		elsif ($opt == "--help") { print_help(); exit;}
+		elsif ($opt == "--assume-yes") { $assume_yes = 1; }
+		elsif ($opt == "--stock") { $stock = 1; }
+		elsif ($opt = /^[\/|\.|\w].*/) { $path = $opt; }
+		else { print "don't know option $opt\n"; }
 	}
 }
 
@@ -191,10 +188,8 @@ sub do_process_dir
 			do_process_dir(join("/",$filedir,$file));
 			next;
 		}
-		switch($insert_type) {
-			case ("link") { link_file($src,$dst); }
-			case ("copy") { copy_file($src,$dst); }
-		}
+		if ($insert_type == "link") { link_file($src,$dst); }
+		elsif ($insert_type =="copy") { copy_file($src,$dst); }
 	}
 }
 
