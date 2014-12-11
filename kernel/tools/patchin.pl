@@ -44,12 +44,12 @@ sub parse_args
 {
 	foreach $arg (0 .. $#ARGV) {
 		my $opt = $ARGV[$arg];
-		if ($opt == "--copy") { $insert_type = "copy"; }
-		elsif ($opt == "--link") { $insert_type = "link"; }
-		elsif ($opt == "--help") { print_help(); exit;}
-		elsif ($opt == "--assume-yes") { $assume_yes = 1; }
-		elsif ($opt == "--stock") { $stock = 1; }
-		elsif ($opt = /^[\/|\.|\w].*/) { $path = $opt; }
+		if ($opt =~ /--copy/) { $insert_type = "copy"; }
+		elsif ($opt =~ /--link/) { $insert_type = "link"; }
+		elsif ($opt =~ /--help/) { print_help(); exit;}
+		elsif ($opt =~ /--assume-yes/) { $assume_yes = 1; }
+		elsif ($opt =~ /--stock/) { $stock = 1; }
+		elsif ($opt =~ /^[\/|\.|\w].*/) { $path = $opt; }
 		else { print "don't know option $opt\n"; }
 	}
 }
@@ -188,8 +188,8 @@ sub do_process_dir
 			do_process_dir(join("/",$filedir,$file));
 			next;
 		}
-		if ($insert_type == "link") { link_file($src,$dst); }
-		elsif ($insert_type =="copy") { copy_file($src,$dst); }
+		if ($insert_type =~ /link/) { link_file($src,$dst); }
+		elsif ($insert_type =~ /copy/) { copy_file($src,$dst); }
 	}
 }
 
