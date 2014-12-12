@@ -849,7 +849,11 @@ static const struct file_operations axfs_directory_operations = {
 
 static const struct file_operations axfs_fops = {
 	.read = axfs_file_read,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,15,0)
+	.read_iter = generic_file_read_iter,
+#else
 	.aio_read = generic_file_aio_read,
+#endif
 	.mmap = axfs_mmap,
 };
 
