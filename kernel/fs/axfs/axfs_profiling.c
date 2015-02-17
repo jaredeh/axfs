@@ -207,8 +207,7 @@ static ssize_t axfs_procfile_read(struct file *file, char __user *buffer, size_t
 #else
 	struct inode *inode = file->f_dentry->d_inode;
 #endif
-	struct super_block *sb = inode->i_sb;
-	struct axfs_super *sbi = AXFS_SB(sb);
+	struct axfs_super *sbi;
 	struct axfs_profiling_manager *manager;
 #else
 static int axfs_procfile_read(char *buffer,
@@ -234,10 +233,9 @@ static int axfs_procfile_read(char *buffer,
 	char numbers[50];
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
-	manager = (struct axfs_profiling_manager *)sbi->profile_man;
-#else
-	sbi = manager->sbi;
+	manager = (struct axfs_profiling_manager *)PDE_DATA(inode);
 #endif
+	sbi = manager->sbi;
 	loop_size = manager->size / sizeof(*profile);
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
@@ -345,7 +343,6 @@ static ssize_t axfs_procfile_write(struct file *file, const char __user *buffer,
 #else
 	struct inode *inode = file->f_dentry->d_inode;
 #endif
-	struct super_block *sb = inode->i_sb;
 	char temp[5];
 	int len, i;
 #else
@@ -358,8 +355,8 @@ static int axfs_procfile_write(struct file *file,
 	struct axfs_super *sbi;
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
-	sbi = AXFS_SB(sb);
-	manager = (struct axfs_profiling_manager *)sbi->profile_man;
+	manager = (struct axfs_profiling_manager *)PDE_DATA(inode);
+	sbi = manager->sbi;
 
 	if (count > 5)
 		i = 5;
