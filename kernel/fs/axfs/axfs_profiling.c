@@ -322,7 +322,7 @@ static int axfs_procfile_read(char *buffer,
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,9,0)
 	temp_len = copy_to_user(buffer, manager->temp, print_len);
-	if (temp_len != print_len) {
+	if(temp_len) {
 		printk(KERN_WARNING
 		       "axfs: Error, Not sure what happened.\n");
 		return -ENOMEM;
@@ -367,7 +367,7 @@ static int axfs_procfile_write(struct file *file,
 		i = count;
 
 	len = copy_from_user(temp, buffer, i);
-	if (len != i) {
+	if (len) {
 		printk(KERN_WARNING
 		       "axfs: Error, Not sure what happened.\n");
 		return -ENOMEM;
