@@ -14,7 +14,7 @@
  *  Sujaya Srinivasan
  *  Justin Treon
  *
- * Project url: http://axfs.sourceforge.net
+ * Project url: https://code.google.com/p/axfs/
  */
 
 #ifndef AXFS_FS_SB_H
