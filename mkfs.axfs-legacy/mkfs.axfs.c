@@ -172,6 +172,8 @@ static u32 total_size = 0;
 static u32 total_namesize;
 static u32 total_modes = 0;
 
+u32 xip_all_files = 0;
+u32 xip_entire_file = 0;
 u32 silent = 0;
 u32 entry_count = 0;
 struct entry **entry_table = NULL;
@@ -299,7 +301,10 @@ static void usage(int status)
 	fprintf(stream, "usage: %s [-h] [-i infile] dirname outfile\n"
 		" -h            print this help\n"
 		" -i infile     input file of the XIP information\n"
+		" -n outfile    output inode number/name list\n"
 		" -s            run silently\n"
+		" -a            xip all files (no input file needed)\n"
+		" -e            for any file in '-i infile', xip the entire file automatically\n"
 		" dirname	root of the directory tree to be compressed\n"
 		" outfile	output file\n", progname);
 
@@ -384,13 +389,16 @@ static void list_entries(char **lines, int count, struct xipentry *entries, char
 	char token[] = ",";
 	int i, items_per_line, size = 0;
 	char *nbuf = NULL;
+	int fname_offset = 0;
 
 	for(i = 0; i<  count; i++) {
 		entrybuf = split_on_token(lines[i],&items_per_line, token);
-		size += (strlen(dirname) + strlen(&(entrybuf[0][2]))) + 1;
+		if( (entrybuf[0][0] == '.') &&  (entrybuf[0][1] == '/'))
+			fname_offset = 2;
+		size += (strlen(dirname) + strlen(&(entrybuf[0][fname_offset]))) + 1;
 		size *= sizeof(char);
 		entries[i].path = (char*) malloc(size);
-		sprintf(entries[i].path,"%s%s",dirname,&(entrybuf[0][2]));
+		sprintf(entries[i].path,"%s%s",dirname,&(entrybuf[0][fname_offset]));
 		entries[i].offset = atoi(entrybuf[1]);
 		entries[i].count = atoi(entrybuf[2]);
 	}
@@ -520,7 +528,7 @@ void free_entries(struct xipentry *entries)
 static int parseInfile(char *filename, char *dirname)
 {
 	int profile;
-	struct stat *filestat;
+	struct stat filestat;
 	int totalchunks = 0, totalfiles = 0;
 	char *buf;
 	char **lines;
@@ -529,10 +537,8 @@ static int parseInfile(char *filename, char *dirname)
 
 	/* Get File Size */
 	profile = open(filename, O_RDONLY);
-	filestat = (struct stat*) malloc(sizeof(struct stat));
-	fstat(profile, filestat);
-	filesize = filestat->st_size;
-	free(filestat);
+	fstat(profile, &filestat);
+	filesize = filestat.st_size;
 
 	/* Read entire file */
 	buf = (char*) malloc(sizeof(char)*filesize+1);
@@ -633,6 +639,8 @@ static void unmap_entry(struct entry *entry)
  ****************************************************************************/
 static int find_identical_file(struct entry *orig, struct entry *newfile)
 {
+return 0;	//BUG: Symlink files not handled correctly! (Fix later)
+
 	if (orig == newfile)
 		return 1;
 	if (!orig)
@@ -641,7 +649,7 @@ static int find_identical_file(struct entry *orig, struct entry *newfile)
 	if (orig == newfile)
 		return 1;
 
-	if (orig->size == newfile->size&&  (orig->path || orig->uncompressed)) {
+	if ( (orig->size == newfile->size) && (orig->path || orig->uncompressed)) {
 		map_entry(orig);
 		map_entry(newfile);
 		if (!memcmp(orig->uncompressed, newfile->uncompressed, orig->size)) {
@@ -794,8 +802,10 @@ static int is_xipfile(struct entry *file_entry)
 			file_entry->bitmap = malloc(sizeof(char) * mapsize);
 			if (!file_entry->bitmap)
 				die(MKFS_ERROR, 1, "malloc failed");
-
-			memset(file_entry->bitmap, 0, sizeof(char) * mapsize);
+			if( xip_entire_file )
+				memset(file_entry->bitmap, 0xFF, sizeof(char) * mapsize);
+			else
+				memset(file_entry->bitmap, 0, sizeof(char) * mapsize);
 
 			/* set bitmap */
 			for(; cur<  (xipfileset[i].chunknb + xipfileset[i].index); cur ++) {
@@ -807,7 +817,7 @@ static int is_xipfile(struct entry *file_entry)
 				set_page_state(file_entry->bitmap, xipchunkset[cur].offset, chunksize);
 			}
 			/* If the last block is to XIP but its size is less than a page,
-			   it will be stored un-compressed in byte-aligned region */
+			it will be stored un-compressed in byte-aligned region */
 			{
 				u32 offset = file_entry->size;
 				offset = offset / blksize * blksize;
@@ -824,10 +834,12 @@ static int is_xipfile(struct entry *file_entry)
  * We define our own sorting function instead of using alphasort which
  * uses strcoll and changes ordering based on locale information.
  */
-static int axsort(const void *a, const void *b)
+/* The function must be this format
+	int (*compar)(const struct dirent **, const struct dirent **))
+*/
+static int axsort(const struct dirent **a, const struct dirent **b)
 {
-	return strcmp((*(const struct dirent **) a)->d_name,
-		(*(const struct dirent **) b)->d_name);
+	return strcmp((*a)->d_name, (*b)->d_name);
 }
 
 /*****************************************************************************
@@ -1422,7 +1434,7 @@ static void do_compress(struct entry *entry, u8 **node_type, u32 **node_index, u
 			input = blksize;
 
 		bytes_to_write -= input;
-		if (!get_page_state(entry->bitmap, offset)) {
+		if (!xip_all_files && !get_page_state(entry->bitmap, offset)) {
 			/* Not XIP page */
 			compressed_rd.virt_addr = realloc(compressed_rd.virt_addr,compressed_rd.size + 2*blksize);
 			err = compress2(compressed_rd.virt_addr + compressed_rd.size,&len, file_data, input, Z_BEST_COMPRESSION);
@@ -1443,9 +1455,10 @@ static void do_compress(struct entry *entry, u8 **node_type, u32 **node_index, u
 				log_cnode(node_type,node_index,node_count,cnode_offset,
 					cnode_index,cnode_count,cblock_offset,cblock_count);
 				compressed_rd.size += len;
-		}
+			}
 
-		new_size += len;
+			new_size += len;
+
 		} else if (input == blksize) {
 			/* It's a full XIP page */
 			xip_rd.virt_addr = realloc(xip_rd.virt_addr,xip_rd.size + blksize);
@@ -1630,35 +1643,46 @@ static u32 calculate_image(void)
 
 static void print_stats(void)
 {
-	printf("\nnumber of files:                        %lu\n",total_inodes);
-	printf("number of %iKB nodes:                    %lu\n",blksize/1024,total_nodes);
-	printf("number of %iKB xip nodes:                %lu\n",blksize/1024,total_xipnodes);
-	printf("number of xip files:                    %lu\n",total_xipfiles);
+	printf("\n");
+	printf("number of files:                   %lu\n",(unsigned long int)total_inodes);
+	printf("number of %iKB nodes:               %lu\n",blksize/1024,(unsigned long int)total_nodes);
+
+	/* BUG: Need to change the way total_xipnodes is counted (or reported) when not reading
+	        every single PAGE to XIP from an input file */
+	if( !xip_all_files && !xip_entire_file )
+	{
+		printf("number of %iKB xip nodes:           %lu\n",blksize/1024,(unsigned long int)total_xipnodes);
+		printf("number of xip files:               %lu\n",(unsigned long int)total_xipfiles);
+	}
 }
 
 static void print_offsets(u32 size)
 {
-	printf("\noffset to node_type bytetable:          %llu\n", node_type_rd.fsoffset);
-	printf("offset to node_index bytetable:	        %llu\n", node_index_rd.fsoffset);
-	printf("offset to cnode_offset bytetable:       %llu\n", cnode_offset_rd.fsoffset);
-	printf("offset to cnode_index bytetable:        %llu\n", cnode_index_rd.fsoffset);
-	printf("offset to banode_offset bytetable:      %llu\n", banode_offset_rd.fsoffset);
-	printf("offset to cblock_offset bytetable:      %llu\n", cblock_offset_rd.fsoffset);
-	printf("offset to inode_file_size bytetable:    %llu\n", inode_file_size_rd.fsoffset);
-	printf("offset to inode_name_offset bytetable:  %llu\n", inode_name_offset_rd.fsoffset);
-	printf("offset to inode_num_entries bytetable:  %llu\n", inode_num_entries_rd.fsoffset);
-	printf("offset to inode_mode_index bytetable:   %llu\n", inode_mode_index_rd.fsoffset);
-	printf("offset to inode_array_index bytetable:  %llu\n", inode_array_index_rd.fsoffset);
-	printf("offset to modes bytetable:              %llu\n", modes_rd.fsoffset);
-	printf("offset to uids bytetable:               %llu\n", uids_rd.fsoffset);
-	printf("offset to gids bytetable:               %llu\n", gids_rd.fsoffset);
-	printf("offset to zero padding:                 %llu\n", xippadding_rd.fsoffset);
-	printf("offset to xip data:                     %llu\n", xip_rd.fsoffset);
-	printf("offset to byte_aligned data:            %llu\n", byte_aligned_rd.fsoffset);
-	printf("offset to compressed data:              %llu\n", compressed_rd.fsoffset);
-	printf("offset to strings data:                 %llu\n", strings_rd.fsoffset);
-	printf("offset to zero padding:                 %llu\n", endpadding_rd.fsoffset);
-	printf("\nTotal image size:                       %llu\n", size);
+	printf("\n");
+	if ( silent == 0 ) {
+		printf("offset to node_type bytetable:          %llu\n", node_type_rd.fsoffset);
+		printf("offset to node_index bytetable:	        %llu\n", node_index_rd.fsoffset);
+		printf("offset to cnode_offset bytetable:       %llu\n", cnode_offset_rd.fsoffset);
+		printf("offset to cnode_index bytetable:        %llu\n", cnode_index_rd.fsoffset);
+		printf("offset to banode_offset bytetable:      %llu\n", banode_offset_rd.fsoffset);
+		printf("offset to cblock_offset bytetable:      %llu\n", cblock_offset_rd.fsoffset);
+		printf("offset to inode_file_size bytetable:    %llu\n", inode_file_size_rd.fsoffset);
+		printf("offset to inode_name_offset bytetable:  %llu\n", inode_name_offset_rd.fsoffset);
+		printf("offset to inode_num_entries bytetable:  %llu\n", inode_num_entries_rd.fsoffset);
+		printf("offset to inode_mode_index bytetable:   %llu\n", inode_mode_index_rd.fsoffset);
+		printf("offset to inode_array_index bytetable:  %llu\n", inode_array_index_rd.fsoffset);
+		printf("offset to modes bytetable:              %llu\n", modes_rd.fsoffset);
+		printf("offset to uids bytetable:               %llu\n", uids_rd.fsoffset);
+		printf("offset to gids bytetable:               %llu\n", gids_rd.fsoffset);
+		printf("offset to zero padding:                 %llu\n", xippadding_rd.fsoffset);
+		printf("offset to xip data:                     %llu\n", xip_rd.fsoffset);
+		printf("offset to byte_aligned data:            %llu\n", byte_aligned_rd.fsoffset);
+		printf("offset to compressed data:              %llu\n", compressed_rd.fsoffset);
+		printf("offset to strings data:                 %llu\n", strings_rd.fsoffset);
+		printf("offset to zero padding:                 %llu\n", endpadding_rd.fsoffset);
+		printf("\n");
+	}
+	printf("Total image size:                       %lu\n", (long unsigned int)size);
 }
 
 static void print_superblock(void)
@@ -1870,31 +1894,46 @@ int main(int argc, char **argv)
 {
 	struct stat st; /* for lstat, stat */
 	struct entry *root_entry;
+	struct entry *entry;
 	char const *infile = NULL;
 	char const *dirname, *outfile;
+	char const *inode_file = NULL;
 	char *buf;
 	/* initial guess (upper-bound) of required filesystem size */
 	loff_t fslen_ub = sizeof(struct axfs_super_onmedia);
 	ssize_t written;
 	u32 *magic_nb;
 	int fd;
+	FILE *finode;
 	int c; /* for getopt */
 	int dirlen;
+	int i;
 
 	if (argc)
 		progname = argv[0];
 
 	/* command line options */
-	while ((c = getopt(argc, argv, "hi:")) != EOF) {
+	while ((c = getopt(argc, argv, "hi:n:sae")) != EOF) {
 		switch (c) {
 		case 'h':
 			usage(MKFS_OK);
+			break;
 		case 'i':
 			infile = optarg;
 			if (lstat(infile,&st)<  0)
 				die(MKFS_ERROR, 1, "lstat failed: %s", infile);
+			break;
+		case 'n':
+			inode_file = optarg;
+			break;
 		case 's':
 			silent = 1;
+			break;
+		case 'a':
+			xip_all_files = 1;
+			break;
+		case 'e':
+			xip_entire_file = 1;
 			break;
 		}
 	}
@@ -1973,6 +2012,28 @@ int main(int argc, char **argv)
 	write_image(fd);
 
 	close(fd);
+
+	if( inode_file ) {
+		finode = fopen(inode_file, "w");
+		if ( finode == NULL )
+			die(MKFS_USAGE, 1, "open failed: %s", inode_file);
+		fprintf(finode,"inode,type,filename,pages\n");
+		for( i=0; i < entry_count; i++) {
+			entry = entry_table[i];
+			fprintf(finode,"%04d,",	i);
+			switch (entry->mode_index) {
+				case 0: fprintf(finode,"dir,");
+					break;
+				case 1: fprintf(finode,"sym,");
+					break;
+				case 2: fprintf(finode,"fil,");
+					break;
+			}
+			fprintf(finode,"%s,%d\n",entry->name,entry->total_entries);
+		}
+		fclose(finode);
+	}
+
 	free_mode_index();
 	free_regions();
 	free_fileentries(root_entry);
