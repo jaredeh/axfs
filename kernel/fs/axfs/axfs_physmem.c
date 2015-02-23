@@ -53,17 +53,28 @@ void axfs_map_physmem(struct axfs_super *sbi, unsigned long size)
 	}
 }
 
-void axfs_unmap_physmem(struct super_block *sb)
+void axfs_unmap_physmem(void *addr)
+{
+	if( !addr )
+		return;
+
+	iounmap(addr);
+}
+
+void *axfs_get_physmem_addr(struct super_block *sb)
 {
 	struct axfs_super *sbi = AXFS_SB(sb);
 
 	if (!sbi)
-		return;
+		return NULL;
 
-	if (axfs_is_physmem(sbi) && axfs_virtaddr_is_valid(sbi)) {
-		iounmap((void *)(sbi->virt_start_addr));
-		sbi->virt_start_addr = 0;
-	}
+	if (!axfs_is_physmem(sbi))
+		return NULL;
+
+	if(!axfs_virtaddr_is_valid(sbi))
+		return NULL;
+
+	return (void *)(sbi->virt_start_addr);
 }
 
 #endif /* CONFIG_UML */

@@ -234,12 +234,16 @@ static void axfs_put_sbi(struct axfs_super *sbi)
 
 static void axfs_put_super(struct super_block *sb)
 {
-	axfs_unmap_mtd(sb);
 #ifndef NO_PHYSMEM
-	axfs_unmap_physmem(sb);
+	/* Grab our remapped address before we blow away sbi */
+	void *addr = axfs_get_physmem_addr(sb);
 #endif
+	axfs_unmap_mtd(sb);
 	axfs_put_sbi(AXFS_SB(sb));
 	sb->s_fs_info = NULL;
+#ifndef NO_PHYSMEM
+	axfs_unmap_physmem(addr);
+#endif
 }
 
 static void axfs_copy_mem(struct super_block *sb, void *buf, u64 fsoffset,
@@ -606,7 +610,7 @@ static int axfs_get_onmedia_super(struct super_block *sb)
 out:
 	kfree(sbo);
 #ifndef NO_PHYSMEM
-	axfs_unmap_physmem(sb);
+	axfs_unmap_physmem(axfs_get_physmem_addr(sb));
 #endif
 	return err;
 }

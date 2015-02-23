@@ -112,7 +112,8 @@ int axfs_get_uml_address(char *, unsigned long *, unsigned long *);
 #ifndef NO_PHYSMEM
 /* axfs_physmem.c */
 void axfs_map_physmem(struct axfs_super *, unsigned long);
-void axfs_unmap_physmem(struct super_block *);
+void axfs_unmap_physmem(void *addr);
+void *axfs_get_physmem_addr(struct super_block *sb);
 #endif
 
 #endif
