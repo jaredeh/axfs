@@ -18,3 +18,17 @@ config AXFS_PROFILING
 	  Profiling tooling used to identify what pages in the filesystem
 	  image are actually accessed and how much.
 
+config AXFS_FIRST_MOUNT_AXFS_AS_ROOTFS
+	bool "First Mount AXFS as Rootfs"
+	depends on AXFS
+	help
+	  Say Y if you have enabled axfs, and you want to mount the axfs
+	  image as a root file system first when the kernel boots. This option
+	  makes the kernel boottime a little faster when the command line is
+	  properly set. Before having the kernel mount this axfs image
+	  as a root file system, you must pass the command line parameter:
+	  "root=/dev/null rootflags=physaddr=0x********" to the kernel
+	  (replace 0x******** with the physical address location of the
+	  axfs image to boot with).
+
+	  If unsure, say N.
