@@ -1009,6 +1009,7 @@ static unsigned int parse_directory(struct entry *root_entry,
 		memcpy(endpath, dirent->d_name, namelen + 1);
 
 		if (lstat(path,&st)<  0) {
+			printf("warning: lstat() failed on %s\n",path);
 			warn_skip = 1;
 			free(dirent);
 			continue;
@@ -1036,6 +1037,7 @@ static unsigned int parse_directory(struct entry *root_entry,
 		} else if (S_ISREG(st.st_mode)) {
 			if (entry->size) {
 				if (access(path, R_OK)<  0) {
+					printf("warning: access() failed on %s\n",path);
 					warn_skip = 1;
 					free(dirent);
 					continue;
@@ -1052,6 +1054,7 @@ static unsigned int parse_directory(struct entry *root_entry,
 				die(MKFS_ERROR, 1, "malloc failed");
 			}
 			if (readlink(path, entry->uncompressed, entry->size)<  0) {
+				printf("warning: readlink() failed on %s\n",path);
 				warn_skip = 1;
 				free(dirent);
 				continue;
