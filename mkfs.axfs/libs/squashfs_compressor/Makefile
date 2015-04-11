@@ -1,4 +1,4 @@
-OBJS = compressor.o gzip_wrapper.o lzo_wrapper.o lzma_xz_wrapper.o xz_wrapper.o 
+OBJS = compressor.o gzip_wrapper.o lzo_wrapper.o lzma_xz_wrapper.o xz_wrapper.o null_wrapper.o
 
 CFLAGS = -g \
          -DGZIP_SUPPORT=1 \

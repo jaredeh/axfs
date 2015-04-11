@@ -115,9 +115,9 @@ def build(options)
   if options[:mrproper]
     run "git checkout -f #{options[:kernel]}"
     run "make mrproper"
-    run "perl ../../../tools/patchin.pl --stock"
+    run "ruby ../../../tools/patchin.rb --stock"
     if options[:patch]
-      run "perl ../../../tools/patchin.pl --assume-yes --link"
+      run "ruby ../../../tools/patchin.rb --assume-yes --link"
     end
     run "make #{options[:buildopt]} defconfig"
 

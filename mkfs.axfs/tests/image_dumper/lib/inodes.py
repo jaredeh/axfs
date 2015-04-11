@@ -24,7 +24,7 @@ class Inodes:
         start_offset = image.inode_name_offset[num]
         max_num = image.descriptors.inode_name_offset.max_index
         if max_num == (num+1):
-            end_offset = image.descriptors.inode_name_offset.size
+            end_offset = image.descriptors.strings.size
         elif (num+1) > max_num:
             raise NameError("inode_name_offset max="+str(max_num)+" num="+str(num))
         else:

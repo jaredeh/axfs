@@ -10,7 +10,7 @@ class ByteTable:
         print self.regiondesc.compressed_size
         print "-;\n"
         if self.regiondesc.size > self.regiondesc.compressed_size and self.regiondesc.size > 1:
-            self.data = zlib.decompress(self.region.data,-15)
+            self.data = zlib.decompress(self.region.data,15)
         else:
             self.data = self.region.data
 
@@ -40,5 +40,5 @@ class ByteTable:
             value += j*da[self.depth-1-i]
         return value
 
-    def printdata(self):
+    def printme(self):
         self.region.printme()

@@ -42,9 +42,9 @@
 }
 
 -(void) fsoffset: (uint64_t) offset {
-	printf("1offset=%d fsoffset=%d fsalign=%d\n",(int)offset,(int)fsoffset,(int)fsalign);
+	//printf("1offset=%d fsoffset=%d fsalign=%d\n",(int)offset,(int)fsoffset,(int)fsalign);
 	fsoffset = [self alignNumber: offset bytes: fsalign];
-	printf("2offset=%d fsoffset=%d fsalign=%d\n",(int)offset,(int)fsoffset,(int)fsalign);
+	//printf("2offset=%d fsoffset=%d fsalign=%d\n",(int)offset,(int)fsoffset,(int)fsalign);
 }
 
 -(uint64_t) fsoffset {

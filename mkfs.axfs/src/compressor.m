@@ -8,7 +8,9 @@
 	//printf("Compressor algorithm: '%s'\n",name);
 	if(strcmp(compress->name, name) != 0)
 		return false;
-	compress->init(&stream, 4096, 0);
+	if (compress->init) {
+		compress->init(&stream, 4096, 0);
+	}
 	return true;
 }
 
@@ -52,8 +54,8 @@
 	*csize = compress->compress(stream, cdata, data, size, size, &error);
 
 
-	printf("\n2 csize: 0x%08llx\n",(unsigned long long)*csize);
-	printf("2 size: 0x%08llx\n",(unsigned long long)size);
+	//printf("\n2 csize: 0x%08llx\n",(unsigned long long)*csize);
+	//printf("2 size: 0x%08llx\n",(unsigned long long)size);
 /*
 	printf("2 data: \t%i\t0x%08llx\n",(int)data,(unsigned long long)data);
 	printf("2 cdata: \t%i\t0x%08llx\n",(int)cdata,(unsigned long long)cdata);
@@ -66,7 +68,7 @@
 	fwrite(cdata,*csize,1,fp);
 	fclose(fp);
 */
-	if ((*csize == 1) && (size = 2))
+	if ((*csize == 1) && (size == 2))
 		[NSException raise: @"Compressor.m pladd" format: @"error=%d",error];
 	if (*csize == 0)
 		*csize = size;

@@ -67,6 +67,7 @@ static struct compressor xz_comp_ops = {
 extern struct compressor xz_comp_ops;
 #endif
 
+extern struct compressor null_comp_ops;
 
 static struct compressor unknown_comp_ops = {
 	NULL, NULL, NULL , NULL, NULL, NULL, NULL, NULL, 0, "unknown", 0
@@ -78,6 +79,7 @@ struct compressor *compressor[] = {
 	&lzma_comp_ops,
 	&lzo_comp_ops,
 	&xz_comp_ops,
+	&null_comp_ops,
 	&unknown_comp_ops
 };
 

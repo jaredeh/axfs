@@ -20,6 +20,7 @@
 	void *src;
 	dst = (void *) [self allocData: &out_obj chunksize: str->length];
 	src = str->data;
+	printf("memcpyOutData:\"%s\"\n",src);
 	memcpy(dst,src,str->length);
 }
 
@@ -42,6 +43,7 @@
 	memset(&temp,0,sizeof(temp));
 	temp.data = data_ptr;
 	temp.length = len;
+	printf("addString: \"%s\"\n",data_ptr);
 
 	return [self allocForAdd: &temp];
 }
@@ -57,16 +59,20 @@
 -(void *) data {
 	void **order = nameOrder;
 	struct string_struct *str;
+	printf("data 1\n");
 	if (data)
 		return data;
-
+	printf("data 2\n");
 	while(*order != NULL) {
+	printf("data 3\n");
 		str = (struct string_struct *)*order;
 		order++;
 		[nameOffset add: out_obj.used];
 		[self memcpyOutData: str];
+		data = out_obj.data;
 	}
-	data = out_obj.data;
+	printf("data 4\n");
+	
 	return data;
 }
 

@@ -45,9 +45,9 @@ def build(options)
     Dir.chdir options[:kernel]
     run "git checkout -f #{options[:kernel]}"
     run "make mrproper"
-    run "perl ../../../tools/patchin.pl --stock"
+    run "ruby ../../../tools/patchin.rb --stock"
     if options[:patch]
-      run "perl ../../../tools/patchin.pl --assume-yes --link"
+      run "ruby ../../../tools/patchin.rb --assume-yes --link"
     end
     run "make #{opt} defconfig"
     if options[:mtd]

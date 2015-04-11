@@ -142,6 +142,10 @@ static int InodeNameComp(const void *x, const void *y) {
 	NSUInteger d;
 	struct entry_list *list;
 	uint64_t i=0;
+	void *page;
+	void *ddata;
+	Pages *pages = aobj.pages;
+	Nodes *nodes = aobj.nodes;
 
 	list = &inode->list;
 
@@ -155,11 +159,9 @@ static int InodeNameComp(const void *x, const void *y) {
 	list->length = inode->size / acfg.page_size + 1;
 	list->nodes = [self allocNodeList: list->length];
 
+	printf("addInode_regularfile- length=%i size=%i \n",list->length,inode->size);
+
 	while (data_read < inode->size) {
-		void *page;
-		void *ddata;
-		Pages *pages = aobj.pages;
-		Nodes *nodes = aobj.nodes;
 		databuffer = [file readDataOfLength: acfg.page_size];
 		d = [databuffer length];
 		data_read += d;
@@ -167,6 +169,11 @@ static int InodeNameComp(const void *x, const void *y) {
 		page = [pages addPage: ddata length: d];
 		list->nodes[i] = [nodes addPage: page];
 		i++;
+	}
+	//catching empty files
+	if (data_read == 0) {
+		page = [pages addPage: 0 length: 0];
+		list->nodes[0] = [nodes addPage: page];
 	}
 
 	[file closeFile];
@@ -289,7 +296,7 @@ static int InodeNameComp(const void *x, const void *y) {
 	j++;
 //NEED A BETTER WAY.  This won't mix subdir inodes into dir inode lists, bad.
 	[fileSizeIndex index: index datum: inode->size];
-//	printf("nameOrder[%i] = 0x%08x\n",index,inode->name);
+	printf("nameOrder[%i] = %s\n",index,inode->name->data);
 	nameOrder[index] = inode->name;
 	[modeIndex index: index datum: inode->mode->position];
 	list = &inode->list;

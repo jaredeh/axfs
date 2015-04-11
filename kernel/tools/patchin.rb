@@ -20,7 +20,8 @@ def print_help
   puts "Patchin Script"
   puts ""
   puts "Usage: patchin.rb [OPTION] [PATH]"
-  puts " --copy			Add via copy. [default: use symlinks]"
+  puts " --link     Add via link."
+  puts " --copy			Add via copy."
   puts " --none			Skip AXFS files, patches only."
   puts " --stock			Apply patches we've added to fix older kernels build with newer tools. Then quit."
   puts " --assume-yes		Assume yes to all questions [default: ask user]"
@@ -49,6 +50,8 @@ def parse_args()
   ARGV.each do |arg|
     if (arg == "--copy")
       config[:insert_type] = "copy"
+    elsif (arg == "--link")
+      config[:insert_type] = "link"
     elsif (arg == "--none")
       config[:insert_type] = "none"
     elsif (arg == "--help")

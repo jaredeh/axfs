@@ -51,14 +51,14 @@
 
 	input_offset = data_segments[current_segment-1].end;
 
-	//NSLog(@"buildPart obj=%@",obj);
+	NSLog(@"buildPart obj=%@",obj);
 	[obj fsoffset: input_offset];
 	actual_offset = [obj fsoffset];
 	padding_size = actual_offset - input_offset;
 
-	//printf("\tactual_offset=%d - input_offset=%d\n",(int)actual_offset ,(int)input_offset);
+	printf("\tactual_offset=%d - input_offset=%d\n",(int)actual_offset ,(int)input_offset);
 	if (padding_size > 0) {
-		//printf("\tpadding_size=%i\n",padding_size);
+		printf("\tpadding_size=%i\n",padding_size);
 		ds = &data_segments[current_segment];
 		current_segment++;
 		ds->data = malloc(padding_size);
@@ -76,8 +76,8 @@
 	ds->size = [obj size];
 	ds->end = ds->start + ds->size;
 	ds->name = name;
-	//printf("\tname='%s' ds[start=%d size=%d end=%d data=0x%08x]\n",name,(int)ds->start,(int)ds->size,(int)ds->end, ds->data);
-	//printf("\tdata[%s]\n",ds->data+1);
+	printf("\tname='%s' ds[start=%d size=%d end=%d data=0x%08x]\n",name,(int)ds->start,(int)ds->size,(int)ds->end, ds->data);
+	printf("\tdata[%s]\n",ds->data+1);
 }
 
 -(void) hashImage {
