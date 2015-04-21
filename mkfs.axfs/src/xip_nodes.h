@@ -1,7 +1,12 @@
 #import "nodes_object.h"
 #import "bytetable.h"
 
-@interface XipNodes: NodesObject {}
+extern struct axfs_config acfg;
+
+@interface XipNodes: NodesObject {
+	NSMutableDictionary *profile;
+}
+-(bool) pageIsXip: (NSString *) path offset: (uint64_t) offset;
 -(void *) data;
 -(void) free;
 

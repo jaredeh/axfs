@@ -3,7 +3,7 @@
 #import "pages.h"
 #import "nodes_object.h"
 #import "compressor.h"
-#import "btree_object.h"
+#import "hash_object.h"
 #import "bytetable.h"
 
 struct cblock_struct {
@@ -18,7 +18,7 @@ struct cblock_struct {
 	struct axfs_node *current_node;
 };
 
-@interface CBlocks: BtreeObject {
+@interface CBlocks: HashObject {
 	struct cblock_struct *cblocks;
 	struct cblock_struct *fullpages;
 	struct cblock_struct *partpages;

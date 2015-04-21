@@ -22,7 +22,7 @@ struct axfs_nodes {
 	uint64_t current;
 }
 
--(uint64_t) addPage: (void *) page;
+-(uint64_t) addPage: (void *) page path: (NSString *) path offset: (uint64_t) offset;
 -(uint64_t) length;
 -(id) xip;
 -(id) byte_aligned;

@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "axfs_helper.h"
-#import "btree_object.h"
+#import "hash_object.h"
 #import "paths.h"
 #import "modes.h"
 #import "pages.h"
@@ -41,7 +41,7 @@ struct paths_struct {
 	struct paths_struct *next;
 };
 
-@interface Paths: BtreeObject {
+@interface Paths: HashObject {
 	struct data_struct data;
 }
 
@@ -50,7 +50,7 @@ struct paths_struct {
 -(void) free;
 @end
 
-@interface Inodes: BtreeObject {
+@interface Inodes: HashObject {
 	struct data_struct inodes;
 	struct data_struct data;
 	struct data_struct cdata;

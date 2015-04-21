@@ -2,7 +2,7 @@
 TOOL_NAME = mkfs.axfs
 mkfs.axfs_OBJC_FILES = astrings.m \
                        axfs_helper.m \
-                       btree_object.m \
+                       hash_object.m \
                        bytetable.m \
                        c_blocks.m \
                        compressible_object.m \

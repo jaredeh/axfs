@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import "btree_object.h"
+#import "hash_object.h"
 #import "axfs_helper.h"
 #import "axfs_objects.h"
 #import "bytetable.h"
@@ -18,7 +18,7 @@ struct mode_struct {
 	struct mode_struct *next;
 };
 
-@interface Modes: BtreeObject {
+@interface Modes: HashObject {
 	struct data_struct modes;
 	ByteTable *modesTable;
 	ByteTable *uids;

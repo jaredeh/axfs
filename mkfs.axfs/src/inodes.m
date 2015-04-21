@@ -159,21 +159,22 @@ static int InodeNameComp(const void *x, const void *y) {
 	list->length = inode->size / acfg.page_size + 1;
 	list->nodes = [self allocNodeList: list->length];
 
-	printf("addInode_regularfile- length=%i size=%i \n",(int)list->length,(int)inode->size);
+	printf("addInode_regularfile- length=%i size=%i path='%s'\n",(int)list->length,(int)inode->size,[inode->path UTF8String]);
 
 	while (data_read < inode->size) {
 		databuffer = [file readDataOfLength: acfg.page_size];
 		d = [databuffer length];
-		data_read += d;
 		ddata = (void *)[databuffer bytes];
 		page = [pages addPage: ddata length: d];
-		list->nodes[i] = [nodes addPage: page];
+		NSLog(@"addingPage - path: %@ offset: %@",inode->path, [NSNumber numberWithUnsignedLong: data_read]);
+		list->nodes[i] = [nodes addPage: page path: inode->path offset: data_read];
+		data_read += d;
 		i++;
 	}
 	//catching empty files
 	if (data_read == 0) {
 		page = [pages addPage: 0 length: 0];
-		list->nodes[0] = [nodes addPage: page];
+		list->nodes[0] = [nodes addPage: page path: inode->path offset: 0];
 	}
 
 	[file closeFile];

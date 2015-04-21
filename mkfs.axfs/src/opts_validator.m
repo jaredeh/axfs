@@ -39,7 +39,7 @@
 	} else if ([self safe_strlen: acfg.output] < 1) {
 		sprintf(buffer,"--output: has zero length\n");
 	} else if ([self is_directory: acfg.output]) {
-		sprintf(buffer,"--output %s: is not a directory\n",acfg.output);
+		sprintf(buffer,"--output %s: can't be a directory\n",acfg.output);
 	}
 
 	if (strlen(buffer) != 0) {
@@ -60,7 +60,7 @@
 
 	if ([self safe_strlen: acfg.profile] > 1)
 		if (![self is_file: acfg.profile])
-			sprintf(buffer,"--profile %s: is not a directory\n",acfg.profile);
+			sprintf(buffer,"--profile %s: is not a file\n",acfg.profile);
 
 	if (strlen(buffer) != 0) {
 		memcpy(*msg,buffer,strlen(buffer));

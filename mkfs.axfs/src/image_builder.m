@@ -24,6 +24,7 @@
 	//printf("ImageBuilder setupRegions {\n");
 	r->strings = [aobj.strings region];
 	r->xip = [aobj.xip region];
+	[aobj.xip fsalign: acfg.page_size];
 	r->byte_aligned = [aobj.byte_aligned region];
 	r->compressed = [aobj.compressed region];
 	r->node_type = [[aobj.nodes nodeType] region];

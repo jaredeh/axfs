@@ -2,35 +2,31 @@
 
 @implementation Nodes
 
--(bool) pageIsXip {
-	Right here
-	return false;
-}
-
--(uint64_t) addPage: (void *) page {
+-(uint64_t) addPage: (void *) page path: (NSString *) path offset: (uint64_t) offset {
 	struct page_struct *pg = (struct page_struct *) page;
 	uint64_t index;
 	uint8_t type;
 
-//	printf("Nodes addPage {\n");
+	printf("Nodes addPage {\n");
+	NSLog(@"path: %@",path);
 
-	if ([self pageIsXip]) {
-//		printf("\tNodes addPage xip\n");
+	if ([xip pageIsXip: path offset: offset]) {
+		printf("\tNodes addPage xip\n");
 		type = XIP;
 		index = [xip addPage: page];
 	} else if (pg->clength < pg->length) {
-//		printf("\tNodes addPage comp pg->clength=%i < pg->length=%i\n",pg->clength,pg->length);
+		printf("\tNodes addPage comp pg->clength=%i < pg->length=%i\n",pg->clength,pg->length);
 		type = Compressed;
 		index = [compressed addPage: page];
 	} else {
-//		printf("\tNodes addPage ba\n");
+		printf("\tNodes addPage ba\n");
 		type = Byte_Aligned;
 		index = [byte_aligned addPage: page];
 	}
 
 	[node_index add: index];
 	[node_type add: type];
-//	printf("} Nodes addPage end\n");
+	printf("} Nodes addPage end\n");
 	return [node_type length] - 1;
 }
 
