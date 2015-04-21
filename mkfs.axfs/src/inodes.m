@@ -159,7 +159,7 @@ static int InodeNameComp(const void *x, const void *y) {
 	list->length = inode->size / acfg.page_size + 1;
 	list->nodes = [self allocNodeList: list->length];
 
-	printf("addInode_regularfile- length=%i size=%i \n",list->length,inode->size);
+	printf("addInode_regularfile- length=%i size=%i \n",(int)list->length,(int)inode->size);
 
 	while (data_read < inode->size) {
 		databuffer = [file readDataOfLength: acfg.page_size];
@@ -296,7 +296,7 @@ static int InodeNameComp(const void *x, const void *y) {
 	j++;
 //NEED A BETTER WAY.  This won't mix subdir inodes into dir inode lists, bad.
 	[fileSizeIndex index: index datum: inode->size];
-	printf("nameOrder[%i] = %s\n",index,inode->name->data);
+	printf("nameOrder[%i] = %s\n",(int)index,(char *)inode->name->data);
 	nameOrder[index] = inode->name;
 	[modeIndex index: index datum: inode->mode->position];
 	list = &inode->list;

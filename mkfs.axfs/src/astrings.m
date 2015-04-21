@@ -20,7 +20,7 @@
 	void *src;
 	dst = (void *) [self allocData: &out_obj chunksize: str->length];
 	src = str->data;
-	printf("memcpyOutData:\"%s\"\n",src);
+	printf("memcpyOutData:\"%s\"\n",(char *)src);
 	memcpy(dst,src,str->length);
 }
 
@@ -43,7 +43,7 @@
 	memset(&temp,0,sizeof(temp));
 	temp.data = data_ptr;
 	temp.length = len;
-	printf("addString: \"%s\"\n",data_ptr);
+	printf("addString: \"%s\"\n",(char *)data_ptr);
 
 	return [self allocForAdd: &temp];
 }

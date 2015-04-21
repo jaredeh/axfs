@@ -3,6 +3,7 @@
 @implementation Nodes
 
 -(bool) pageIsXip {
+	Right here
 	return false;
 }
 

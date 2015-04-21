@@ -46,7 +46,7 @@ static int PagesComp(const void* av, const void* bv)
 
 -(void *) allocForAdd: (struct page_struct *) temp {
 	struct page_struct *new_value;
-	int k;
+	//int k;
 
 	new_value = [self allocPageStruct];
 	new_value->length = temp->length;

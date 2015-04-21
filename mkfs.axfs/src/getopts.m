@@ -279,13 +279,18 @@
 	int c;
 	argc = count;
 	argv = v;
+	//char optarg[10];
 
 	while (1) {
 		c = getopt_long(argc, argv, short_options, long_options, &index);
-		//printf("c: %i index: %i optarg: '%s'\n", c, index, optarg);
+		printf("c: %i %c index: %i optarg: '%s'\n", c,c, index, optarg);
 
 		if (c == -1)
 			break;
+		if (c == '?')
+			[NSException raise: @""  format: @"invalid option"];
+		if (optarg == NULL)
+			[NSException raise: @""  format: @"Missing parameter"];
 
 		[self switch_short_options: c index: index optarg: optarg];
 	}

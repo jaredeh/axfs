@@ -145,7 +145,7 @@
 	char buffer[256];
 	memset(buffer,0,256);
 
-	//[self print_config];
+	[self print_config];
 	if (![self validate_properfiles: msg]) {
 	} else if (![self validate_compression: msg]) {
 	} else if (![self validate_numbers: msg]) {
