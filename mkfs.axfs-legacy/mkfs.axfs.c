@@ -1424,9 +1424,29 @@ static void do_compress(struct entry *entry, u8 **node_type, u32 **node_index, u
 	u32 new_size = 0;
 	u32 offset = 0;
 	int change;
+	int force_xip = 0;
 
 	if(file_data == NULL)
 		return;
+
+	/* If the file is executable, force to try to XIP the page */
+	if( xip_all_files )
+	{
+		/* Check 'x' bit of Owner field ---x------ */
+		if( mode_index[entry->mode_index]->mode & 0x40)
+			force_xip = 1;
+		else
+			force_xip = 0;
+	}
+
+#ifdef DEBUG
+	/* This prints out all the executable files it did find */
+	if( force_xip )
+		printf("name=%s, mode = 0x%X  (%d%d%d)\n", entry->name, mode_index[entry->mode_index]->mode,
+			((mode_index[entry->mode_index]->mode) >> 6) & 7,
+			((mode_index[entry->mode_index]->mode) >> 3) & 7,
+			((mode_index[entry->mode_index]->mode) >> 0) & 7 );
+#endif
 
 	do {
 		unsigned long len = 2 * blksize;
@@ -1437,7 +1457,7 @@ static void do_compress(struct entry *entry, u8 **node_type, u32 **node_index, u
 			input = blksize;
 
 		bytes_to_write -= input;
-		if (!xip_all_files && !get_page_state(entry->bitmap, offset)) {
+		if (!force_xip && !get_page_state(entry->bitmap, offset)) {
 			/* Not XIP page */
 			compressed_rd.virt_addr = realloc(compressed_rd.virt_addr,compressed_rd.size + 2*blksize);
 			err = compress2(compressed_rd.virt_addr + compressed_rd.size,&len, file_data, input, Z_BEST_COMPRESSION);
