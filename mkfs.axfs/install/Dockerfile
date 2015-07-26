@@ -1,4 +1,4 @@
-# This Dockerfile is used to build an image containing basic stuff to be used as a Jenkins slave build node, capable of building mkfs.axfs.  Derived from evarga/jenkins-slave
+# This Dockerfile is used to build an image containing basic stuff to be used as a Jenkins slave build node, capable of building mkfs.axfs and the kernel.  Derived from evarga/jenkins-slave
 FROM ubuntu:trusty
 MAINTAINER Jared Hulbert <jaredeh@gmail.com>
 
@@ -24,10 +24,6 @@ EXPOSE 22
 
 CMD ["/usr/sbin/sshd", "-D"]
 
-# Make sure the package repository is up to date.
-RUN apt-get update
-RUN apt-get -y upgrade
-
 # Install stuff basic tools
 RUN apt-get install -y rake
 RUN apt-get install -y git
@@ -39,3 +35,10 @@ RUN apt-get install -y gobjc
 RUN apt-get install -y gnustep
 RUN apt-get install -y gnustep-make
 RUN apt-get install -y libgnustep-base-dev
+
+# Install kernel build helpers
+RUN apt-get install -y libncurses-dev
+RUN apt-get install -y wget
+RUN apt-get install -y bc
+RUN apt-get install -y ruby
+RUN apt-get install -y xz-utils
