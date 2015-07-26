@@ -42,3 +42,6 @@ RUN apt-get install -y wget
 RUN apt-get install -y bc
 RUN apt-get install -y ruby
 RUN apt-get install -y xz-utils
+
+# Mount point for local git repos
+RUN mkdir -p /opt/git/
