@@ -130,6 +130,9 @@ OptionParser.new do |opts|
     options[:no_cleanup] = o
   end
 
+  opts.on("-N", "--null","fake makes jenkins integration easier") do |o|
+  end
+
 end.parse!
 
 if not options[:kernel]

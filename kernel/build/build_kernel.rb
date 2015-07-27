@@ -160,7 +160,7 @@ OptionParser.new do |opts|
       end
       options[:config]["CONFIG_"+config] = configopt
     end
-    
+
     puts options[:config]
 
   end
@@ -187,6 +187,9 @@ OptionParser.new do |opts|
 
   opts.on("-w", "--wipe","Like we were never here") do |o|
     options[:wipe] = o
+  end
+
+  opts.on("-n", "--null","fake makes jenkins integration easier") do |o|
   end
 
 end.parse!
