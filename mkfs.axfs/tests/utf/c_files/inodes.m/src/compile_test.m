@@ -7,7 +7,7 @@
 /* too lazy to build this junk seperately. */
 #include "../../../../../src/compressor.m"
 #include "../../../../../src/compressible_object.m"
-#include "../../../../../src/btree_object.m"
+#include "../../../../../src/hash_object.m"
 #include "../../../../../src/bytetable.m"
 #include "../../../../../src/astrings.m"
 #include "../../../../../src/modes.m"
@@ -20,4 +20,3 @@ int main(int argc, char * argv[])
 {
 	return 0;
 }
-

@@ -8,7 +8,7 @@
 #include "astrings.m"
 #include "compressor.m"
 #include "compressible_object.m"
-#include "btree_object.m"
+#include "hash_object.m"
 #include "bytetable.m"
 #include "region.m"
 
@@ -115,16 +115,16 @@ void FreeSuite(CuSuite* suite)
 	free(suite);
 }
 
-void RunAllTests(void) 
+void RunAllTests(void)
 {
 	CuString *output = CuStringNew();
 	CuSuite* suite = CuSuiteNew();
 	CuSuite* newsuite = GetSuite();
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
+
 	CuSuiteAddSuite(suite, newsuite);
 	CuSuiteRun(suite);
-	
+
 	CuSuiteSummary(suite, output);
 	CuSuiteDetails(suite, output);
 	printf("%s\n", output->buffer);
@@ -136,4 +136,3 @@ void RunAllTests(void)
 
 	return;
 }
-

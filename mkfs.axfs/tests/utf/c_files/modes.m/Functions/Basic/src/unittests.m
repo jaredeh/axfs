@@ -4,7 +4,7 @@
 
 /* Including function under test */
 #include "modes.m"
-#include "btree_object.m"
+#include "hash_object.m"
 #include "compressible_object.m"
 #include "compressor.m"
 #include "bytetable.m"
@@ -122,7 +122,7 @@ static void Modes_dup_nodes(CuTest *tc)
 	acfg.page_size = 4096;
 	acfg.compression = "lzo";
 	acfg.max_number_files = 100;
-	
+
 	modes = [[Modes alloc] init];
 	length = [modes length];
 	CuAssertIntEquals(tc, 0, length);
@@ -206,16 +206,16 @@ void FreeSuite(CuSuite* suite)
 	free(suite);
 }
 
-void RunAllTests(void) 
+void RunAllTests(void)
 {
 	CuString *output = CuStringNew();
 	CuSuite* suite = CuSuiteNew();
 	CuSuite* newsuite = GetSuite();
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
+
 	CuSuiteAddSuite(suite, newsuite);
 	CuSuiteRun(suite);
-	
+
 	CuSuiteSummary(suite, output);
 	CuSuiteDetails(suite, output);
 	printf("%s\n", output->buffer);
@@ -227,4 +227,3 @@ void RunAllTests(void)
 
 	return;
 }
-

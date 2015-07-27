@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "c_blocks.m"
 #import "compressible_object.m"
-#import "btree_object.m"
+#import "hash_object.m"
 #import "bytetable.m"
 #import "compressor.m"
 #import "region.m"
@@ -90,4 +90,3 @@ void CBlocks___set_acfg(struct axfs_config *cfg)
 	acfg.xip_size = cfg->xip_size;
 	acfg.max_nodes = cfg->max_nodes;
 }
-

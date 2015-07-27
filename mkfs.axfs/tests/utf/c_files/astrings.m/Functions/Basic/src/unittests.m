@@ -6,7 +6,7 @@
 #include "astrings.m"
 #include "compressor.m"
 #include "compressible_object.m"
-#include "btree_object.m"
+#include "hash_object.m"
 #include "bytetable.m"
 #include "region.m"
 
@@ -268,25 +268,25 @@ static void Strings_cdata(CuTest *tc){
 	memset(no,0,5*sizeof(void*));
 	[str nameOrder: no];
 	expected = malloc(2000);
-    
+
 	length = 5;
 	data = "hello";
 	no[0] = [str addString: data length: length];
 	memcpy(&expected[explen],data,length);
 	explen += length;
-    
+
 	length = 5;
 	data = "jared";
 	no[1] = [str addString: data length: length];
 	memcpy(&expected[explen],data,length);
 	explen += length;
-    
+
 	length = 13;
 	data = "jared hulbert";
 	no[2] = [str addString: data length: length];
 	memcpy(&expected[explen],data,length);
 	explen += length;
-    
+
 	length = 1000;
 	data = malloc(2000);
 	memset(data,'a',length);
@@ -294,7 +294,7 @@ static void Strings_cdata(CuTest *tc){
 	memcpy(&expected[explen],data,length);
 	explen += length;
 	free(data);
-    
+
 	expected[explen] = 0;
 	output = [str cdata];
 	CuAssertTrue(tc, (expected[2] != ((char *)output)[2]));
@@ -331,16 +331,16 @@ void FreeSuite(CuSuite* suite)
 	free(suite);
 }
 
-void RunAllTests(void) 
+void RunAllTests(void)
 {
 	CuString *output = CuStringNew();
 	CuSuite* suite = CuSuiteNew();
 	CuSuite* newsuite = GetSuite();
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
+
 	CuSuiteAddSuite(suite, newsuite);
 	CuSuiteRun(suite);
-	
+
 	CuSuiteSummary(suite, output);
 	CuSuiteDetails(suite, output);
 	printf("%s\n", output->buffer);
@@ -351,4 +351,3 @@ void RunAllTests(void)
 	[pool drain];
 	return;
 }
-

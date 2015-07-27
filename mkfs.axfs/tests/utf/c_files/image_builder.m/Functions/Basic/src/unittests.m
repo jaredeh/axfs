@@ -7,7 +7,7 @@
 #include "inodes.m"
 #include "nodes.m"
 #include "c_blocks.m"
-#include "btree_object.m"
+#include "hash_object.m"
 #include "bytetable.m"
 #include "compressible_object.m"
 #include "modes.m"
@@ -31,7 +31,7 @@ struct axfs_objects aobj;
 static void ImageBuilder_createdestroy(CuTest *tc){
 	int output;
 	ImageBuilder *ib;
-	
+
 	printf("Running %s\n", __FUNCTION__);
 
 	acfg.max_nodes = 100;
@@ -73,15 +73,15 @@ void FreeSuite(CuSuite* suite)
 	free(suite);
 }
 
-void RunAllTests(void) 
+void RunAllTests(void)
 {
 	CuString *output = CuStringNew();
 	CuSuite* suite = CuSuiteNew();
 	CuSuite* newsuite = GetSuite();
-	
+
 	CuSuiteAddSuite(suite, newsuite);
 	CuSuiteRun(suite);
-	
+
 	CuSuiteSummary(suite, output);
 	CuSuiteDetails(suite, output);
 	printf("%s\n", output->buffer);
@@ -91,4 +91,3 @@ void RunAllTests(void)
 	free(output);
 	return;
 }
-

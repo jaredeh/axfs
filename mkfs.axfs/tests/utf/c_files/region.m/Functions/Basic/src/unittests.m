@@ -14,7 +14,7 @@
 #include "pages.m"
 #include "c_blocks.m"
 #include "compressible_object.m"
-#include "btree_object.m"
+#include "hash_object.m"
 #include "axfs_helper.m"
 
 /****** Test Code ******/
@@ -56,7 +56,7 @@ static void Region_bytetable_data(CuTest *tc)
 	r = [[Region alloc] init];
 
 	[bt numberEntries: 5000 dedup: false];
-	
+
 	[bt add: 0x123456];
 	[bt add: 0x0];
 	for(i=0; i<4096; i++) {
@@ -135,7 +135,7 @@ static void Region_bytetable_data_notcore(CuTest *tc)
 	r = [[Region alloc] init];
 
 	[bt numberEntries: 5000 dedup: false];
-	
+
 	[bt add: 0x123456];
 	[bt add: 0x0];
 	for(i=0; i<4096; i++) {
@@ -341,15 +341,15 @@ void FreeSuite(CuSuite* suite)
 	free(suite);
 }
 
-void RunAllTests(void) 
+void RunAllTests(void)
 {
 	CuString *output = CuStringNew();
 	CuSuite* suite = CuSuiteNew();
 	CuSuite* newsuite = GetSuite();
-	
+
 	CuSuiteAddSuite(suite, newsuite);
 	CuSuiteRun(suite);
-	
+
 	CuSuiteSummary(suite, output);
 	CuSuiteDetails(suite, output);
 	printf("%s\n", output->buffer);
@@ -359,4 +359,3 @@ void RunAllTests(void)
 	free(output);
 	return;
 }
-

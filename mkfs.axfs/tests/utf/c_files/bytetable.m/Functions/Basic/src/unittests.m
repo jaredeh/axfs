@@ -6,7 +6,7 @@
 #include "bytetable.m"
 #include "axfs_helper.m"
 #include "compressor.m"
-#include "btree_object.m"
+#include "hash_object.m"
 #include "compressible_object.m"
 #include "region.m"
 
@@ -406,7 +406,7 @@ static void Bytetable_simpledata(CuTest *tc)
 	printf("Running %s\n", __FUNCTION__);
 
 	[bt numberEntries: 4096 dedup: true];
-	
+
 	[bt add: 0x123456];
 	[bt add: 0x0];
 	[bt add: 0x789ABC];
@@ -445,7 +445,7 @@ static void Bytetable_index(CuTest *tc)
 	printf("Running %s\n", __FUNCTION__);
 
 	[bt numberEntries: 4096 dedup: true];
-	
+
 	[bt index: 1 datum: 0x0];
 	[bt index: 0 datum: 0x123456];
 	[bt index: 2 datum: 0x789ABC];
@@ -482,7 +482,7 @@ static void Bytetable_cdata(CuTest *tc)
 	printf("Running %s\n", __FUNCTION__);
 
 	[bt numberEntries: 4096 dedup: true];
-	
+
 	[bt add: 0x123456];
 	[bt add: 0x0];
 	for (i=0;i<1000;i++) {
@@ -529,15 +529,15 @@ void FreeSuite(CuSuite* suite)
 	free(suite);
 }
 
-void RunAllTests(void) 
+void RunAllTests(void)
 {
 	CuString *output = CuStringNew();
 	CuSuite* suite = CuSuiteNew();
 	CuSuite* newsuite = GetSuite();
-	
+
 	CuSuiteAddSuite(suite, newsuite);
 	CuSuiteRun(suite);
-	
+
 	CuSuiteSummary(suite, output);
 	CuSuiteDetails(suite, output);
 	printf("%s\n", output->buffer);
@@ -547,4 +547,3 @@ void RunAllTests(void)
 	free(output);
 	return;
 }
-

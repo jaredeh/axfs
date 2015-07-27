@@ -5,7 +5,7 @@
 #include "../../../../../src/modes.m"
 
 /* too lazy to build this junk seperately. */
-#include "../../../../../src/btree_object.m"
+#include "../../../../../src/hash_object.m"
 #include "../../../../../src/bytetable.m"
 #include "../../../../../src/region.m"
 #include "../../../../../src/compressor.m"
@@ -18,4 +18,3 @@ int main(int argc, char * argv[])
 {
 	return 0;
 }
-

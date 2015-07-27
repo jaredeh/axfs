@@ -8,7 +8,7 @@
 #include "../../../../../src/compressor.m"
 #include "../../../../../src/region.m"
 #include "../../../../../src/compressible_object.m"
-#include "../../../../../src/btree_object.m"
+#include "../../../../../src/hash_object.m"
 
 struct axfs_config acfg;
 
@@ -16,4 +16,3 @@ int main(int argc, char * argv[])
 {
 	return 0;
 }
-

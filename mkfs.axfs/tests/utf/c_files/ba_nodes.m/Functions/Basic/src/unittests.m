@@ -3,7 +3,7 @@
 #include "CuTest.h"
 
 /* Including function under test */
-#include "btree_object.m"
+#include "hash_object.m"
 #include "bytetable.m"
 #include "compressible_object.m"
 #include "pages.m"
@@ -55,7 +55,7 @@ static void BaNodes_size_bytealigned(CuTest *tc)
 	printf("Running %s\n", __FUNCTION__);
 	acfg.page_size = 4096;
 	acfg.max_nodes = 10;
-	
+
 	nodes = [[BaNodes alloc] init];
 
 	pages = [[Pages alloc] init];
@@ -144,7 +144,7 @@ static void BaNodes_size_ba_cdata(CuTest *tc)
 	printf("Running %s\n", __FUNCTION__);
 	acfg.page_size = 4096;
 	acfg.max_nodes = 10;
-	
+
 	nodes = [[BaNodes alloc] init];
 
 	pages = [[Pages alloc] init];
@@ -184,9 +184,9 @@ static void BaNodes_size_ba_cdata(CuTest *tc)
 	length = [nodes length];
 	size = [nodes size];
 	CuAssertIntEquals(tc, 5, length);
-	
+
 	CuAssertIntEquals(tc, r, size);
-	
+
 	compare = malloc(size);
 	memset(compare,0,size);
 
@@ -195,7 +195,7 @@ static void BaNodes_size_ba_cdata(CuTest *tc)
 	memcpy(compare+17+5,data2,29);
 	memcpy(compare+29+17+5,data3,21);
 	memcpy(compare+21+29+17+5,data4,14);
-	
+
 	data = [nodes data];
 
 	CuAssertBufEquals(tc, compare, data, size);
@@ -238,16 +238,16 @@ void FreeSuite(CuSuite* suite)
 	free(suite);
 }
 
-void RunAllTests(void) 
+void RunAllTests(void)
 {
 	CuString *output = CuStringNew();
 	CuSuite* suite = CuSuiteNew();
 	CuSuite* newsuite = GetSuite();
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
+
 	CuSuiteAddSuite(suite, newsuite);
 	CuSuiteRun(suite);
-	
+
 	CuSuiteSummary(suite, output);
 	CuSuiteDetails(suite, output);
 	printf("%s\n", output->buffer);
@@ -259,4 +259,3 @@ void RunAllTests(void)
 
 	return;
 }
-

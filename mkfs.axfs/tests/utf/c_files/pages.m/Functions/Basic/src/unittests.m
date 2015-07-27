@@ -4,7 +4,7 @@
 
 /* Including function under test */
 #include "pages.m"
-#include "btree_object.m"
+#include "hash_object.m"
 #include "compressor.m"
 #include "region.m"
 
@@ -152,7 +152,7 @@ static void PagesComp_equal(CuTest *tc){
 static void Pages_createdestroy(CuTest *tc){
 	int output;
 	Pages *pages;
-	
+
 	acfg.max_nodes = 100;
 	acfg.block_size = 16*1024;
 	acfg.page_size = 4096;
@@ -353,15 +353,15 @@ void FreeSuite(CuSuite* suite)
 	free(suite);
 }
 
-void RunAllTests(void) 
+void RunAllTests(void)
 {
 	CuString *output = CuStringNew();
 	CuSuite* suite = CuSuiteNew();
 	CuSuite* newsuite = GetSuite();
-	
+
 	CuSuiteAddSuite(suite, newsuite);
 	CuSuiteRun(suite);
-	
+
 	CuSuiteSummary(suite, output);
 	CuSuiteDetails(suite, output);
 	printf("%s\n", output->buffer);
@@ -371,4 +371,3 @@ void RunAllTests(void)
 	free(output);
 	return;
 }
-

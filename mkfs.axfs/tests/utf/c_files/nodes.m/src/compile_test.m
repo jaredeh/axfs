@@ -8,7 +8,7 @@
 #include "../../../../../src/c_blocks.m"
 #include "../../../../../src/compressor.m"
 #include "../../../../../src/compressible_object.m"
-#include "../../../../../src/btree_object.m"
+#include "../../../../../src/hash_object.m"
 #include "../../../../../src/bytetable.m"
 #include "../../../../../src/region.m"
 #include "../../../../../src/xip_nodes.m"
@@ -22,4 +22,3 @@ int main(int argc, char * argv[])
 {
 	return 0;
 }
-
