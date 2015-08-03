@@ -41,6 +41,7 @@ RUN apt-get install -y libncurses-dev
 RUN apt-get install -y wget
 RUN apt-get install -y bc
 RUN apt-get install -y ruby
+RUN apt-get install -y ruby-dev
 RUN gem install open4
 RUN gem install ffi
 RUN apt-get install -y xz-utils
