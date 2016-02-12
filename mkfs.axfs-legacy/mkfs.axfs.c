@@ -1425,18 +1425,32 @@ static void do_compress(struct entry *entry, u8 **node_type, u32 **node_index, u
 	u32 offset = 0;
 	int change;
 	int force_xip = 0;
+	int fd;
+	u8 buffer[4];
+	u8 elf_magic[4] = {0x7F,'E','L','F'};
 
 	if(file_data == NULL)
 		return;
 
-	/* If the file is executable, force to try to XIP the page */
+	/* If the file is an executable ELF file, force to try to XIP the page */
+	force_xip = 0;
 	if( xip_all_files )
 	{
 		/* Check 'x' bit of Owner field ---x------ */
-		if( mode_index[entry->mode_index]->mode & 0x40)
-			force_xip = 1;
-		else
-			force_xip = 0;
+		if( mode_index[entry->mode_index]->mode & 0x40 )
+		{
+			/* Check for ELF magic number */
+			fd = -1;
+			if (entry->path)	/* symlink nodes don't have paths */
+				fd = open(entry->path, O_RDONLY );
+			if( fd != -1)
+			{
+				buffer[0] = 0; /* in case file is empty */
+				read(fd,buffer,4);
+				if( *(u32 *)buffer == *(u32 *)elf_magic)
+					force_xip = 1;
+			}
+		}
 	}
 
 #ifdef DEBUG
