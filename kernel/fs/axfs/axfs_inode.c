@@ -525,6 +525,97 @@ out:
 	return 0;
 }
 
+
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,19,0)
+
+static int do_dax_noblk_fault(struct vm_area_struct *vma, struct vm_fault *vmf,
+			unsigned long pfn)
+{
+	struct file *file = vma->vm_file;
+	struct address_space *mapping = file->f_mapping;
+	struct inode *inode = mapping->host;
+	struct page *page;
+	pgoff_t size;
+	int error;
+	int major = 0;
+
+	size = (i_size_read(inode) + PAGE_SIZE - 1) >> PAGE_SHIFT;
+	if (vmf->pgoff >= size)
+		return VM_FAULT_SIGBUS;
+
+ repeat:
+	page = find_get_page(mapping, vmf->pgoff);
+	if (page) {
+		if (!lock_page_or_retry(page, vma->vm_mm, vmf->flags)) {
+			page_cache_release(page);
+			return VM_FAULT_RETRY;
+		}
+		if (unlikely(page->mapping != mapping)) {
+			unlock_page(page);
+			page_cache_release(page);
+			goto repeat;
+		}
+		size = (i_size_read(inode) + PAGE_SIZE - 1) >> PAGE_SHIFT;
+		if (unlikely(vmf->pgoff >= size)) {
+			/*
+			 * We have a struct page covering a hole in the file
+			 * from a read fault and we've raced with a truncate
+			 */
+			error = -EIO;
+			goto unlock_page;
+		}
+	}
+
+
+	/* Check we didn't race with a read fault installing a new page */
+	if (!page && major)
+		page = find_lock_page(mapping, vmf->pgoff);
+
+	if (page) {
+		unmap_mapping_range(mapping, vmf->pgoff << PAGE_SHIFT,
+							PAGE_CACHE_SIZE, 0);
+		delete_from_page_cache(page);
+		unlock_page(page);
+		page_cache_release(page);
+	}
+
+	i_mmap_lock_read(mapping);
+
+	error = vm_insert_mixed(vma, (unsigned long)vmf->virtual_address, pfn);
+
+	i_mmap_unlock_read(mapping);
+
+ out:
+	if (error == -ENOMEM)
+		return VM_FAULT_OOM | major;
+	/* -EBUSY is fine, somebody else faulted on the same PTE */
+	if ((error < 0) && (error != -EBUSY))
+		return VM_FAULT_SIGBUS | major;
+	return VM_FAULT_NOPAGE | major;
+
+ unlock_page:
+	if (page) {
+		unlock_page(page);
+		page_cache_release(page);
+	}
+	goto out;
+}
+
+int xip_file_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
+{
+	int result;
+	struct file *file = vma->vm_file;
+	struct address_space *mapping = file->f_mapping;
+	unsigned long pfn;
+	void *kaddr;
+	axfs_get_xip_mem(mapping, vmf->pgoff, 0, &kaddr, &pfn);
+	result = do_dax_noblk_fault(vma, vmf, pfn);
+
+	return result;
+}
+#endif
+
+
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,22)
 /******************************************************************************
  *
@@ -552,7 +643,11 @@ static struct page *axfs_nopage(struct vm_area_struct *vma,
 #endif
 {
 	struct file *file = vma->vm_file;
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,0)
+	struct inode *inode = file_inode(file);
+#else
 	struct inode *inode = file->f_dentry->d_inode;
+#endif
 	struct super_block *sb = inode->i_sb;
 	struct axfs_super *sbi = AXFS_SB(sb);
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,22)
@@ -687,6 +782,8 @@ out:
 }
 #endif
 
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,15,0)
+#else
 /******************************************************************************
  *
  * axfs_file_read
@@ -712,7 +809,11 @@ out:
 static ssize_t axfs_file_read(struct file *filp, char __user *buf, size_t len,
 			      loff_t *ppos)
 {
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,0)
+	struct inode *inode = file_inode(filp);
+#else
 	struct inode *inode = filp->f_dentry->d_inode;
+#endif
 	struct super_block *sb = inode->i_sb;
 	struct axfs_super *sbi = AXFS_SB(sb);
 	size_t read = 0, total_read = 0;
@@ -747,6 +848,7 @@ static ssize_t axfs_file_read(struct file *filp, char __user *buf, size_t len,
 
 	return total_read;
 }
+#endif
 
 static int axfs_readpage(struct file *file, struct page *page)
 {
@@ -849,10 +951,11 @@ static const struct file_operations axfs_directory_operations = {
 
 static const struct file_operations axfs_fops = {
 	.llseek = generic_file_llseek,
-	.read = axfs_file_read,
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,15,0)
+	.read = new_sync_read,
 	.read_iter = generic_file_read_iter,
 #else
+	.read = axfs_file_read,
 	.aio_read = generic_file_aio_read,
 #endif
 	.mmap = axfs_mmap,
@@ -860,11 +963,14 @@ static const struct file_operations axfs_fops = {
 
 static struct address_space_operations axfs_aops = {
 	.readpage = axfs_readpage,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,19,0)
+#else
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,25)
 	.get_xip_mem = axfs_get_xip_mem,
 #else
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,12)
 	.get_xip_page = axfs_get_xip_page,
+#endif
 #endif
 #endif
 };
