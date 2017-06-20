@@ -24,6 +24,9 @@
  *
  */
 #include "axfs.h"
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,5,0)
+#include <linux/pfn_t.h>
+#endif
 
 static const struct file_operations axfs_directory_operations;
 static const struct file_operations axfs_fops;
@@ -581,7 +584,11 @@ static int do_dax_noblk_fault(struct vm_area_struct *vma, struct vm_fault *vmf,
 
 	i_mmap_lock_read(mapping);
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,5,0)
 	error = vm_insert_mixed(vma, (unsigned long)vmf->virtual_address, pfn);
+#else
+	error = vm_insert_mixed(vma, (unsigned long)vmf->virtual_address, __pfn_to_pfn_t(pfn, PFN_DEV));
+#endif
 
 	i_mmap_unlock_read(mapping);
 
