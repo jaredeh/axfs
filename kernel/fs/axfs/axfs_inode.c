@@ -272,7 +272,7 @@ struct inode *axfs_create_vfs_inode(struct super_block *sb, int ino)
 	size = axfs_get_inode_file_size(sbi, ino);
 	inode->i_size = size;
 	inode->i_blocks = axfs_get_inode_num_entries(sbi, ino);
-	inode->i_blkbits = PAGE_CACHE_SHIFT;
+	inode->i_blkbits = PAGE_SHIFT;
 
 	inode->i_mtime = inode->i_atime = inode->i_ctime = sbi->timestamp;
 	inode->i_ino = ino;
@@ -547,12 +547,12 @@ static int do_dax_noblk_fault(struct vm_area_struct *vma, struct vm_fault *vmf,
 	page = find_get_page(mapping, vmf->pgoff);
 	if (page) {
 		if (!lock_page_or_retry(page, vma->vm_mm, vmf->flags)) {
-			page_cache_release(page);
+			put_page(page);
 			return VM_FAULT_RETRY;
 		}
 		if (unlikely(page->mapping != mapping)) {
 			unlock_page(page);
-			page_cache_release(page);
+			put_page(page);
 			goto repeat;
 		}
 		size = (i_size_read(inode) + PAGE_SIZE - 1) >> PAGE_SHIFT;
@@ -573,10 +573,10 @@ static int do_dax_noblk_fault(struct vm_area_struct *vma, struct vm_fault *vmf,
 
 	if (page) {
 		unmap_mapping_range(mapping, vmf->pgoff << PAGE_SHIFT,
-							PAGE_CACHE_SIZE, 0);
+							PAGE_SIZE, 0);
 		delete_from_page_cache(page);
 		unlock_page(page);
-		page_cache_release(page);
+		put_page(page);
 	}
 
 	i_mmap_lock_read(mapping);
@@ -596,7 +596,7 @@ static int do_dax_noblk_fault(struct vm_area_struct *vma, struct vm_fault *vmf,
  unlock_page:
 	if (page) {
 		unlock_page(page);
-		page_cache_release(page);
+		put_page(page);
 	}
 	goto out;
 }
@@ -660,7 +660,7 @@ static struct page *axfs_nopage(struct vm_area_struct *vma,
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,22)
 	array_index = axfs_get_inode_array_index(sbi, ino_number) + vmf->pgoff;
 #else
-	pgoff = ((address - vma->vm_start) >> PAGE_CACHE_SHIFT) + vma->vm_pgoff;
+	pgoff = ((address - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
 	array_index = axfs_get_inode_array_index(sbi, ino_number) + pgoff;
 #endif
 
@@ -710,25 +710,25 @@ static ssize_t axfs_xip_file_read(struct file *file, char __user * buf,
 	size_t copied = 0, error = 0;
 
 	pos = *ppos;
-	index = pos >> PAGE_CACHE_SHIFT;
-	offset = pos & ~PAGE_CACHE_MASK;
+	index = pos >> PAGE_SHIFT;
+	offset = pos & ~PAGE_MASK;
 
 	isize = i_size_read(inode);
 	if (!isize)
 		goto out;
 
-	end_index = (isize - 1) >> PAGE_CACHE_SHIFT;
+	end_index = (isize - 1) >> PAGE_SHIFT;
 	do {
 		unsigned long nr, left, pfn;
 		void *xip_mem;
 		int zero = 0;
 
 		/* nr is the maximum number of bytes to copy from this page */
-		nr = PAGE_CACHE_SIZE;
+		nr = PAGE_SIZE;
 		if (index >= end_index) {
 			if (index > end_index)
 				goto out;
-			nr = ((isize - 1) & ~PAGE_CACHE_MASK) + 1;
+			nr = ((isize - 1) & ~PAGE_MASK) + 1;
 			if (nr <= offset)
 				goto out;
 		}
@@ -771,8 +771,8 @@ static ssize_t axfs_xip_file_read(struct file *file, char __user * buf,
 
 		copied += (nr - left);
 		offset += (nr - left);
-		index += offset >> PAGE_CACHE_SHIFT;
-		offset &= ~PAGE_CACHE_MASK;
+		index += offset >> PAGE_SHIFT;
+		offset &= ~PAGE_MASK;
 	} while (copied < len);
 
 out:
@@ -866,7 +866,7 @@ static int axfs_readpage(struct file *file, struct page *page)
 	void *cblk0 = sbi->cblock_buffer[0];
 	void *cblk1 = sbi->cblock_buffer[1];
 
-	maxblock = (inode->i_size + PAGE_CACHE_SIZE - 1) >> PAGE_CACHE_SHIFT;
+	maxblock = (inode->i_size + PAGE_SIZE - 1) >> PAGE_SHIFT;
 	pgdata = kmap(page);
 
 	if (page->index >= maxblock)
@@ -894,7 +894,7 @@ static int axfs_readpage(struct file *file, struct page *page)
 		}
 		downgrade_write(&sbi->lock);
 		max_len = cblk_size - cnode_offset;
-		len = max_len > PAGE_CACHE_SIZE ? PAGE_CACHE_SIZE : max_len;
+		len = max_len > PAGE_SIZE ? PAGE_SIZE : max_len;
 		src = (void *)((unsigned long)cblk0 + cnode_offset);
 		memcpy(pgdata, src, len);
 		up_read(&sbi->lock);
@@ -902,17 +902,17 @@ static int axfs_readpage(struct file *file, struct page *page)
 		/* node is in BA region */
 		ofs = axfs_get_banode_offset(sbi, node_index);
 		max_len = sbi->byte_aligned.size - ofs;
-		len = max_len > PAGE_CACHE_SIZE ? PAGE_CACHE_SIZE : max_len;
+		len = max_len > PAGE_SIZE ? PAGE_SIZE : max_len;
 		axfs_copy_data(sb, pgdata, &(sbi->byte_aligned), ofs, len);
 	} else {
 		/* node is XIP */
 		ofs = node_index << PAGE_SHIFT;
-		len = PAGE_CACHE_SIZE;
+		len = PAGE_SIZE;
 		axfs_copy_data(sb, pgdata, &(sbi->xip), ofs, len);
 	}
 
 out:
-	memset(pgdata + len, 0, PAGE_CACHE_SIZE - len);
+	memset(pgdata + len, 0, PAGE_SIZE - len);
 	kunmap(page);
 	flush_dcache_page(page);
 	SetPageUptodate(page);
