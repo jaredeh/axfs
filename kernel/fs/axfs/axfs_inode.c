@@ -952,7 +952,9 @@ static const struct file_operations axfs_directory_operations = {
 static const struct file_operations axfs_fops = {
 	.llseek = generic_file_llseek,
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,15,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,1,0)
 	.read = new_sync_read,
+#endif
 	.read_iter = generic_file_read_iter,
 #else
 	.read = axfs_file_read,
