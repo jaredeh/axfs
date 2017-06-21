@@ -290,6 +290,9 @@ struct inode *axfs_create_vfs_inode(struct super_block *sb, int ino)
 	} else if (S_ISLNK(inode->i_mode)) {
 		inode->i_op = &page_symlink_inode_operations;
 		inode->i_data.a_ops = &axfs_aops;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,5,0)
+		inode_nohighmem(inode);
+#endif
 	} else {
 		inode->i_size = 0;
 		inode->i_blocks = 0;
