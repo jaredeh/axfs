@@ -89,26 +89,28 @@ def check_for_warnings(txt)
     if l =~ /[Ww]arning/
       fail = true
     elsif l =~ /[Ee]rror/
-      fail = true
+      if not l =~ /error.o/
+        fail = true
+      end
     end
   end
   if fail
-    raise
+    raise "Warning/Error: '#{l}'"
   end
 end
 
 def build(options)
   if kernel_version(options) < 2627 and kernel_version(options) != 2612
-    options[:buildopt] = "ARCH=i386"
+    options[:buildopt] = " ARCH=i386"
   else
     options[:buildopt] = ""
   end
   if options[:uml]
-    options[:buildopt] += "ARCH=um"
+    options[:buildopt] += " ARCH=um"
   end
   startdir = Dir.pwd
   if not File.exists?(options[:kernel])
-    run "git clone --no-checkout --reference /opt/git/linux /opt/git/linux #{options[:kernel]}"
+    run "git clone --no-checkout --reference #{options[:repo]} #{options[:repo]} #{options[:kernel]}"
     options[:mrproper] = true
   end
   Dir.chdir options[:kernel]
@@ -143,6 +145,7 @@ require 'optparse'
 require 'open4'
 
 options = {}
+options[:config] = Hash.new
 OptionParser.new do |opts|
   opts.banner = "Usage: make_kernel.rb [options]"
 
@@ -150,8 +153,11 @@ OptionParser.new do |opts|
     options[:kernel] = o
   end
 
+  opts.on("-r", "--repo SOURCE", String, "Kernel source code repo") do |o|
+    options[:repo] = o
+  end
+
   opts.on("-c", "--config CONFIGS", String, "Kconfig options CONFIG_PANCAKES=y => PANCAKES=y or PANCAKES=m.  Multiple options PANCAKES=y,PROFILING=y.") do |o|
-    options[:config] = Hash.new
     o.split(',').each do |configline|
       config = configline.split('=')[0]
       configopt = configline.split('=')[1]
@@ -189,7 +195,7 @@ OptionParser.new do |opts|
     options[:wipe] = o
   end
 
-  opts.on("-n", "--null","fake makes jenkins integration easier") do |o|
+  opts.on("-N", "--null","fake makes jenkins integration easier") do |o|
   end
 
 end.parse!

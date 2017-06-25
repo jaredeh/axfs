@@ -41,7 +41,7 @@ def build(options)
   end
   startdir = Dir.pwd
   if not File.exists?(options[:kernel])
-    run "git clone --no-checkout --reference /opt/git/linux /opt/git/linux #{options[:kernel]}"
+    run "git clone --no-checkout --reference #{options[:repo]} #{options[:repo]} #{options[:kernel]}"
     Dir.chdir options[:kernel]
     run "git checkout -f #{options[:kernel]}"
     run "make mrproper"
@@ -87,7 +87,7 @@ def build(options)
 end
 
 def cleanup(options)
-  if not options[:no_cleanup]
+  if options[:wipe]
     run "rm -rf linux"
   end
 end
@@ -110,6 +110,10 @@ OptionParser.new do |opts|
     end
   end
 
+  opts.on("-r", "--repo SOURCE", String, "Kernel source code repo") do |o|
+    options[:repo] = o
+  end
+
   opts.on("-m", "--mtd","Enable MTD") do |o|
     options[:mtd] = 'y'
   end
@@ -126,8 +130,8 @@ OptionParser.new do |opts|
     options[:patch] = o
   end
 
-  opts.on("-n", "--no_cleanup","Don't cleanup files") do |o|
-    options[:no_cleanup] = o
+  opts.on("-w", "--wipe","Like we were never here") do |o|
+    options[:wipe] = o
   end
 
   opts.on("-N", "--null","fake makes jenkins integration easier") do |o|
