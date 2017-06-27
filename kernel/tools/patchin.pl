@@ -260,4 +260,3 @@ do_kernel_patches("patches");
 do_patch_line("fs/Makefile", "CONFIG_CRAMFS", "obj-\$(CONFIG_AXFS)		+= axfs/");
 do_patch_file("fs/Kconfig", "config ECRYPT_FS");
 do_insert_files("fs/axfs");
-do_insert_files("include/linux");

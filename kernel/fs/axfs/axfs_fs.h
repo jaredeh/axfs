@@ -20,7 +20,7 @@
 #ifndef AXFS_FS_H
 #define AXFS_FS_H
 
-#include <linux/axfs_fs_sb.h>
+#include "axfs_fs_sb.h"
 
 #ifndef ALL_VERSIONS
 #include <linux/version.h>	/* For multi-version support */

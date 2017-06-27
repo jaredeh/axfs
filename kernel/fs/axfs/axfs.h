@@ -20,8 +20,8 @@
 #ifndef AXFS_H
 #define AXFS_H
 
-#include <linux/axfs_fs.h>
-#include <linux/axfs_fs_sb.h>
+#include "axfs_fs.h"
+#include "axfs_fs_sb.h"
 
 #include <linux/pagemap.h>
 #include <linux/fs.h>

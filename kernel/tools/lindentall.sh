@@ -7,5 +7,5 @@
 ./tools/Lindent fs/axfs/axfs_uml.c
 ./tools/Lindent fs/axfs/axfs_uncompress.c
 ./tools/Lindent fs/axfs/axfs.h
-./tools/Lindent include/linux/axfs_fs.h
-./tools/Lindent include/linux/axfs_fs_sb.h
+./tools/Lindent fs/axfs/axfs_fs.h
+./tools/Lindent fs/axfs/axfs_fs_sb.h
