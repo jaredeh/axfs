@@ -401,6 +401,7 @@ static void list_entries(char **lines, int count, struct xipentry *entries, char
 		sprintf(entries[i].path,"%s%s",dirname,&(entrybuf[0][fname_offset]));
 		entries[i].offset = atoi(entrybuf[1]);
 		entries[i].count = atoi(entrybuf[2]);
+		free(entrybuf);
 	}
 }
 
@@ -474,7 +475,7 @@ static void populate_sets(struct xipentry *entries, char *dirname)
 		/* Look for a file we have not added yet */
 		if (!known_file(ename)) {
 			index = get_free_file();
-			xipfileset[index].path = (char*) malloc(strlen(ename));
+			xipfileset[index].path = (char*) malloc(strlen(ename) + 1);
 			sprintf(xipfileset[index].path,"%s",ename);
 			xipfileset[index].chunknb = 0;
 			if (index>  0)
@@ -563,6 +564,7 @@ static int parseInfile(char *filename, char *dirname)
 
 	free_entries(entries);
 	free(entries);
+	free(lines);
 	return PARSE_OK;
 }
 /*****************************************************************************
@@ -1986,7 +1988,7 @@ int main(int argc, char **argv)
 	dirlen = strlen(dirname);
 	if (!(dirname[dirlen-1] == '/')) {
 		buf = (char *)dirname;
-		dirname = (char *) malloc(dirlen+1);
+		dirname = (char *) malloc(dirlen+1+1);
 		sprintf((char*)dirname,"%s/",buf);
 	}
 
