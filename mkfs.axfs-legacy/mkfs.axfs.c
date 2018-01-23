@@ -1699,26 +1699,26 @@ static void print_offsets(u32 size)
 {
 	printf("\n");
 	if ( silent == 0 ) {
-		printf("offset to node_type bytetable:          %llu\n", node_type_rd.fsoffset);
-		printf("offset to node_index bytetable:	        %llu\n", node_index_rd.fsoffset);
-		printf("offset to cnode_offset bytetable:       %llu\n", cnode_offset_rd.fsoffset);
-		printf("offset to cnode_index bytetable:        %llu\n", cnode_index_rd.fsoffset);
-		printf("offset to banode_offset bytetable:      %llu\n", banode_offset_rd.fsoffset);
-		printf("offset to cblock_offset bytetable:      %llu\n", cblock_offset_rd.fsoffset);
-		printf("offset to inode_file_size bytetable:    %llu\n", inode_file_size_rd.fsoffset);
-		printf("offset to inode_name_offset bytetable:  %llu\n", inode_name_offset_rd.fsoffset);
-		printf("offset to inode_num_entries bytetable:  %llu\n", inode_num_entries_rd.fsoffset);
-		printf("offset to inode_mode_index bytetable:   %llu\n", inode_mode_index_rd.fsoffset);
-		printf("offset to inode_array_index bytetable:  %llu\n", inode_array_index_rd.fsoffset);
-		printf("offset to modes bytetable:              %llu\n", modes_rd.fsoffset);
-		printf("offset to uids bytetable:               %llu\n", uids_rd.fsoffset);
-		printf("offset to gids bytetable:               %llu\n", gids_rd.fsoffset);
-		printf("offset to zero padding:                 %llu\n", xippadding_rd.fsoffset);
-		printf("offset to xip data:                     %llu\n", xip_rd.fsoffset);
-		printf("offset to byte_aligned data:            %llu\n", byte_aligned_rd.fsoffset);
-		printf("offset to compressed data:              %llu\n", compressed_rd.fsoffset);
-		printf("offset to strings data:                 %llu\n", strings_rd.fsoffset);
-		printf("offset to zero padding:                 %llu\n", endpadding_rd.fsoffset);
+		printf("offset to node_type bytetable:          %llu\n", (long long unsigned int)node_type_rd.fsoffset);
+		printf("offset to node_index bytetable:	        %llu\n", (long long unsigned int)node_index_rd.fsoffset);
+		printf("offset to cnode_offset bytetable:       %llu\n", (long long unsigned int)cnode_offset_rd.fsoffset);
+		printf("offset to cnode_index bytetable:        %llu\n", (long long unsigned int)cnode_index_rd.fsoffset);
+		printf("offset to banode_offset bytetable:      %llu\n", (long long unsigned int)banode_offset_rd.fsoffset);
+		printf("offset to cblock_offset bytetable:      %llu\n", (long long unsigned int)cblock_offset_rd.fsoffset);
+		printf("offset to inode_file_size bytetable:    %llu\n", (long long unsigned int)inode_file_size_rd.fsoffset);
+		printf("offset to inode_name_offset bytetable:  %llu\n", (long long unsigned int)inode_name_offset_rd.fsoffset);
+		printf("offset to inode_num_entries bytetable:  %llu\n", (long long unsigned int)inode_num_entries_rd.fsoffset);
+		printf("offset to inode_mode_index bytetable:   %llu\n", (long long unsigned int)inode_mode_index_rd.fsoffset);
+		printf("offset to inode_array_index bytetable:  %llu\n", (long long unsigned int)inode_array_index_rd.fsoffset);
+		printf("offset to modes bytetable:              %llu\n", (long long unsigned int)modes_rd.fsoffset);
+		printf("offset to uids bytetable:               %llu\n", (long long unsigned int)uids_rd.fsoffset);
+		printf("offset to gids bytetable:               %llu\n", (long long unsigned int)gids_rd.fsoffset);
+		printf("offset to zero padding:                 %llu\n", (long long unsigned int)xippadding_rd.fsoffset);
+		printf("offset to xip data:                     %llu\n", (long long unsigned int)xip_rd.fsoffset);
+		printf("offset to byte_aligned data:            %llu\n", (long long unsigned int)byte_aligned_rd.fsoffset);
+		printf("offset to compressed data:              %llu\n", (long long unsigned int)compressed_rd.fsoffset);
+		printf("offset to strings data:                 %llu\n", (long long unsigned int)strings_rd.fsoffset);
+		printf("offset to zero padding:                 %llu\n", (long long unsigned int)endpadding_rd.fsoffset);
 		printf("\n");
 	}
 	printf("Total image size:                       %lu\n", (long unsigned int)size);
