@@ -1,42 +1,121 @@
+
 How to Build
---------------------
-1. "cd mkfs.axfs"
-2. "make"
+------------------------------------------------------------------------
+Requires zlib development package (headers)
+
+Just type 'make' to build.
+
 
 Usage Notes
---------------------
-1. "./mkfs.axfs [-h] [-i infile] indir outfile"
+------------------------------------------------------------------------
 
- -h         print this help
- -i infile  input file of the XIP information
- dirname    root of the directory tree to be compressed
- outfile    output file
+usage: mkfs.axfs [OPTION]... dirname outfile
+ -h            print this help
+ -i infile     input file of the XIP information
+ -n outfile    output inode number/name list
+ -s            run silently
+ -a            xip all files (no input file needed)
+ -e            for any file in '-i infile', xip the entire file automatically
+ dirname       root of the directory tree to be compressed
+ outfile       output file
 
 
-About the Input File
---------------------
-The input file is a CSV table containing three values in the following
-format:
 
-entry := path,offset,count\n
+About the 'infile' File
+------------------------------------------------------------------------
+The input file is used to specify what pages in what files you want to
+be marked for XIP. For anything not in this file, those page will be
+compressed.
+The input file is a CSV list containing three values in the following format:
 
-Path is relative to the root of the filesystem image, prepended
+path,offset,count
+
+'path' is relative to the root of the filesystem image, perpended
 with a . for purposes of later image generation.
 
-Offset is the number of bytes into the file where the 4KByte page to be
+'offset' is the number of bytes into the file where the 4KByte page to be
 included in the XIP region is located.
 
-Count indicates the number of times the page was accessed.
+'count' indicates the number of times the page was accessed. This is from the
+output of the profiling tool in the driver. This value is not really used in
+the creation of the AXFS image.
 
-The AXFS Profiling driver will generate a format immediately usable in
-the imagebuilder.
 
-CHANGES
---------------------
-Aug. 17, 2008
+Example input file: (xip_sections.csv)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bin/busybox,0,103
+bin/busybox,4096,103
+bin/busybox,8192,103
+bin/busybox,12288,103
+bin/busybox,16384,103
+lib/ld-2.23.so,0,113
+lib/ld-2.23.so,4096,113
+lib/ld-2.23.so,8192,113
+lib/libc-2.23.so,0,113
+lib/libc-2.23.so,4096,113
+lib/libc-2.23.so,8192,113
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Completed the removal of XML input support for filesystem profiles. The
-image builder now only supports CSV table input.
+
+Generating the CSV file
+------------------------------------------------------------------------
+When profiling is enabled in the driver, each time a page fault occurs, the driver
+records what file it was and what address/page it was. You can then read out that
+record directly into a .csv file which can be passed to mkfs.axfs.
+Below is the procedure.
+
+1. Enable CONFIG_AXFS_PROFILING=y in the kernel
+
+2. Create an AXFS image with NO XIP pages. The reason is you want to see how many times
+   each page are the result of page fault.
+
+3. Boot the kernel and run your application in its normal operating condition.
+
+4. Read out the report to a file:
+
+   $ cat /proc/axfs/volume0 > /tmp/xip_sections.csv
+
+5. Transfer the xip_sections.csv file from the board to your development PC
+
+6. Run mkfs.axfs again on the same root file system with NO CHANGES to the
+   binaries that you used for profiling since the page fault report was specifically
+   for those binaries. However, this time pass your .csv file as teh 'input' file
+
+7 Disable CONFIG_AXFS_PROFILING in the kenel config (since it adds additional RAM and
+  processing)
+
+8. Reprogram kernel and rootfs.axfs and boot.
+
+
+
+Automatically selecting all XIP option
+------------------------------------------------------------------------
+When the '-a' option is used, then the input file is not specified and
+all executable ELF files (applications and libraries) will be automatically
+selected for XIP.
+
+
+Selecting XIP file by file
+------------------------------------------------------------------------
+When the '-e' option is used, then the input file is still read, but instead of listing
+each page to be XIP-ed in the file, you just need to specify the file itself.
+The advantage is that you do not have to use the profiling tool in the driver.
+The disadvantage is that the entire file will be XIP (uncompressed) and the AXFS image
+will be larger and take up more flash.
+
+The 'offset' and 'count' parameters are ignored.
+
+Example input file: (xip_files.csv)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bin/busybox,0,1
+lib/debug/libstdc++.so.6.0.22,0,1
+lib/ld-2.23.so,0,1
+lib/libc-2.23.so,0,1
+lib/libm-2.23.so,0,1
+lib/libgcc_s.so.1,0,1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 
 TODO
 --------------------

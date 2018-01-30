@@ -298,15 +298,15 @@ static void usage(int status)
 {
 	FILE *stream = status ? stderr : stdout;
 
-	fprintf(stream, "usage: %s [-h] [-i infile] dirname outfile\n"
+	fprintf(stream, "usage: %s [OPTION]... dirname outfile\n"
 		" -h            print this help\n"
 		" -i infile     input file of the XIP information\n"
 		" -n outfile    output inode number/name list\n"
 		" -s            run silently\n"
 		" -a            xip all files (no input file needed)\n"
 		" -e            for any file in '-i infile', xip the entire file automatically\n"
-		" dirname	root of the directory tree to be compressed\n"
-		" outfile	output file\n", progname);
+		" dirname       root of the directory tree to be compressed\n"
+		" outfile       output file\n", progname);
 
 	exit(status);
 }
