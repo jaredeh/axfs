@@ -589,8 +589,10 @@ static int do_dax_noblk_fault(struct vm_area_struct *vma, struct vm_fault *vmf,
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,5,0)
 	error = vm_insert_mixed(vma, (unsigned long)vmf->virtual_address, pfn);
-#else
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(4,10,0)
 	error = vm_insert_mixed(vma, (unsigned long)vmf->virtual_address, __pfn_to_pfn_t(pfn, PFN_DEV));
+#else
+	error = vm_insert_mixed(vma, (unsigned long)vmf->address, __pfn_to_pfn_t(pfn, PFN_DEV));
 #endif
 
 	i_mmap_unlock_read(mapping);
@@ -646,12 +648,19 @@ int xip_file_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
  *    0 or error number
  *
  *****************************************************************************/
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
 static int axfs_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
+#else
+static int axfs_fault(struct vm_fault *vmf)
+#endif
 #else
 static struct page *axfs_nopage(struct vm_area_struct *vma,
 				unsigned long address, int *type)
 #endif
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,11,0)
+	struct vm_area_struct *vma = vmf->vma;
+#endif
 	struct file *file = vma->vm_file;
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,10,0)
 	struct inode *inode = file_inode(file);
@@ -701,7 +710,9 @@ static struct page *axfs_nopage(struct vm_area_struct *vma,
 		return xip_file_nopage(vma, address, type);
 #endif
 #endif
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,22)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,11,0)
+	return filemap_fault(vmf);
+#elif LINUX_VERSION_CODE > KERNEL_VERSION(2,6,22)
 	return filemap_fault(vma, vmf);
 #else
 	return filemap_nopage(vma, address, type);
