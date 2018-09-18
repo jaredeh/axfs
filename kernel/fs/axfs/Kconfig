@@ -1,5 +1,6 @@
 config AXFS
 	tristate "Advanced XIP File System (AXFS) support (EXPERIMENTAL)"
+	depends on MMU
 	select FS_XIP
 	select ZLIB_INFLATE
 	default n
