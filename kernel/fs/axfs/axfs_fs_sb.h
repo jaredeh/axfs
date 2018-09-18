@@ -83,7 +83,11 @@ struct axfs_super {
 	u8 profiling_on;	/* Determines if profiling is on or off */
 	u8 mtd_pointed;
 	u8 compression_type;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,18,0)
 	struct timespec timestamp;
+#else
+	struct timespec64 timestamp;
+#endif
 	u8 page_shift;
 	void *profile_man;
 };
