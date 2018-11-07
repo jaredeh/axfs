@@ -542,7 +542,11 @@ static int do_dax_noblk_fault(struct vm_area_struct *vma, struct vm_fault *vmf,
 	struct inode *inode = mapping->host;
 	struct page *page;
 	pgoff_t size;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,20,0)
 	int error;
+#else
+	vm_fault_t error;
+#endif
 	int major = 0;
 
 	size = (i_size_read(inode) + PAGE_SIZE - 1) >> PAGE_SHIFT;
@@ -567,7 +571,11 @@ static int do_dax_noblk_fault(struct vm_area_struct *vma, struct vm_fault *vmf,
 			 * We have a struct page covering a hole in the file
 			 * from a read fault and we've raced with a truncate
 			 */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,20,0)
 			error = -EIO;
+#else
+			error = VM_FAULT_SIGBUS;
+#endif
 			goto unlock_page;
 		}
 	}
@@ -591,19 +599,25 @@ static int do_dax_noblk_fault(struct vm_area_struct *vma, struct vm_fault *vmf,
 	error = vm_insert_mixed(vma, (unsigned long)vmf->virtual_address, pfn);
 #elif LINUX_VERSION_CODE < KERNEL_VERSION(4,10,0)
 	error = vm_insert_mixed(vma, (unsigned long)vmf->virtual_address, __pfn_to_pfn_t(pfn, PFN_DEV));
-#else
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(4,20,0)
 	error = vm_insert_mixed(vma, (unsigned long)vmf->address, __pfn_to_pfn_t(pfn, PFN_DEV));
+#else
+	error = vmf_insert_mixed(vma, (unsigned long)vmf->address, __pfn_to_pfn_t(pfn, PFN_DEV));
 #endif
 
 	i_mmap_unlock_read(mapping);
 
  out:
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,20,0)
 	if (error == -ENOMEM)
 		return VM_FAULT_OOM | major;
 	/* -EBUSY is fine, somebody else faulted on the same PTE */
 	if ((error < 0) && (error != -EBUSY))
 		return VM_FAULT_SIGBUS | major;
 	return VM_FAULT_NOPAGE | major;
+#else
+	return error | major;
+#endif
 
  unlock_page:
 	if (page) {
