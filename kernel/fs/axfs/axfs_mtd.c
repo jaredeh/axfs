@@ -23,6 +23,9 @@
 #include <linux/mount.h>
 #include <linux/ctype.h>
 #include <linux/namei.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
+#include <uapi/linux/mount.h>
+#endif
 
 #ifdef CONFIG_MTD
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,21)

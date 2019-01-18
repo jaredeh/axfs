@@ -29,6 +29,9 @@
 #include <linux/module.h>
 #include <linux/mount.h>
 #include <linux/mtd/mtd.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,0,0)
+#include <uapi/linux/mount.h>
+#endif
 
 static struct super_operations axfs_sops;
 
