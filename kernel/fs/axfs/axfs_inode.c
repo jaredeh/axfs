@@ -534,8 +534,11 @@ out:
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,19,0)
 
-static int do_dax_noblk_fault(struct vm_area_struct *vma, struct vm_fault *vmf,
-			unsigned long pfn)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,1,0)
+static vm_fault_t do_dax_noblk_fault(struct vm_area_struct *vma, struct vm_fault *vmf,	unsigned long pfn)
+#else
+static int do_dax_noblk_fault(struct vm_area_struct *vma, struct vm_fault *vmf,	unsigned long pfn)
+#endif
 {
 	struct file *file = vma->vm_file;
 	struct address_space *mapping = file->f_mapping;
@@ -627,17 +630,19 @@ static int do_dax_noblk_fault(struct vm_area_struct *vma, struct vm_fault *vmf,
 	goto out;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,1,0)
+vm_fault_t xip_file_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
+#else
 int xip_file_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
+#endif
 {
-	int result;
 	struct file *file = vma->vm_file;
 	struct address_space *mapping = file->f_mapping;
 	unsigned long pfn;
 	void *kaddr;
 	axfs_get_xip_mem(mapping, vmf->pgoff, 0, &kaddr, &pfn);
-	result = do_dax_noblk_fault(vma, vmf, pfn);
 
-	return result;
+	return do_dax_noblk_fault(vma, vmf, pfn);
 }
 #endif
 
@@ -664,8 +669,10 @@ int xip_file_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
  *****************************************************************************/
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
 static int axfs_fault(struct vm_area_struct *vma, struct vm_fault *vmf)
-#else
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,1,0)
 static int axfs_fault(struct vm_fault *vmf)
+#else
+static vm_fault_t axfs_fault(struct vm_fault *vmf)
 #endif
 #else
 static struct page *axfs_nopage(struct vm_area_struct *vma,
